@@ -47,6 +47,7 @@ input,textarea{font-family:var(--f)}
 .pb input:focus{outline:none;border-color:var(--pr);box-shadow:0 0 0 3px var(--pr2)}
 .pb .nt{font-size:.72rem;color:var(--tx3)}
 .sp{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:16px;margin-bottom:16px}
+.sp.res{margin-top:20px;border:2px solid var(--pr);box-shadow:var(--sh)}
 .sp .sh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;flex-wrap:wrap;gap:8px}
 .sp .st{font-size:.84rem;font-weight:600;color:var(--tx2)}
 .sp .sv{font-size:1.9rem;font-weight:800;letter-spacing:-.02em}
@@ -2861,39 +2862,42 @@ function buildAll(){
 function buildScaleHTML(sc){
   var h='';
   h+='<div class="pb"><label>氏名</label><input type="text" class="pn" placeholder="患者氏名を入力" value=""><span class="nt">※ QRコードには含まれません。この端末に一時保存されます。検査終了（QR生成）またはリセット時に自動的に消去されます。</span></div>';
-  h+='<div class="sp" id="p-'+sc.id+'">';
-  h+='<div class="sh"><span class="st">'+sc.name+' スコア</span>';
-  h+='<span class="sv" id="v-'+sc.id+'">—<span class="mx"> / '+sc.maxScore+'点</span></span></div>';
-  h+='<div class="pbar"><div class="pfill" id="f-'+sc.id+'" style="width:0;background:var(--bd)"></div></div>';
-  h+='<div id="j-'+sc.id+'"></div>';
-  h+='<div class="ua" id="u-'+sc.id+'"></div>';
+  // スコアパネル（p）は全項目の下に置く。最後まで回答してから結果を見る流れにするため。
+  var p='';
+  p+='<div class="sp res" id="p-'+sc.id+'">';
+  p+='<div class="sh"><span class="st">'+sc.name+' スコア</span>';
+  p+='<span class="sv" id="v-'+sc.id+'">—<span class="mx"> / '+sc.maxScore+'点</span></span></div>';
+  p+='<div class="pbar"><div class="pfill" id="f-'+sc.id+'" style="width:0;background:var(--bd)"></div></div>';
+  p+='<div id="j-'+sc.id+'"></div>';
+  p+='<div class="ua" id="u-'+sc.id+'"></div>';
   if(sc.subscales&&Object.keys(sc.subscales).length>0&&sc.id!=='hads'){
-    h+='<div class="sgs">';
+    p+='<div class="sgs">';
     var sk=Object.keys(sc.subscales);
     for(var s=0;s<sk.length;s++){
       var ssn=sk[s],ss=sc.subscales[ssn];
-      h+='<div class="sg"><div class="gl">'+ssn+'</div><div class="gv" id="g-'+sc.id+'-'+ssn+'">—/'+ss.max+'</div></div>';
+      p+='<div class="sg"><div class="gl">'+ssn+'</div><div class="gv" id="g-'+sc.id+'-'+ssn+'">—/'+ss.max+'</div></div>';
     }
-    h+='</div>';
+    p+='</div>';
   }
   if(sc.id==='hads'){
-    h+='<div class="sgs">';
-    h+='<div class="sg"><div class="gl">不安 (A)</div><div class="gv" id="g-hads-A">—/21</div></div>';
-    h+='<div class="sg"><div class="gl">抑うつ (D)</div><div class="gv" id="g-hads-D">—/21</div></div>';
-    h+='</div>';
+    p+='<div class="sgs">';
+    p+='<div class="sg"><div class="gl">不安 (A)</div><div class="gv" id="g-hads-A">—/21</div></div>';
+    p+='<div class="sg"><div class="gl">抑うつ (D)</div><div class="gv" id="g-hads-D">—/21</div></div>';
+    p+='</div>';
   }
   if(sc.id==='startback'){
-    h+='<div class="sgs">';
-    h+='<div class="sg"><div class="gl">総合得点</div><div class="gv" id="g-startback-total">—/9</div></div>';
-    h+='<div class="sg"><div class="gl">領域得点</div><div class="gv" id="g-startback-sub">—/5</div></div>';
-    h+='</div>';
+    p+='<div class="sgs">';
+    p+='<div class="sg"><div class="gl">総合得点</div><div class="gv" id="g-startback-total">—/9</div></div>';
+    p+='<div class="sg"><div class="gl">領域得点</div><div class="gv" id="g-startback-sub">—/5</div></div>';
+    p+='</div>';
   }
-  h+='</div>';
+  p+='</div>';
   h+='<div class="scale-desc">'+sc.desc+'</div>';
   if(sc.type==='likert')h+=buildLikertItems(sc);
   else if(sc.type==='nrs')h+=buildNRSItems(sc);
   else if(sc.type==='custom'&&sc.id==='hads')h+=buildHADSItems(sc);
   else if(sc.type==='binary')h+=buildStartBackItems(sc);
+  h+=p;
   h+='<div class="acts">';
   h+='<button class="btn b1" onclick="genQR(\''+sc.id+'\')">QRコードを生成</button>';
   h+='<button class="btn b3" onclick="cpTxt(\''+sc.id+'\')">テキストをコピー</button>';
