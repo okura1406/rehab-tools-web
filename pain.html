@@ -88,6 +88,9 @@ input,textarea{font-family:var(--f)}
 .b3{background:var(--sf2);color:var(--tx);border:1px solid var(--bd)}.b3:hover{background:var(--bd2)}
 .qa{margin-top:24px;text-align:center}
 .qw{display:inline-block;padding:20px;background:#fff;border-radius:var(--r);border:1px solid var(--bd);box-shadow:var(--sh)}
+.qwrap{margin-bottom:14px}
+.qnum{font-size:.8rem;color:var(--pr3);font-weight:700;margin-bottom:10px;letter-spacing:.02em}
+.qmulti{background:var(--pr2);color:var(--pr3);padding:10px 14px;border-radius:8px;font-size:.82rem;margin-bottom:14px;text-align:left;border:1px solid #bfdbfe;line-height:1.6}
 .qt{margin-top:14px;text-align:left;background:var(--sf2);border:1px solid var(--bd);border-radius:var(--r);padding:14px;font-size:.8rem;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;line-height:1.6;color:var(--tx2)}
 .qwn{background:var(--yw2);color:#92400e;padding:10px 14px;border-radius:8px;font-size:.82rem;margin-bottom:14px;text-align:left;border:1px solid #fde68a}
 .tst{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;padding:10px 24px;border-radius:24px;font-size:.85rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:200}
@@ -2656,8 +2659,16 @@ var SCALES = {
     ],
     subscales:{},
     judge:function(s){return{l:'',c:''};},
+    // カルテ記載用に各項目の点数も出力する。
+    // 情報量が多くQRコード1枚には収まらないため、表示側（genQR）が自動で複数枚に分割する。
     qrTpl:function(r){
-      return '◆SSEQ\r\n合計：'+r.total+'/130点';
+      var its=SCALES.sseq.items;
+      var t='◆SSEQ　合計：'+r.total+'/130点\r\n';
+      for(var i=0;i<its.length;i++){
+        var v=ANS['sseq_q'+i];
+        t+='　'+(i+1)+'. '+its[i]+'：'+(v===undefined?'—':v)+'\r\n';
+      }
+      return t.slice(0,-2);
     }
   }
 };
@@ -3127,6 +3138,33 @@ function showTab(id){
 }
 
 // ========== QR ==========
+// QRコード1枚あたりの目安文字数。これを超えるテキストは複数枚に分割する。
+// 1枚に詰め込むとマス目が細かくなり、スマホのカメラで読み取りにくくなるため。
+var QR_MAX_CHARS=120;
+
+// テキストを行単位で複数のQRコード用に分割する。
+// 1行目（◆尺度名 合計…）は各枚に付け直し、どの枚も単独で何の評価か分かるようにする。
+function splitTextForQR(txt){
+  if(txt.length<=QR_MAX_CHARS)return[txt];
+  var lines=txt.split('\r\n');
+  var head=lines[0];
+  var rest=lines.slice(1);
+  var parts=[],cur=[],curLen=0;
+  var headRoom=head.length+8;               // ヘッダと「（1/3）」の分を差し引く
+  for(var i=0;i<rest.length;i++){
+    var L=rest[i];
+    if(cur.length&&curLen+L.length+2+headRoom>QR_MAX_CHARS){parts.push(cur);cur=[];curLen=0}
+    cur.push(L);curLen+=L.length+2;
+  }
+  if(cur.length)parts.push(cur);
+  if(parts.length<=1)return[txt];
+  var out=[];
+  for(var p=0;p<parts.length;p++){
+    out.push(head+'（'+(p+1)+'/'+parts.length+'）\r\n'+parts[p].join('\r\n'));
+  }
+  return out;
+}
+
 function genQR(scaleId){
   var sc=SCALES[scaleId];
   var r=calcScore(scaleId);
@@ -3151,10 +3189,16 @@ function genQR(scaleId){
     }
     txt=sc.qrTpl(rr3);
   }
+  var parts=splitTextForQR(txt);
   var area=E('qr-'+scaleId);
   var h='';
   if(r.unanswered>0)h+='<div class="qwn">⚠ 未回答の項目が'+r.unanswered+'件あります。</div>';
-  h+='<div class="qw"><canvas id="cv-'+scaleId+'"></canvas></div>';
+  if(parts.length>1)h+='<div class="qmulti">項目数が多いため、QRコードを<b>'+parts.length+'枚</b>に分けています。<b>1枚目から順に</b>読み取ってください。</div>';
+  for(var p=0;p<parts.length;p++){
+    h+='<div class="qwrap"><div class="qw">';
+    if(parts.length>1)h+='<div class="qnum">'+(p+1)+' / '+parts.length+' 枚目</div>';
+    h+='<canvas id="cv-'+scaleId+'-'+p+'"></canvas></div></div>';
+  }
   h+='<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">';
   h+='<button class="btn b3" onclick="cpTxt(\''+scaleId+'\')">テキストをコピー</button>';
   h+='<button class="btn b2" id="clr-'+scaleId+'" onclick="requestClearDraft(\''+scaleId+'\')">入力データを消去する</button>';
@@ -3162,11 +3206,13 @@ function genQR(scaleId){
   h+='<div class="qt" id="qt-'+scaleId+'">'+esc(txt)+'</div>';
   area.innerHTML=h;
   try{
-    var qr=qrcode(0,'M');qr.addData(txt);qr.make();
-    var mc=qr.getModuleCount(),cs=Math.max(4,Math.min(8,Math.floor(280/mc))),mg=cs*4,sz=mc*cs+mg*2;
-    var cv=E('cv-'+scaleId);cv.width=sz;cv.height=sz;
-    var ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,sz,sz);ctx.fillStyle='#000';
-    for(var r2=0;r2<mc;r2++)for(var c=0;c<mc;c++){if(qr.isDark(r2,c))ctx.fillRect(mg+c*cs,mg+r2*cs,cs,cs)}
+    for(var p2=0;p2<parts.length;p2++){
+      var qr=qrcode(0,'M');qr.addData(parts[p2]);qr.make();
+      var mc=qr.getModuleCount(),cs=Math.max(4,Math.min(8,Math.floor(280/mc))),mg=cs*4,sz=mc*cs+mg*2;
+      var cv=E('cv-'+scaleId+'-'+p2);cv.width=sz;cv.height=sz;
+      var ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,sz,sz);ctx.fillStyle='#000';
+      for(var r2=0;r2<mc;r2++)for(var c=0;c<mc;c++){if(qr.isDark(r2,c))ctx.fillRect(mg+c*cs,mg+r2*cs,cs,cs)}
+    }
   }catch(e){area.innerHTML+='<div style="color:var(--rd);margin-top:8px;font-size:.82rem">QRコード生成エラー: '+esc(e.message||String(e))+'</div>'}
 }
 
