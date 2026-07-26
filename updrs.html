@@ -37,22 +37,21 @@ header{position:sticky;top:0;z-index:30;background:var(--surface);border-bottom:
 .title-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .title-row h1{font-size:17px;margin:0;letter-spacing:.02em}
 .title-row .sub{font-size:11px;color:var(--ink-2)}
-.hdr-toggle{margin-left:auto;flex:0 0 auto;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2);
-  border-radius:8px;padding:5px 11px;font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap}
-.hdr-toggle .caret{display:inline-block;margin-right:4px;transition:transform .15s}
-body.compact .hdr-toggle .caret{transform:rotate(-90deg)}
-body.compact .pt-row,body.compact .totbar,body.compact .store-note{display:none}
+/* 氏名・スコアの表示切替：ヘッダーを横にスワイプして行う（ボタンなし） */
+.head-in{touch-action:pan-y}
+.priv{transition:transform .18s ease,opacity .18s ease}
+body.hide-info .priv{display:none}
+.swipe-hint{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:11px;color:var(--ink-2);
+  -webkit-user-select:none;user-select:none;line-height:1.4}
+.swipe-hint .ar{flex:0 0 auto;font-size:13px;color:var(--primary)}
+.swipe-hint .gr{flex:0 0 auto;width:26px;height:4px;border-radius:2px;background:var(--line)}
+body.hide-info .swipe-hint{margin-top:4px;font-weight:700;color:var(--primary)}
 .pt-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:flex-end}
 .field{display:flex;flex-direction:column;gap:3px}
 .field label{font-size:10px;color:var(--ink-2);font-weight:700;letter-spacing:.03em}
 .field input{border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:15px;font-family:inherit;background:var(--surface-2);width:210px}
 .pt-note{font-size:10px;color:var(--ink-2);background:var(--chip-bg);padding:4px 8px;border-radius:999px;align-self:center}
 .store-note{font-size:10px;color:var(--ink-2);margin-top:6px;line-height:1.45}
-.mini-sum{display:none;gap:10px;align-items:baseline;flex-wrap:wrap;margin-top:6px;font-size:11.5px;color:var(--ink-2)}
-body.compact .mini-sum{display:flex}
-.mini-sum .nm{font-weight:700;color:var(--ink);font-size:13px}
-.mini-sum .sc{font-variant-numeric:tabular-nums;background:var(--chip-bg);border-radius:999px;padding:2px 9px;font-weight:700;color:var(--primary)}
-
 .totbar{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
 .tot{flex:1 1 0;min-width:96px;background:var(--surface-2);border:1px solid var(--line-2);border-radius:9px;padding:6px 8px;text-align:center}
 .tot .k{font-size:9.5px;color:var(--ink-2);font-weight:700;letter-spacing:.04em}
@@ -196,17 +195,16 @@ footer{max-width:820px;margin:22px auto 0;padding:0 14px;font-size:10.5px;color:
     <div class="title-row">
       <h1 id="appTitle">評価尺度 入力ツール</h1>
       <span class="sub" id="appSub"></span>
-      <button class="hdr-toggle" id="hdrToggle" type="button" aria-expanded="true">
-        <span class="caret">▼</span><span class="tgl-lab">氏名・スコアを隠す</span>
-      </button>
     </div>
-    <div class="mini-sum" id="miniSum"></div>
-    <div class="pt-row">
-      <div class="field"><label>患者氏名</label><input id="ptName" type="text" placeholder="例）山田 太郎" autocomplete="off"></div>
-      <span class="pt-note">氏名はQRコードには含まれません</span>
+    <div class="priv" id="priv">
+      <div class="pt-row">
+        <div class="field"><label>患者氏名</label><input id="ptName" type="text" placeholder="例）山田 太郎" autocomplete="off"></div>
+        <span class="pt-note">氏名はQRコードには含まれません</span>
+      </div>
+      <div class="store-note">この端末に入力内容が一時保存されています。カルテ転記が完了したら、QR生成後に表示される消去ボタン、またはリセットで消去してください。<span id="slotTag"></span></div>
+      <div class="totbar" id="totbar"></div>
     </div>
-    <div class="store-note">この端末に入力内容が一時保存されています。カルテ転記が完了したら、QR生成後に表示される消去ボタン、またはリセットで消去してください。<span id="slotTag"></span></div>
-    <div class="totbar" id="totbar"></div>
+    <div class="swipe-hint" id="swipeHint" aria-live="polite"><span class="gr"></span><span class="ar">◀</span><span class="tx"></span></div>
   </div>
 </header>
 
@@ -3017,10 +3015,6 @@ function updateAll(){
   });
   html+='<div class="tot grand"><div class="k">合計</div><div class="v">'+(gAns>0?grand:'—')+'</div><div class="m">'+gAns+'/'+gTot+'</div></div>';
   document.getElementById('totbar').innerHTML=html;
-  var ms=document.getElementById('miniSum');
-  var mh=''; if(patientName) mh+='<span class="nm">'+escapeHtml(patientName)+'</span>';
-  mh+='<span class="sc">合計 <b>'+(gAns>0?grand:'—')+'</b></span><span>回答 '+gAns+'/'+gTot+'</span>';
-  ms.innerHTML=mh;
   renderSummary();
   refreshSelector();
 }
@@ -3191,11 +3185,69 @@ function getActiveTab(){ var s=document.querySelector('.tab[aria-selected="true"
 /* =====================================================================
    起動
    ===================================================================== */
-document.getElementById('hdrToggle').addEventListener('click',function(){
-  var c=document.body.classList.toggle('compact');
-  this.setAttribute('aria-expanded',c?'false':'true');
-  this.querySelector('.tgl-lab').textContent=c?'氏名・スコアを表示':'氏名・スコアを隠す';
-});
+/* 氏名・スコアの表示/非表示：ヘッダーを横にスワイプして切り替える。
+   患者の前で画面を見せるときに素早く隠せるようにするため、ボタンではなくスワイプ操作とした。
+   左スワイプで隠す／右スワイプで表示。マウスでの左右ドラッグでも同じ動作をする。 */
+(function(){
+  var head=document.querySelector('.head-in');
+  var priv=document.getElementById('priv');
+  var hint=document.getElementById('swipeHint');
+  var TXT_SHOWN='左にスワイプすると氏名・スコアを隠せます';
+  var TXT_HIDDEN='氏名・スコアを非表示中　右にスワイプすると表示します';
+  var THRESHOLD=50;   // これ以上動かしたら切り替える（px）
+  var sx=0,sy=0,dragging=false,decided=false;
+
+  function hidden(){ return document.body.classList.contains('hide-info'); }
+  function clearDrag(){ priv.style.transform=''; priv.style.opacity=''; }
+  function paint(){
+    var h=hidden();
+    hint.querySelector('.ar').textContent=h?'▶':'◀';
+    hint.querySelector('.tx').textContent=h?TXT_HIDDEN:TXT_SHOWN;
+  }
+  function setHidden(h){
+    document.body.classList.toggle('hide-info',h);
+    clearDrag(); paint();
+  }
+  function fromInput(t){ return !!(t&&t.closest&&t.closest('input,textarea,select,button,a')); }
+
+  function start(x,y,t){
+    if(fromInput(t))return;
+    dragging=true; decided=false; sx=x; sy=y;
+    priv.style.transition='none';
+  }
+  function move(x,y,ev){
+    if(!dragging)return;
+    var dx=x-sx, dy=y-sy;
+    if(!decided){
+      if(Math.abs(dx)<8&&Math.abs(dy)<8)return;
+      if(Math.abs(dy)>=Math.abs(dx)){ dragging=false; priv.style.transition=''; return; }  // 縦方向はページのスクロールに任せる
+      decided=true;
+    }
+    if(ev&&ev.cancelable)ev.preventDefault();
+    if(!hidden()&&dx<0){   // 隠す方向のみ指の動きに追従させる
+      priv.style.transform='translateX('+Math.max(dx,-120)+'px)';
+      priv.style.opacity=String(Math.max(0,1+dx/150));
+    }
+  }
+  function end(x){
+    if(!dragging)return;
+    dragging=false; priv.style.transition='';
+    var dx=x-sx;
+    if(!decided){ clearDrag(); return; }
+    if(dx<=-THRESHOLD&&!hidden())     setHidden(true);
+    else if(dx>=THRESHOLD&&hidden())  setHidden(false);
+    else clearDrag();
+  }
+
+  head.addEventListener('touchstart',function(e){var t=e.touches[0];start(t.clientX,t.clientY,e.target)},{passive:true});
+  head.addEventListener('touchmove',function(e){var t=e.touches[0];move(t.clientX,t.clientY,e)},{passive:false});
+  head.addEventListener('touchend',function(e){var t=e.changedTouches[0];end(t.clientX)});
+  head.addEventListener('touchcancel',function(){dragging=false;priv.style.transition='';clearDrag()});
+  head.addEventListener('mousedown',function(e){start(e.clientX,e.clientY,e.target)});
+  window.addEventListener('mousemove',function(e){move(e.clientX,e.clientY,null)});
+  window.addEventListener('mouseup',function(e){end(e.clientX)});
+  paint();
+})();
 document.getElementById('ptName').addEventListener('input',function(){
   patientName=this.value; updateAll(); scheduleSave();
 });
