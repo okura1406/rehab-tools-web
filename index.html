@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>リハ評価ツール</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#2563eb">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="評価ツール">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f5f0;--sf:#fff;--sf2:#fafaf7;
+  --tx:#1a1a1a;--tx2:#555;--tx3:#999;
+  --bd:#e0ddd5;--bd2:#eeece6;
+  --pr:#2563eb;--pr2:#dbeafe;--pr3:#1d4ed8;
+  --gn:#16a34a;--gn2:#dcfce7;
+  --yw:#ca8a04;--yw2:#fef9c3;
+  --r:10px;--sh:0 1px 4px rgba(0,0,0,.07);
+  --f:'Hiragino Kaku Gothic ProN','Hiragino Sans','Meiryo','Noto Sans JP',sans-serif;
+}
+body{
+  font-family:var(--f);background:var(--bg);color:var(--tx);
+  line-height:1.7;-webkit-text-size-adjust:100%;
+  padding:16px;padding-bottom:40px;
+}
+.wrap{max-width:600px;margin:0 auto}
+
+header{padding:12px 4px 20px}
+h1{font-size:1.35rem;font-weight:700;letter-spacing:.02em}
+.sub{font-size:.85rem;color:var(--tx2);margin-top:4px}
+
+/* オフライン状態の表示 */
+#netbar{
+  display:none;align-items:center;gap:8px;
+  background:var(--yw2);border:1px solid #e6d88a;color:#7a5c00;
+  border-radius:var(--r);padding:10px 14px;margin-bottom:16px;font-size:.85rem;
+}
+#netbar.show{display:flex}
+#netbar b{font-weight:700}
+
+/* ツール一覧 */
+.tools{display:flex;flex-direction:column;gap:12px}
+a.tool{
+  display:block;background:var(--sf);border:1px solid var(--bd);
+  border-radius:var(--r);box-shadow:var(--sh);
+  padding:18px 20px;text-decoration:none;color:inherit;
+  transition:transform .08s ease, box-shadow .15s ease;
+  -webkit-tap-highlight-color:rgba(37,99,235,.12);
+}
+a.tool:active{transform:scale(.99);box-shadow:0 0 0 rgba(0,0,0,0)}
+.tool .nm{font-size:1.1rem;font-weight:700;color:var(--pr);display:flex;align-items:center;gap:10px}
+.tool .nm::after{content:'›';margin-left:auto;font-size:1.5rem;color:var(--tx3);line-height:1}
+.tool .ds{font-size:.85rem;color:var(--tx2);margin-top:6px}
+.tool .tg{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+.tool .tg span{
+  font-size:.72rem;background:var(--pr2);color:var(--pr3);
+  border-radius:99px;padding:3px 10px;font-weight:600;
+}
+
+/* 使い方 */
+details.help{
+  margin-top:22px;background:var(--sf2);border:1px solid var(--bd2);
+  border-radius:var(--r);overflow:hidden;
+}
+details.help summary{
+  padding:14px 18px;font-weight:700;font-size:.92rem;cursor:pointer;
+  list-style:none;color:var(--tx);
+}
+details.help summary::-webkit-details-marker{display:none}
+details.help summary::after{content:'＋';float:right;color:var(--tx3);font-weight:400}
+details.help[open] summary::after{content:'−'}
+.help .body{padding:0 18px 18px;font-size:.87rem;color:var(--tx2)}
+.help h3{font-size:.9rem;color:var(--tx);margin:14px 0 6px}
+.help ol{margin-left:1.2em}
+.help li{margin:4px 0}
+.help .note{
+  background:var(--gn2);border-radius:8px;padding:10px 12px;margin-top:12px;
+  color:#14532d;font-size:.83rem;
+}
+footer{margin-top:28px;text-align:center;font-size:.75rem;color:var(--tx3);line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>リハ評価ツール</h1>
+    <p class="sub">スマートフォンで採点できる評価尺度ツール集です</p>
+  </header>
+
+  <div id="netbar">
+    <span>📴</span>
+    <div>現在<b>オフライン</b>です。保存済みのツールはこのまま使えます。</div>
+  </div>
+
+  <nav class="tools">
+
+    <a class="tool" href="battery.html">
+      <div class="nm">評価尺度ツール</div>
+      <div class="ds">複数の評価尺度をまとめて採点し、結果をコピーできます。</div>
+      <div class="tg"><span>SPPB</span><span>下書き自動保存</span></div>
+    </a>
+
+    <a class="tool" href="pain.html">
+      <div class="nm">疼痛評価ツール</div>
+      <div class="ds">疼痛の評価項目を入力し、記録用の文章を作成します。</div>
+      <div class="tg"><span>疼痛</span><span>下書き自動保存</span></div>
+    </a>
+
+    <a class="tool" href="design-r.html">
+      <div class="nm">DESIGN-R®2020</div>
+      <div class="ds">褥瘡の状態を評価し、合計点を自動計算します。</div>
+      <div class="tg"><span>褥瘡</span></div>
+    </a>
+
+  </nav>
+
+  <details class="help">
+    <summary>初回のみ設定してください（ホーム画面に追加）</summary>
+    <div class="body">
+      <p>ホーム画面に追加しておくと、<b>電波が届かない場所でもアプリのように起動</b>できます。院内の通信が不安定な場所で使う場合は、必ず設定してください。</p>
+
+      <h3>iPhone の場合</h3>
+      <ol>
+        <li>画面下の「共有」ボタン（□に↑）を押す</li>
+        <li>メニューを下にたどり「ホーム画面に追加」を押す</li>
+        <li>右上の「追加」を押す</li>
+      </ol>
+
+      <h3>Android の場合</h3>
+      <ol>
+        <li>画面右上の「︙」を押す</li>
+        <li>「ホーム画面に追加」または「アプリをインストール」を押す</li>
+        <li>「追加」「インストール」を押す</li>
+      </ol>
+
+      <div class="note">
+        <b>電波について：</b>このページを一度開いた時点で、ツールはスマートフォン内に保存されます。<b>採点中に電波が切れても、入力や計算は止まりません。</b>入力内容も自動的に下書き保存されます。
+      </div>
+    </div>
+  </details>
+
+  <details class="help">
+    <summary>取り扱いの注意</summary>
+    <div class="body">
+      <ul style="margin-left:1.2em">
+        <li>入力した内容は<b>スマートフォンの中だけに保存</b>され、インターネット上には送信されません。</li>
+        <li>共用端末で使った場合は、使用後に下書きを消してください。</li>
+        <li>このページは検索エンジンには表示されませんが、URLを知っていれば誰でも開けます。<b>患者氏名などの個人情報は入力しないでください。</b></li>
+      </ul>
+    </div>
+  </details>
+
+  <footer>
+    リハビリテーション部門<br>
+    <span id="ver"></span>
+  </footer>
+
+</div>
+
+<script>
+/* オフライン動作（Service Worker）の登録 */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
+
+/* 通信状態の表示 */
+(function(){
+  var bar = document.getElementById('netbar');
+  function upd(){
+    if(navigator.onLine){ bar.classList.remove('show'); }
+    else { bar.classList.add('show'); }
+  }
+  window.addEventListener('online', upd);
+  window.addEventListener('offline', upd);
+  upd();
+})();
+
+/* 最終更新日の表示 */
+document.getElementById('ver').textContent =
+  '最終更新 ' + new Date(document.lastModified).toLocaleDateString('ja-JP');
+</script>
+</body>
+</html>

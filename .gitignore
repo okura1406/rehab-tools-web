@@ -1,0 +1,28 @@
+# 個人情報を含むファイルの誤登録を防ぐための保険
+# （このフォルダには評価ツールのHTMLのみを置く方針）
+
+# Office 一時ファイル・実データ
+*.xlsm
+*.xlsx
+*.xls
+*.docx
+*.pdf
+~$*
+
+# 画像・スキャン（VF画像などの誤混入防止）
+*.jpg
+*.jpeg
+*.tif
+*.tiff
+*.bmp
+
+# 認証情報
+.env
+credentials.json
+token.json
+*.key
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store
