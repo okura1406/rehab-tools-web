@@ -171,15 +171,22 @@ main{padding-top:12px}
 .unans-warn.show{display:block}
 .qr-box{display:none;margin-top:12px}
 .qr-box.show{display:block}
-#qrcanvas{display:block;margin:0 auto;background:#fff;padding:14px;border:1px solid var(--line);border-radius:12px;image-rendering:pixelated}
-.qr-cap{text-align:center;font-size:11px;color:var(--ink-2);margin-top:6px}
-.erase-box{background:#fff7ed;border:1px solid #e8cf9a;border-radius:10px;padding:11px 12px;margin-top:14px}
+.qr-lead{font-size:12px;color:var(--ink-2);background:var(--surface);border:1px dashed var(--line);border-radius:10px;padding:9px 11px;margin-bottom:12px}
+/* PartごとのQRカード */
+.qr-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:13px 13px 14px;margin:0 0 14px}
+.qr-card .ch{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.qr-card .ch .nm{font-size:14.5px;font-weight:800}
+.qr-card .ch .sc{font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums;margin-left:auto}
+.qr-card canvas{display:block;margin:0 auto;background:#fff;padding:12px;border:1px solid var(--line);border-radius:10px;image-rendering:pixelated}
+.qr-card .cap{text-align:center;font-size:11px;color:var(--ink-2);margin-top:6px}
+.qr-card .fail{background:#fff7ed;border:1px solid #e8cf9a;color:#8a6218;border-radius:10px;padding:9px 11px;font-size:12px;font-weight:700}
+.qr-card .th{display:flex;justify-content:space-between;align-items:center;margin:14px 0 6px;gap:8px}
+.qr-card .th h3{font-size:12.5px;margin:0;color:var(--ink-2)}
+.qr-card textarea{width:100%;min-height:190px;border:1px solid var(--line);border-radius:10px;padding:11px;
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12px;line-height:1.5;background:var(--surface-2);color:var(--ink);resize:vertical;white-space:pre}
+.erase-box{background:#fff7ed;border:1px solid #e8cf9a;border-radius:10px;padding:11px 12px;margin-top:4px}
 .erase-box .t{font-size:12px;font-weight:700;margin-bottom:7px}
 .erase-box .d{font-size:11px;color:var(--ink-2);margin-bottom:9px}
-.qr-text-h{display:flex;justify-content:space-between;align-items:center;margin:18px 0 6px;gap:8px}
-.qr-text-h h3{font-size:13px;margin:0}
-#qrtext{width:100%;min-height:230px;border:1px solid var(--line);border-radius:10px;padding:12px;
-  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12px;line-height:1.5;background:var(--surface-2);color:var(--ink);resize:vertical;white-space:pre}
 footer{max-width:820px;margin:22px auto 0;padding:0 14px;font-size:10.5px;color:var(--ink-2);line-height:1.6}
 </style>
 </head>
@@ -2639,26 +2646,32 @@ var SCALES={
       if(score<=c[1]) return {key:'mod',label:'中等度'};
       return {key:'sev',label:'重度'};
     },
-    /* 仕様書 4-1：QRテンプレート関数 */
-    qrTemplate:function(st){
-      var L=[],sel=st.parts;
-      L.push('◆MDS-UPDRS 評価結果');
-      if(sel.length<4) L.push('（記載Part：'+sel.map(function(p){return 'Part'+ROMAN[p];}).join('・')+'）');
-      var grand=0,gAns=0,gTot=0;
-      sel.forEach(function(p){
-        var s=st.stats[p]; grand+=s.sum; gAns+=s.ans; gTot+=s.total;
-        var sec=sectionById(p);
-        L.push('【Part'+ROMAN[p]+' '+sec.short+'】小計'+(s.ans?s.sum:'—')+'/'+sec.maxScore
-               +'（回答'+s.ans+'/'+s.total+(s.ur?(' UR'+s.ur):'')+'）'
-               +(s.judge.key!=='none'?(' 判定:'+s.judge.label):''));
-        var meta=st.meta[p]; if(meta) L.push(meta);
-        L.push(st.lines[p]);
-        var post=st.post[p]; if(post) L.push(post);
-      });
-      L.push('━━━━━━━━━━');
-      var lab=(sel.length===4)?'合計スコア':('小計合算('+sel.map(function(p){return ROMAN[p];}).join('+')+')');
-      L.push(lab+':'+(gAns>0?grand:'—')+'（'+gTot+'項目中'+gAns+'項目回答, UR除外）');
+    /* 仕様書 4-1：QRテンプレート関数（Part単位）
+       QRはPartごとに分けて生成する。1つにまとめると情報量が多くなり、
+       QRの升目が細かくなって院内端末で読み取りにくくなるため。
+       明細は「1行1項目」にして、カルテ転記時にそのまま読めるようにする。 */
+    qrTemplatePart:function(st,p){
+      var s=st.stats[p], sec=sectionById(p), L=[];
+      L.push('◆MDS-UPDRS Part'+ROMAN[p]+'（'+sec.short+'）');
+      L.push('小計:'+(s.ans?s.sum:'—')+'/'+sec.maxScore
+             +'（回答'+s.ans+'/'+s.total+(s.ur?('・UR'+s.ur):'')+'）'
+             +(s.judge.key!=='none'?('　判定:'+s.judge.label):''));
+      var meta=st.meta[p]; if(meta) L.push(meta);
+      L.push('----------');
+      L=L.concat(st.lines[p]);            // 1行1項目
+      var post=st.post[p]; if(post){ L.push('----------'); L.push(post); }
+      /* 全4Partを選んだ場合のみ、最後のPartに全体合計を添える */
+      if(st.parts.length===4 && p===st.parts[st.parts.length-1]){
+        var g=st.grand;
+        L.push('----------');
+        L.push('全Part合計:'+(g.ans>0?g.sum:'—')+'/'+SCALE.maxScore+'（'+g.total+'項目中'+g.ans+'項目回答, UR除外）');
+      }
       return L.join('\n');
+    },
+    /* 全Partをまとめたテキスト（「すべてのテキストをコピー」用。QRには使わない） */
+    qrTemplate:function(st){
+      var self=this;
+      return st.parts.map(function(p){ return self.qrTemplatePart(st,p); }).join('\n\n');
     }
   }
 };
@@ -2924,18 +2937,16 @@ function buildSummaryPanel(){
   act.appendChild(gen); act.appendChild(rst); ps.appendChild(act);
 
   var qb=mk('div','qr-box'); qb.id='qrBox';
-  var cv=mk('canvas'); cv.id='qrcanvas'; qb.appendChild(cv);
-  qb.appendChild(mk('div','qr-cap','このQRに患者氏名は含まれません'));
+  qb.appendChild(mk('div','qr-lead','QRコードは <b>Partごとに分かれています</b>。1枚にまとめると升目が細かくなり読み取りにくいためです。カルテに転記するPartのQRを、それぞれ読み取ってください。患者氏名はどのQRにも含まれません。'));
+  var list=mk('div'); list.id='qrList'; qb.appendChild(list);
+  var allw=mk('div','qr-actions');
+  var allb=mk('button','btn ghost','すべてのテキストをまとめてコピー'); allb.type='button'; allb.id='copyAllBtn';
+  allb.addEventListener('click',copyAllText); allw.appendChild(allb); qb.appendChild(allw);
   var eb=mk('div','erase-box');
   eb.appendChild(mk('div','t','カルテ転記は完了しましたか？'));
   eb.appendChild(mk('div','d','QRを生成しただけでは、この端末に一時保存された入力内容は消えません。転記が終わったら消去してください。'));
   var ebtn=mk('button','btn danger','入力データを消去する'); ebtn.type='button'; ebtn.addEventListener('click',resetAll);
   eb.appendChild(ebtn); qb.appendChild(eb);
-  var th=mk('div','qr-text-h'); th.appendChild(mk('h3',null,'QRに含まれるテキスト'));
-  var cb=mk('button','btn ghost','テキストをコピー'); cb.type='button'; cb.id='copyBtn';
-  cb.style.padding='7px 12px'; cb.style.fontSize='12px'; cb.addEventListener('click',copyText);
-  th.appendChild(cb); qb.appendChild(th);
-  var ta=mk('textarea'); ta.id='qrtext'; ta.readOnly=true; qb.appendChild(ta);
   ps.appendChild(qb);
   return ps;
 }
@@ -3040,47 +3051,88 @@ function renderSummary(){
 function ansOf(qid){ var v=getA(qid); return v==null?'—':v; }
 function buildState(){
   var sel=selectedParts(), stats={},lines={},meta={},post={};
+  var gSum=0,gAns=0,gTot=0;
   sel.forEach(function(p){
-    stats[p]=statsOf(p);
+    var s=statsOf(p); stats[p]=s;
+    gSum+=s.sum; gAns+=s.ans; gTot+=s.total;
     var sec=sectionById(p);
-    lines[p]=scoredQs(sec).map(function(x){ return x.num+(x.side?('('+x.side+')'):'')+':'+ansOf(x.id); }).join(' ');
-    if(p==='I') meta[p]='情報源:'+ansOf('info_IA')+' 質問票記入:'+ansOf('info_IB');
+    /* 1行1項目（カルテ転記時に読みやすくするため） */
+    lines[p]=scoredQs(sec).map(function(x){ return x.num+(x.side?('('+x.side+')'):'')+':'+ansOf(x.id); });
+    if(p==='I') meta[p]='情報源:'+ansOf('info_IA')+'／質問票記入:'+ansOf('info_IB');
     if(p==='III'){
       var min=getS('p3_ldopa_sup'), ld=getA('p3_ldopa');
-      meta[p]='状態:'+ansOf('p3_state')+' 投薬:'+ansOf('p3_med')+' Lドパ:'+ansOf('p3_ldopa')+((ld!=null&&min)?('(最終服用から'+min+'分)'):'');
-      post[p]='付随) H&Y:'+ansOf('p3_hy')+' ジスキネジア出現:'+ansOf('p3_dysk')+' 影響:'+ansOf('p3_dysk_eff');
+      meta[p]='状態:'+ansOf('p3_state')+'／投薬:'+ansOf('p3_med')+'／Lドパ:'+ansOf('p3_ldopa')+((ld!=null&&min)?('（最終服用から'+min+'分）'):'');
+      post[p]='付随) H&Y:'+ansOf('p3_hy')+'／ジスキネジア出現:'+ansOf('p3_dysk')+'／影響:'+ansOf('p3_dysk_eff');
+    }
+    if(p==='IV'){
+      var w=getS('h4_wake_wake'), dy=getS('h4_wake_dysk'), of=getS('h4_wake_off'), m=[];
+      if(w) m.push('覚醒'+w+'h'); if(dy) m.push('ジスキネジア'+dy+'h'); if(of) m.push('オフ'+of+'h');
+      if(m.length) meta[p]=m.join('／');
     }
   });
-  return {parts:sel,stats:stats,lines:lines,meta:meta,post:post};
+  return {parts:sel,stats:stats,lines:lines,meta:meta,post:post,
+          grand:{sum:gSum,ans:gAns,total:gTot}};
 }
+/* PartごとにQRを1枚ずつ生成する（1枚にまとめると読み取りにくいため） */
 function generateQR(){
-  if(selectedParts().length===0){ refreshSelector(); alert('QRコードに含めるPartを1つ以上選んでください。'); return; }
-  var text=SCALE.qrTemplate(buildState());
-  document.getElementById('qrtext').value=text;
+  var sel=selectedParts();
+  if(sel.length===0){ refreshSelector(); alert('QRコードに含めるPartを1つ以上選んでください。'); return; }
+  var st=buildState();
+  var list=document.getElementById('qrList'); list.innerHTML='';
+  sel.forEach(function(p){ list.appendChild(qrCard(p,st)); });
+  var box=document.getElementById('qrBox'); box.classList.add('show');
+  box.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function qrCard(p,st){
+  var sec=sectionById(p), s=st.stats[p];
+  var text=SCALE.qrTemplatePart(st,p);
+  var card=mk('div','qr-card');
+  var h=mk('div','ch');
+  h.appendChild(mk('span','nm','Part '+ROMAN[p]+'（'+escapeHtml(sec.short)+'）'));
+  h.appendChild(mk('span','sc','小計 '+(s.ans?s.sum:'—')+'/'+sec.maxScore+'　回答 '+s.ans+'/'+s.total));
+  card.appendChild(h);
+
   var qr=null, levels=['M','L','Q','H'];
   for(var i=0;i<levels.length&&!qr;i++){
     try{ var t=qrcode(0,levels[i]); t.addData(text); t.make(); qr=t; }catch(e){ qr=null; }
   }
-  var box=document.getElementById('qrBox'); box.classList.add('show');
-  if(!qr){ alert('QRの生成に失敗しました。含めるPartを減らすか、テキストのコピー機能をご利用ください。'); return; }
-  drawQR(qr);
-  box.scrollIntoView({behavior:'smooth',block:'start'});
+  if(qr){
+    var cv=mk('canvas'); card.appendChild(cv); drawQR(qr,cv);
+    card.appendChild(mk('div','cap','このQRには Part '+ROMAN[p]+' の内容のみが入っています'));
+  }else{
+    card.appendChild(mk('div','fail','このPartはQRに収まりませんでした。下のテキストをコピーしてご利用ください。'));
+  }
+
+  var th=mk('div','th'); th.appendChild(mk('h3',null,'QRに含まれるテキスト'));
+  var cb=mk('button','btn ghost','このPartをコピー'); cb.type='button';
+  cb.style.padding='7px 12px'; cb.style.fontSize='12px';
+  var ta=mk('textarea'); ta.readOnly=true; ta.value=text;
+  cb.addEventListener('click',function(){ copyFrom(ta,cb); });
+  th.appendChild(cb); card.appendChild(th); card.appendChild(ta);
+  return card;
 }
-function drawQR(qr){
+function drawQR(qr,cv){
   var n=qr.getModuleCount(),quiet=4,target=340;
   var scale=Math.max(2,Math.floor(target/(n+quiet*2)));
   var size=(n+quiet*2)*scale;
-  var cv=document.getElementById('qrcanvas'); cv.width=size; cv.height=size;
+  cv.width=size; cv.height=size;
   var ctx=cv.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,size,size); ctx.fillStyle='#000';
   for(var r=0;r<n;r++) for(var c=0;c<n;c++) if(qr.isDark(r,c)) ctx.fillRect((c+quiet)*scale,(r+quiet)*scale,scale,scale);
   cv.style.width=Math.min(size,360)+'px'; cv.style.height=Math.min(size,360)+'px';
 }
-function copyText(){
-  var ta=document.getElementById('qrtext'); ta.select(); ta.setSelectionRange(0,99999);
+function copyFrom(ta,btn){
+  ta.select(); ta.setSelectionRange(0,99999);
   try{ document.execCommand('copy'); }catch(e){}
   if(navigator.clipboard) navigator.clipboard.writeText(ta.value).catch(function(){});
-  var b=document.getElementById('copyBtn'), old=b.textContent;
-  b.textContent='コピーしました'; setTimeout(function(){ b.textContent=old; },1500);
+  var old=btn.textContent; btn.textContent='コピーしました';
+  setTimeout(function(){ btn.textContent=old; },1500);
+}
+function copyAllText(){
+  var b=document.getElementById('copyAllBtn');
+  var ta=mk('textarea'); ta.value=SCALE.qrTemplate(buildState());
+  ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta);
+  copyFrom(ta,b);
+  setTimeout(function(){ document.body.removeChild(ta); },100);
 }
 
 /* =====================================================================
@@ -3092,7 +3144,8 @@ function resetAll(){
   patientName=''; document.getElementById('ptName').value='';
   if(currentSlot) clearSlot(currentSlot);
   qrParts={I:true,II:true,III:true,IV:true};
-  var box=document.getElementById('qrBox'); if(box){ box.classList.remove('show'); document.getElementById('qrtext').value=''; }
+  var box=document.getElementById('qrBox');
+  if(box){ box.classList.remove('show'); document.getElementById('qrList').innerHTML=''; }
   var keep=getActiveTab();
   buildPanels(); activate(keep); updateAll();
   if(!currentSlot) assignFreeSlot(); else saveDraft();
