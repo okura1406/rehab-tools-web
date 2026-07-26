@@ -7,9 +7,8 @@
 | ファイル | 内容 |
 |---|---|
 | `index.html` | ツール一覧（トップページ） |
-| `battery.html` | 評価尺度ツール（SPPB ほか） |
+| `battery.html` | 評価尺度ツール（HDS-R・MMSE・FBS・SPPB・SIAS） |
 | `pain.html` | 疼痛評価ツール |
-| `design-r.html` | DESIGN-R®2020 褥瘡状態評価 |
 
 ## 特徴
 
