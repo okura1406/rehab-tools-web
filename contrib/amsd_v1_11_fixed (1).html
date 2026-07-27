@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>標準ディサースリア検査（AMSD）評価バッテリー</title>
+<style>
+:root{
+  --bg:#f4f6f8;
+  --panel:#ffffff;
+  --border:#d8dee4;
+  --text:#222;
+  --muted:#6b7280;
+  --accent:#2563eb;
+  --accent-light:#dbeafe;
+  --warn:#d97706;
+  --danger:#dc2626;
+  --ok:#059669;
+  --section:#eff3f8;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;line-height:1.5;font-size:15px}
+.wrap{max-width:980px;margin:0 auto;padding:12px}
+h1{font-size:18px;margin:0 0 10px;padding:10px 12px;background:var(--accent);color:#fff;border-radius:6px}
+h2{font-size:16px;margin:18px 0 8px;padding:8px 10px;background:#1f2937;color:#fff;border-radius:4px}
+h3{font-size:15px;margin:14px 0 6px;padding:6px 10px;background:var(--section);border-left:4px solid var(--accent);border-radius:2px}
+h4{font-size:14px;margin:10px 0 4px;color:#374151}
+.patient-bar{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.patient-bar label{font-weight:bold;white-space:nowrap}
+.patient-bar input{flex:1;min-width:120px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:15px}
+.patient-note{font-size:12px;color:var(--muted);width:100%}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;border-bottom:2px solid var(--accent);margin-bottom:10px}
+.tab-btn{padding:8px 14px;border:1px solid var(--border);border-bottom:none;background:#e5e7eb;cursor:pointer;border-radius:6px 6px 0 0;font-size:14px;font-weight:bold}
+.tab-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tab-panel{display:none;background:var(--panel);border:1px solid var(--border);border-top:none;border-radius:0 0 6px 6px;padding:12px}
+.tab-panel.active{display:block}
+.question{border:1px solid var(--border);border-radius:5px;padding:10px;margin-bottom:10px;background:#fafbfc}
+.question .label{font-weight:bold;margin-bottom:6px;font-size:14px}
+.question .instr{font-size:12px;color:var(--muted);margin-bottom:6px}
+.options{display:flex;flex-wrap:wrap;gap:6px}
+.opt{padding:6px 10px;border:1px solid var(--border);border-radius:4px;background:#fff;cursor:pointer;font-size:13px;user-select:none;transition:all .15s}
+.opt:hover{border-color:var(--accent);background:var(--accent-light)}
+.opt.selected{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:bold}
+.opt-sm{font-size:12px;padding:4px 8px;min-width:34px;text-align:center}
+/* 発話特徴 重症度ボタン */
+.feat-score-btn{padding:5px 10px;border:1px solid var(--border);border-radius:4px;background:#fff;cursor:pointer;font-size:13px;user-select:none;transition:all .15s;font-weight:bold}
+.feat-score-btn:hover{border-color:var(--accent);background:var(--accent-light)}
+.feat-score-btn.selected-0{background:#e5e7eb;color:#374151;border-color:#9ca3af}
+.feat-score-btn.selected-1{background:#fef3c7;color:#92400e;border-color:var(--warn)}
+.feat-score-btn.selected-2{background:#fed7aa;color:#7c2d12;border-color:#f97316}
+.feat-score-btn.selected-3{background:#fee2e2;color:#991b1b;border-color:var(--danger)}
+.trial-row{display:grid;grid-template-columns:auto 1fr auto 1fr auto;gap:6px;align-items:center;margin:4px 0;flex-wrap:wrap}
+.trial-row .tag{font-size:12px;color:var(--muted);white-space:nowrap}
+.trial-row input[type="number"]{width:80px;padding:5px 6px;border:1px solid var(--border);border-radius:3px;font-size:14px}
+.trial-row input[type="text"]{width:80px;padding:5px 6px;border:1px solid var(--border);border-radius:3px;font-size:14px}
+.rl-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:4px 0}
+.rl-row .rl-label{font-size:12px;font-weight:bold;min-width:60px}
+.rl-opts{display:flex;gap:4px;flex-wrap:wrap}
+.result-box{margin-top:6px;padding:6px 10px;background:var(--accent-light);border-radius:4px;font-size:13px;display:flex;flex-wrap:wrap;gap:10px}
+.result-box .pill{background:#fff;padding:2px 8px;border-radius:12px;border:1px solid var(--accent)}
+.nt-row{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center}
+.nt-row .tag{font-size:12px;color:var(--muted);margin-right:4px}
+.feature-func{border:1px solid var(--border);border-radius:5px;padding:10px;margin-bottom:10px;background:#fff}
+.feature-func .ff-head{font-weight:bold;margin-bottom:8px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+/* 発話特徴 各項目スコアボタン行 */
+.feat-item-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:5px 0;border-bottom:1px dashed var(--border)}
+.feat-item-row:last-child{border-bottom:none}
+.feat-item-name{font-size:13px;flex:1;min-width:160px}
+.feat-item-btns{display:flex;gap:4px}
+.feat-item-btn{padding:3px 9px;border:1px solid var(--border);border-radius:4px;background:#fff;cursor:pointer;font-size:12px;font-weight:bold;user-select:none;transition:all .15s;min-width:32px;text-align:center}
+.feat-item-btn:hover{border-color:var(--accent);background:var(--accent-light)}
+.feat-item-btn.score-0{background:#e5e7eb;color:#374151;border-color:#9ca3af}
+.feat-item-btn.score-1{background:#fef3c7;color:#92400e;border-color:var(--warn)}
+.feat-item-btn.score-2{background:#fed7aa;color:#7c2d12;border-color:#f97316}
+.feat-item-btn.score-3{background:#fee2e2;color:#991b1b;border-color:var(--danger)}
+.supp{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
+.supp .tag{font-size:12px;color:var(--muted)}
+.supp input[type="text"],.supp input[type="number"]{padding:5px;border:1px solid var(--border);border-radius:3px;width:90px;font-size:13px}
+.supp select{padding:5px;border:1px solid var(--border);border-radius:3px;font-size:13px}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.btn{padding:8px 14px;border:none;border-radius:4px;font-weight:bold;cursor:pointer;font-size:14px}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-reset{background:#e5e7eb;color:#111}
+.btn-copy{background:var(--ok);color:#fff}
+.btn:active{opacity:.8}
+.qr-area{margin-top:14px;padding:12px;background:#f9fafb;border:1px solid var(--border);border-radius:6px}
+.qr-canvas{background:#fff;display:inline-block;padding:8px;border:1px solid var(--border)}
+.qr-text{margin-top:10px;padding:8px;background:#fff;border:1px solid var(--border);border-radius:4px;white-space:pre-wrap;font-family:-apple-system,monospace;font-size:12px;max-height:300px;overflow:auto}
+.warn-box{margin-top:8px;padding:8px 10px;background:#fef3c7;border:1px solid var(--warn);border-radius:4px;color:#92400e;font-size:13px;display:none}
+.warn-box.show{display:block}
+.avg-display{margin-top:4px;padding:4px 8px;background:#e0e7ff;border-radius:3px;font-size:12px;font-weight:bold;display:inline-block}
+.score-nt{color:var(--danger);font-weight:bold}
+.rl-eval{display:flex;gap:12px;align-items:center;font-size:12px}
+.toggle-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:6px}
+.toggle-row label{font-size:12px;display:inline-flex;align-items:center;gap:4px}
+.divider{border-top:1px dashed var(--border);margin:12px 0}
+.section-meta{font-size:12px;color:var(--muted);margin:-4px 0 6px 10px}
+.speech-rate-calc{margin-top:8px;padding:10px;background:var(--accent-light);border-radius:4px;font-size:14px;font-weight:bold}
+.age-criteria{margin-top:6px;padding:6px 10px;background:#fef9e7;border:1px solid var(--warn);border-radius:3px;font-size:13px;display:none}
+.age-criteria.show{display:block}
+.q-title{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.eval-badge{background:var(--ok);color:#fff;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:bold}
+.eval-badge.nt{background:var(--danger)}
+.eval-badge.pending{background:#9ca3af}
+.stance-select{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.nasal-count{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.nasal-count .tag{font-size:11px;color:var(--muted)}
+.unavailable{background:#fee2e2!important;color:#991b1b!important}
+.footer-note{font-size:11px;color:var(--muted);margin-top:20px;text-align:center;padding-bottom:20px}
+
+@media (max-width:600px){
+  .wrap{padding:8px}
+  h1{font-size:16px}
+  .tab-btn{padding:6px 10px;font-size:13px}
+  .trial-row{grid-template-columns:1fr}
+  .trial-row input[type="number"]{width:100%}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>標準ディサースリア検査（AMSD）評価バッテリー</h1>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="panels"></div>
+
+  <div class="footer-note">※ このツールはオフラインで動作します。データは保存されません。</div>
+</div>
+
+<script>
+/* ============================================================
+   QRコード生成ライブラリ（完全版 v1-v40対応）
+   ============================================================ */
+var qrcode=(function(){"use strict";
+var PATTERN000=0,PATTERN001=1,PATTERN010=2,PATTERN011=3,PATTERN100=4,PATTERN101=5,PATTERN110=6,PATTERN111=7;
+var Mode_NUMBER=1,Mode_ALPHA_NUM=2,Mode_8BIT_BYTE=4,Mode_KANJI=8;
+var ECL_L=1,ECL_M=0,ECL_Q=3,ECL_H=2;
+var QRMath={glog:function(n){if(n<1)throw new Error("glog("+n+")");return QRMath.LOG_TABLE[n];},gexp:function(n){while(n<0)n+=255;while(n>=256)n-=255;return QRMath.EXP_TABLE[n];},EXP_TABLE:new Array(256),LOG_TABLE:new Array(256)};
+for(var i=0;i<8;i++)QRMath.EXP_TABLE[i]=1<<i;
+for(var i=8;i<256;i++)QRMath.EXP_TABLE[i]=QRMath.EXP_TABLE[i-4]^QRMath.EXP_TABLE[i-5]^QRMath.EXP_TABLE[i-6]^QRMath.EXP_TABLE[i-8];
+for(var i=0;i<255;i++)QRMath.LOG_TABLE[QRMath.EXP_TABLE[i]]=i;
+function QRPolynomial(num,shift){if(num.length==undefined)throw new Error(num.length+"/"+shift);var offset=0;while(offset<num.length&&num[offset]==0)offset++;this.num=new Array(num.length-offset+shift);for(var i=0;i<num.length-offset;i++)this.num[i]=num[i+offset];}
+QRPolynomial.prototype={get:function(i){return this.num[i];},getLength:function(){return this.num.length;},multiply:function(e){var num=new Array(this.getLength()+e.getLength()-1);for(var i=0;i<this.getLength();i++)for(var j=0;j<e.getLength();j++)num[i+j]^=QRMath.gexp(QRMath.glog(this.get(i))+QRMath.glog(e.get(j)));return new QRPolynomial(num,0);},mod:function(e){if(this.getLength()-e.getLength()<0)return this;var ratio=QRMath.glog(this.get(0))-QRMath.glog(e.get(0));var num=new Array(this.getLength());for(var i=0;i<this.getLength();i++)num[i]=this.get(i);for(var i=0;i<e.getLength();i++)num[i]^=QRMath.gexp(QRMath.glog(e.get(i))+ratio);return new QRPolynomial(num,0).mod(e);}};
+function QRRSBlock(totalCount,dataCount){this.totalCount=totalCount;this.dataCount=dataCount;}
+QRRSBlock.RS_BLOCK_TABLE=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]];
+QRRSBlock.getRSBlocks=function(typeNumber,eclLevel){var rsBlock=QRRSBlock.getRsBlockTable(typeNumber,eclLevel);if(rsBlock==undefined)throw new Error("bad rs block @ typeNumber:"+typeNumber+"/eclLevel:"+eclLevel);var length=rsBlock.length/3;var list=[];for(var i=0;i<length;i++){var count=rsBlock[i*3+0];var totalCount=rsBlock[i*3+1];var dataCount=rsBlock[i*3+2];for(var j=0;j<count;j++)list.push(new QRRSBlock(totalCount,dataCount));}return list;};
+QRRSBlock.getRsBlockTable=function(typeNumber,eclLevel){switch(eclLevel){case ECL_L:return QRRSBlock.RS_BLOCK_TABLE[(typeNumber-1)*4+0];case ECL_M:return QRRSBlock.RS_BLOCK_TABLE[(typeNumber-1)*4+1];case ECL_Q:return QRRSBlock.RS_BLOCK_TABLE[(typeNumber-1)*4+2];case ECL_H:return QRRSBlock.RS_BLOCK_TABLE[(typeNumber-1)*4+3];default:return undefined;}};
+var QRUtil={PATTERN_POSITION_TABLE:[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],G15:1335,G18:7973,G15_MASK:21522,
+getBCHTypeInfo:function(data){var d=data<<10;while(QRUtil.getBCHDigit(d)-QRUtil.getBCHDigit(QRUtil.G15)>=0)d^=(QRUtil.G15<<(QRUtil.getBCHDigit(d)-QRUtil.getBCHDigit(QRUtil.G15)));return((data<<10)|d)^QRUtil.G15_MASK;},
+getBCHTypeNumber:function(data){var d=data<<12;while(QRUtil.getBCHDigit(d)-QRUtil.getBCHDigit(QRUtil.G18)>=0)d^=(QRUtil.G18<<(QRUtil.getBCHDigit(d)-QRUtil.getBCHDigit(QRUtil.G18)));return(data<<12)|d;},
+getBCHDigit:function(data){var digit=0;while(data!=0){digit++;data>>>=1;}return digit;},
+getPatternPosition:function(typeNumber){return QRUtil.PATTERN_POSITION_TABLE[typeNumber-1];},
+getMask:function(maskPattern,i,j){switch(maskPattern){case PATTERN000:return(i+j)%2==0;case PATTERN001:return i%2==0;case PATTERN010:return j%3==0;case PATTERN011:return(i+j)%3==0;case PATTERN100:return(Math.floor(i/2)+Math.floor(j/3))%2==0;case PATTERN101:return(i*j)%2+(i*j)%3==0;case PATTERN110:return((i*j)%2+(i*j)%3)%2==0;case PATTERN111:return((i*j)%3+(i+j)%2)%2==0;default:throw new Error("bad maskPattern:"+maskPattern);}},
+getErrorCorrectPolynomial:function(errorCorrectLength){var a=new QRPolynomial([1],0);for(var i=0;i<errorCorrectLength;i++)a=a.multiply(new QRPolynomial([1,QRMath.gexp(i)],0));return a;},
+getLengthInBits:function(mode,type){if(1<=type&&type<10){switch(mode){case Mode_NUMBER:return 10;case Mode_ALPHA_NUM:return 9;case Mode_8BIT_BYTE:return 8;case Mode_KANJI:return 8;default:throw new Error("mode:"+mode);}}else if(type<27){switch(mode){case Mode_NUMBER:return 12;case Mode_ALPHA_NUM:return 11;case Mode_8BIT_BYTE:return 16;case Mode_KANJI:return 10;default:throw new Error("mode:"+mode);}}else if(type<41){switch(mode){case Mode_NUMBER:return 14;case Mode_ALPHA_NUM:return 13;case Mode_8BIT_BYTE:return 16;case Mode_KANJI:return 12;default:throw new Error("mode:"+mode);}}else throw new Error("type:"+type);},
+getLostPoint:function(qrCode){var moduleCount=qrCode.getModuleCount();var lostPoint=0;for(var row=0;row<moduleCount;row++)for(var col=0;col<moduleCount;col++){var sameCount=0;var dark=qrCode.isDark(row,col);for(var r=-1;r<=1;r++){if(row+r<0||moduleCount<=row+r)continue;for(var c=-1;c<=1;c++){if(col+c<0||moduleCount<=col+c)continue;if(r==0&&c==0)continue;if(dark==qrCode.isDark(row+r,col+c))sameCount++;}}if(sameCount>5)lostPoint+=(3+sameCount-5);}for(var row=0;row<moduleCount-1;row++)for(var col=0;col<moduleCount-1;col++){var count=0;if(qrCode.isDark(row,col))count++;if(qrCode.isDark(row+1,col))count++;if(qrCode.isDark(row,col+1))count++;if(qrCode.isDark(row+1,col+1))count++;if(count==0||count==4)lostPoint+=3;}for(var row=0;row<moduleCount;row++)for(var col=0;col<moduleCount-6;col++)if(qrCode.isDark(row,col)&&!qrCode.isDark(row,col+1)&&qrCode.isDark(row,col+2)&&qrCode.isDark(row,col+3)&&qrCode.isDark(row,col+4)&&!qrCode.isDark(row,col+5)&&qrCode.isDark(row,col+6))lostPoint+=40;for(var col=0;col<moduleCount;col++)for(var row=0;row<moduleCount-6;row++)if(qrCode.isDark(row,col)&&!qrCode.isDark(row+1,col)&&qrCode.isDark(row+2,col)&&qrCode.isDark(row+3,col)&&qrCode.isDark(row+4,col)&&!qrCode.isDark(row+5,col)&&qrCode.isDark(row+6,col))lostPoint+=40;var darkCount=0;for(var col=0;col<moduleCount;col++)for(var row=0;row<moduleCount;row++)if(qrCode.isDark(row,col))darkCount++;var ratio=Math.abs(100*darkCount/moduleCount/moduleCount-50)/5;return lostPoint+ratio*10;}};
+function QRBitBuffer(){this.buffer=[];this.length=0;}
+QRBitBuffer.prototype={get:function(i){var bufIdx=Math.floor(i/8);return((this.buffer[bufIdx]>>>(7-i%8))&1)==1;},put:function(n,length){for(var i=0;i<length;i++)this.putBit(((n>>>(length-i-1))&1)==1);},getLengthInBits:function(){return this.length;},putBit:function(bit){var bufIdx=Math.floor(this.length/8);if(this.buffer.length<=bufIdx)this.buffer.push(0);if(bit)this.buffer[bufIdx]|=(0x80>>>(this.length%8));this.length++;}};
+function QR8bitByte(data){this.mode=Mode_8BIT_BYTE;this.data=data;this.parsedData=[];for(var i=0,l=this.data.length;i<l;i++){var byteArray=[];var code=this.data.charCodeAt(i);if(code>0x10000){byteArray[0]=0xF0|((code&0x1C0000)>>>18);byteArray[1]=0x80|((code&0x3F000)>>>12);byteArray[2]=0x80|((code&0xFC0)>>>6);byteArray[3]=0x80|(code&0x3F);}else if(code>0x800){byteArray[0]=0xE0|((code&0xF000)>>>12);byteArray[1]=0x80|((code&0xFC0)>>>6);byteArray[2]=0x80|(code&0x3F);}else if(code>0x80){byteArray[0]=0xC0|((code&0x7C0)>>>6);byteArray[1]=0x80|(code&0x3F);}else byteArray[0]=code;this.parsedData.push(byteArray);}this.parsedData=Array.prototype.concat.apply([],this.parsedData);if(this.parsedData.length!=this.data.length){this.parsedData.unshift(191);this.parsedData.unshift(187);this.parsedData.unshift(239);}}
+QR8bitByte.prototype={getMode:function(){return this.mode;},getLength:function(){return this.parsedData.length;},write:function(buffer){for(var i=0,l=this.parsedData.length;i<l;i++)buffer.put(this.parsedData[i],8);}};
+function createData(typeNumber,eclLevel,dataList){var rsBlocks=QRRSBlock.getRSBlocks(typeNumber,eclLevel);var buffer=new QRBitBuffer();for(var i=0;i<dataList.length;i++){var data=dataList[i];buffer.put(data.getMode(),4);buffer.put(data.getLength(),QRUtil.getLengthInBits(data.getMode(),typeNumber));data.write(buffer);}var totalDataCount=0;for(var i=0;i<rsBlocks.length;i++)totalDataCount+=rsBlocks[i].dataCount;if(buffer.getLengthInBits()>totalDataCount*8)throw new Error("code length overflow. ("+buffer.getLengthInBits()+">"+totalDataCount*8+")");if(buffer.getLengthInBits()+4<=totalDataCount*8)buffer.put(0,4);while(buffer.getLengthInBits()%8!=0)buffer.putBit(false);while(true){if(buffer.getLengthInBits()>=totalDataCount*8)break;buffer.put(0xEC,8);if(buffer.getLengthInBits()>=totalDataCount*8)break;buffer.put(0x11,8);}return createBytes(buffer,rsBlocks);}
+function createBytes(buffer,rsBlocks){var offset=0;var maxDcCount=0;var maxEcCount=0;var dcdata=new Array(rsBlocks.length);var ecdata=new Array(rsBlocks.length);for(var r=0;r<rsBlocks.length;r++){var dcCount=rsBlocks[r].dataCount;var ecCount=rsBlocks[r].totalCount-dcCount;maxDcCount=Math.max(maxDcCount,dcCount);maxEcCount=Math.max(maxEcCount,ecCount);dcdata[r]=new Array(dcCount);for(var i=0;i<dcdata[r].length;i++)dcdata[r][i]=0xff&buffer.buffer[i+offset];offset+=dcCount;var rsPoly=QRUtil.getErrorCorrectPolynomial(ecCount);var rawPoly=new QRPolynomial(dcdata[r],rsPoly.getLength()-1);var modPoly=rawPoly.mod(rsPoly);ecdata[r]=new Array(rsPoly.getLength()-1);for(var i=0;i<ecdata[r].length;i++){var modIndex=i+modPoly.getLength()-ecdata[r].length;ecdata[r][i]=(modIndex>=0)?modPoly.get(modIndex):0;}}var totalCodeCount=0;for(var i=0;i<rsBlocks.length;i++)totalCodeCount+=rsBlocks[i].totalCount;var data=new Array(totalCodeCount);var index=0;for(var i=0;i<maxDcCount;i++)for(var r=0;r<rsBlocks.length;r++)if(i<dcdata[r].length)data[index++]=dcdata[r][i];for(var i=0;i<maxEcCount;i++)for(var r=0;r<rsBlocks.length;r++)if(i<ecdata[r].length)data[index++]=ecdata[r][i];return data;}
+function QRCodeModel(typeNumber,eclLevel){this.typeNumber=typeNumber;this.eclLevel=eclLevel;this.modules=null;this.moduleCount=0;this.dataCache=null;this.dataList=[];}
+QRCodeModel.prototype={addData:function(data){this.dataList.push(new QR8bitByte(data));this.dataCache=null;},isDark:function(row,col){if(row<0||this.moduleCount<=row||col<0||this.moduleCount<=col)throw new Error(row+","+col);return this.modules[row][col];},getModuleCount:function(){return this.moduleCount;},
+make:function(){if(this.typeNumber<1){var typeNumber=1;for(;typeNumber<41;typeNumber++){var rsBlocks=QRRSBlock.getRSBlocks(typeNumber,this.eclLevel);var buffer=new QRBitBuffer();for(var i=0;i<this.dataList.length;i++){var data=this.dataList[i];buffer.put(data.getMode(),4);buffer.put(data.getLength(),QRUtil.getLengthInBits(data.getMode(),typeNumber));data.write(buffer);}var totalDataCount=0;for(var i=0;i<rsBlocks.length;i++)totalDataCount+=rsBlocks[i].dataCount;if(buffer.getLengthInBits()<=totalDataCount*8)break;}this.typeNumber=typeNumber;}this.makeImpl(false,this.getBestMaskPattern());},
+makeImpl:function(test,maskPattern){this.moduleCount=this.typeNumber*4+17;this.modules=new Array(this.moduleCount);for(var row=0;row<this.moduleCount;row++){this.modules[row]=new Array(this.moduleCount);for(var col=0;col<this.moduleCount;col++)this.modules[row][col]=null;}this.setupPositionProbePattern(0,0);this.setupPositionProbePattern(this.moduleCount-7,0);this.setupPositionProbePattern(0,this.moduleCount-7);this.setupPositionAdjustPattern();this.setupTimingPattern();this.setupTypeInfo(test,maskPattern);if(this.typeNumber>=7)this.setupTypeNumber(test);if(this.dataCache==null)this.dataCache=createData(this.typeNumber,this.eclLevel,this.dataList);this.mapData(this.dataCache,maskPattern);},
+setupPositionProbePattern:function(row,col){for(var r=-1;r<=7;r++){if(row+r<=-1||this.moduleCount<=row+r)continue;for(var c=-1;c<=7;c++){if(col+c<=-1||this.moduleCount<=col+c)continue;if((0<=r&&r<=6&&(c==0||c==6))||(0<=c&&c<=6&&(r==0||r==6))||(2<=r&&r<=4&&2<=c&&c<=4))this.modules[row+r][col+c]=true;else this.modules[row+r][col+c]=false;}}},
+getBestMaskPattern:function(){var minLostPoint=0;var pattern=0;for(var i=0;i<8;i++){this.makeImpl(true,i);var lostPoint=QRUtil.getLostPoint(this);if(i==0||minLostPoint>lostPoint){minLostPoint=lostPoint;pattern=i;}}return pattern;},
+setupTimingPattern:function(){for(var r=8;r<this.moduleCount-8;r++){if(this.modules[r][6]!=null)continue;this.modules[r][6]=(r%2==0);}for(var c=8;c<this.moduleCount-8;c++){if(this.modules[6][c]!=null)continue;this.modules[6][c]=(c%2==0);}},
+setupPositionAdjustPattern:function(){var pos=QRUtil.getPatternPosition(this.typeNumber);for(var i=0;i<pos.length;i++)for(var j=0;j<pos.length;j++){var row=pos[i];var col=pos[j];if(this.modules[row][col]!=null)continue;for(var r=-2;r<=2;r++)for(var c=-2;c<=2;c++){if(r==-2||r==2||c==-2||c==2||(r==0&&c==0))this.modules[row+r][col+c]=true;else this.modules[row+r][col+c]=false;}}},
+setupTypeNumber:function(test){var bits=QRUtil.getBCHTypeNumber(this.typeNumber);for(var i=0;i<18;i++){var mod=(!test&&((bits>>i)&1)==1);this.modules[Math.floor(i/3)][i%3+this.moduleCount-8-3]=mod;}for(var i=0;i<18;i++){var mod=(!test&&((bits>>i)&1)==1);this.modules[i%3+this.moduleCount-8-3][Math.floor(i/3)]=mod;}},
+setupTypeInfo:function(test,maskPattern){var data=(this.eclLevel<<3)|maskPattern;var bits=QRUtil.getBCHTypeInfo(data);for(var i=0;i<15;i++){var mod=(!test&&((bits>>i)&1)==1);if(i<6)this.modules[i][8]=mod;else if(i<8)this.modules[i+1][8]=mod;else this.modules[this.moduleCount-15+i][8]=mod;}for(var i=0;i<15;i++){var mod=(!test&&((bits>>i)&1)==1);if(i<8)this.modules[8][this.moduleCount-i-1]=mod;else if(i<9)this.modules[8][15-i-1+1]=mod;else this.modules[8][15-i-1]=mod;}this.modules[this.moduleCount-8][8]=(!test);},
+mapData:function(data,maskPattern){var inc=-1;var row=this.moduleCount-1;var bitIndex=7;var byteIndex=0;for(var col=this.moduleCount-1;col>0;col-=2){if(col==6)col--;while(true){for(var c=0;c<2;c++){if(this.modules[row][col-c]==null){var dark=false;if(byteIndex<data.length)dark=(((data[byteIndex]>>>bitIndex)&1)==1);var mask=QRUtil.getMask(maskPattern,row,col-c);if(mask)dark=!dark;this.modules[row][col-c]=dark;bitIndex--;if(bitIndex==-1){byteIndex++;bitIndex=7;}}}row+=inc;if(row<0||this.moduleCount<=row){row-=inc;inc=-inc;break;}}}},
+createSvgTag:function(cellSize,margin){cellSize=cellSize||2;margin=(typeof margin=="undefined")?cellSize*4:margin;var size=this.getModuleCount()*cellSize+margin*2;var svg="";svg+='<svg xmlns="http://www.w3.org/2000/svg" width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" shape-rendering="crispEdges">';svg+='<rect width="100%" height="100%" fill="#ffffff"/>';svg+='<path d="';for(var r=0;r<this.getModuleCount();r++){for(var c=0;c<this.getModuleCount();c++){if(this.isDark(r,c)){svg+='M'+(margin+c*cellSize)+','+(margin+r*cellSize)+'h'+cellSize+'v'+cellSize+'h-'+cellSize+'z';}}}svg+='" fill="#000000"/></svg>';return svg;}};
+return function(typeNumber,eclLevel){
+  if(typeof eclLevel=='string'){var m={L:ECL_L,M:ECL_M,Q:ECL_Q,H:ECL_H};if(m[eclLevel]===undefined)throw new Error("Unknown ECL: "+eclLevel);eclLevel=m[eclLevel];}
+  if(typeof typeNumber=='undefined')typeNumber=0;
+  if(typeof eclLevel=='undefined')eclLevel=ECL_M;
+  return new QRCodeModel(typeNumber,eclLevel);
+};
+})();
+
+/* ============================================================
+   AMSD 評価尺度定義
+   ============================================================ */
+const STATE = {
+  patientName: '',
+  age: null,
+  mingryodo: null,
+  shizendo: null,
+  features: {
+    respiration:      { items: {} },
+    velopharyngeal:   { items: {} },
+    articulation:     { items: {} },
+    prosody:          { items: {} }
+  },
+  speechRate: { a:'', b:'', c:'' },
+  oseo: {
+    q1: { t1:'', t2:'', stance:'座位', nt:null },
+    q2: { t1:'', t2:'', nc1:'', nc2:'', nt:null },
+    q3: { t1:'', t2:'', nt:null },
+    q4: { t1:'', t2:'', nt:null },
+    q5: { t1:'', t2:'', nt:null },
+    q6: { R_t1:null, L_t1:null, R_t2:null, L_t2:null, paralysis:'', paralysis_side:{R:false,L:false}, nt:null },
+    q7: { R_t1:'', L_t1:'', R_t2:'', L_t2:'', nt:null },
+    q8: { R_t1:'', L_t1:'', R_t2:'', L_t2:'', nt:null },
+    q9: { t1:null, t2:null, paralysis:'', paralysis_side:{R:false,L:false}, nt:null },
+    q10:{ t1:null, t2:null, nt:null },
+    q11:{ t1:null, t2:null, nt:null },
+    q12:{ t1:null, t2:null, nt:null },
+    q13:{ t1:null, t2:null, nt:null },
+    q14:{ t1:'', t2:'', nt:null },
+    q15:{ t1:null, t2:null, nt:null },
+    q16:{ t1:null, t2:null, facialParalysis:'', fp_side:{R:false,L:false}, nt:null },
+    q17:{ t1:null, t2:null, nt:null },
+    q18:{ t1:null, t2:null, nt:null },
+    q19:{ t1:'', t2:'', c1:'', s1:'', c2:'', s2:'', zero:false, nt:null },
+    q20:{ t1:'', t2:'', c1:'', s1:'', c2:'', s2:'', zero:false, nt:null },
+    q21:{ t1:'', t2:'', c1:'', s1:'', c2:'', s2:'', zero:false, nt:null },
+    q22:{ t1:'', t2:'', c1:'', s1:'', c2:'', s2:'', zero:false, nt:null },
+    q23:{ t1:'', t2:'', c1:'', s1:'', c2:'', s2:'', zero:false, nt:null },
+    q24:{ t1:'', t2:'', c1:'', s1:'', c2:'', s2:'', zero:false, nt:null },
+    q25:{ t1:null, t2:null, nt:null },
+    q26:{ t1:null, t2:null, nt:null },
+    q27:{ t1:null, t2:null, nt:null },
+    q28:{ t1:null, t2:null, nt:null },
+    q29:{ t1:null, t2:null, nt:null }
+  }
+};
+
+/* ============================================================
+   評価基準
+   ============================================================ */
+function evalBreathingRate(v){
+  if(v===''||v==null||isNaN(v))return null;
+  v=Number(v);
+  // 0: 27回以上 または 9回以下
+  if(v>=27||v<=9)return 0;
+  // 1: 24-26回 または 10-12回
+  if((v>=24&&v<=26)||(v>=10&&v<=12))return 1;
+  // 2: 21-23回 または 13-15回
+  if((v>=21&&v<=23)||(v>=13&&v<=15))return 2;
+  // 3: 16-20回
+  if(v>=16&&v<=20)return 3;
+  return null;
+}
+function evalSecond(v){
+  if(v===''||v==null||isNaN(v))return null;
+  v=Number(v);
+  if(v<3.0)return 0;
+  if(v<6.0)return 1;
+  if(v<10.0)return 2;
+  return 3;
+}
+function evalADDK(v){
+  if(v===''||v==null||isNaN(v))return null;
+  v=Number(v);
+  if(v<3.0)return 0;
+  if(v<6.0)return 1;
+  if(v<9.0)return 2;
+  return 3;
+}
+function evalNasalLeak(v){
+  if(v===''||v==null||isNaN(v))return null;
+  v=Number(v);
+  if(v>=5)return 0;
+  if(v>=3)return 1;
+  if(v>=1)return 2;
+  if(v===0)return 3;
+  return null;
+}
+function evalNasalLeak8(v){
+  if(v===''||v==null||isNaN(v))return null;
+  v=Number(v);
+  if(v>=5)return 0;
+  if(v>=3)return 1;
+  if(v>=1)return 2;
+  if(v===0)return 3;
+  return null;
+}
+/* [修正1] ⑭口唇の閉鎖: 小さい方を採用、評価基準を正しく適用 */
+function evalLipOpen(v){
+  if(v===''||v==null||isNaN(v))return null;
+  v=Number(v);
+  if(v>=3)return 0;
+  if(v>=1)return 1;
+  if(v>0)return 2;
+  if(v===0)return 3;
+  return null;
+}
+/* [修正2] ⑲〜㉔交互反復速度: 評価基準を正確に実装 */
+function evalDDK12(v){
+  if(v===''||v==null||isNaN(v))return null;
+  v=Number(v);
+  if(v<1.0)return 1;
+  if(v<2.0)return 2;
+  return 3;
+}
+function evalDDK34(v){
+  if(v===''||v==null||isNaN(v))return null;
+  v=Number(v);
+  if(v<2.0)return 1;
+  if(v<3.0)return 2;
+  if(v>=4.0)return 3;
+  return 2;
+}
+
+/* ============================================================
+   採用値決定ルール
+   ============================================================ */
+function pickHigh(a,b){
+  const aOk=(a!==''&&a!=null&&!isNaN(Number(a)));
+  const bOk=(b!==''&&b!=null&&!isNaN(Number(b)));
+  if(aOk&&bOk)return Math.max(Number(a),Number(b));
+  if(aOk)return Number(a);
+  if(bOk)return Number(b);
+  return null;
+}
+function pickLow(a,b){
+  const aOk=(a!==''&&a!=null&&!isNaN(Number(a)));
+  const bOk=(b!==''&&b!=null&&!isNaN(Number(b)));
+  if(aOk&&bOk)return Math.min(Number(a),Number(b));
+  if(aOk)return Number(a);
+  if(bOk)return Number(b);
+  return null;
+}
+function pickHighScore(a,b){
+  /* [修正3] リセットバグ修正: nullのみ許可、数値以外は無視 */
+  const aOk=(a!==null&&a!==undefined&&typeof a==='number'&&!isNaN(a));
+  const bOk=(b!==null&&b!==undefined&&typeof b==='number'&&!isNaN(b));
+  if(aOk&&bOk)return Math.max(a,b);
+  if(aOk)return a;
+  if(bOk)return b;
+  return null;
+}
+
+/* ============================================================
+   発話特徴の定義
+   ============================================================ */
+const FEATURES = {
+  respiration: {
+    name:'①呼吸・発声機能',
+    items:['発話の短い途切れ','声量の低下','粗ぞう性嗄声','気息声嗄声','無力性嗄声','努力性嗄声','声の高さの異常（高すぎる・低すぎる）']
+  },
+  velopharyngeal: {
+    name:'②鼻咽腔閉鎖機能',
+    items:['開鼻声']
+  },
+  articulation: {
+    name:'③口腔構音機能',
+    items:['構音の歪み']
+  },
+  prosody: {
+    name:'④プロソディー機能',
+    items:['発話速度の異常（速すぎる・遅すぎる）','発話速度の変動','音の繰り返し','声の大きさの単調性','声の高さの単調性','声の大きさの過度の変動']
+  }
+};
+
+const MINGRYODO_OPTS = [
+  {value:1,   label:'よくわかる'},
+  {value:1.5, label:'1と2の間'},
+  {value:2,   label:'時々わからない語がある'},
+  {value:2.5, label:'2と3の間'},
+  {value:3,   label:'聞き手が話題を知っていればわかる'},
+  {value:3.5, label:'3と4の間'},
+  {value:4,   label:'時々わかる語がある'},
+  {value:4.5, label:'4と5の間'},
+  {value:5,   label:'全く了解不能'}
+];
+const SHIZENDO_OPTS = [
+  {value:1, label:'全く自然である（不自然な要素がない）'},
+  {value:2, label:'やや不自然な要素がある'},
+  {value:3, label:'明らかに不自然である'},
+  {value:4, label:'顕著に不自然である'},
+  {value:5, label:'全く不自然である（自然な要素がない）'}
+];
+
+/* ============================================================
+   UI ヘルパー
+   ============================================================ */
+function el(tag,cls,txt){
+  const e=document.createElement(tag);
+  if(cls)e.className=cls;
+  if(txt!=null)e.textContent=txt;
+  return e;
+}
+function makeOptionBtns(values,current,onPick,opts){
+  opts=opts||{};
+  const wrap=el('div','options');
+  values.forEach(v=>{
+    const b=el('div','opt'+(opts.small?' opt-sm':''),v.label!=null?v.label:String(v));
+    if(current===(v.value!==undefined?v.value:v))b.classList.add('selected');
+    b.onclick=()=>{
+      const val=(v.value!==undefined?v.value:v);
+      onPick(current===val?null:val);
+      render();
+    };
+    wrap.appendChild(b);
+  });
+  return wrap;
+}
+function makeNTRow(ntValue,onPick){
+  const wrap=el('div','nt-row');
+  wrap.appendChild(el('span','tag','特記：'));
+  ['NT','NR','X'].forEach(code=>{
+    const b=el('div','opt opt-sm',code);
+    if(ntValue===code)b.classList.add('selected');
+    b.onclick=()=>{ onPick(ntValue===code?null:code); render(); };
+    wrap.appendChild(b);
+  });
+  return wrap;
+}
+function evalBadge(score){
+  if(score===null||score===undefined){
+    return el('span','eval-badge pending','評価：—');
+  }
+  if(typeof score==='string'){
+    return el('span','eval-badge nt','評価：'+score);
+  }
+  return el('span','eval-badge','評価：'+score);
+}
+
+/* ============================================================
+   数値入力欄の共通ハンドラ（v1.9）
+   - 入力中: 値をstateに保存するだけ（render()しない）→ キーボード閉じない
+   - Enter押下: render()して、次の入力欄(同ID)へフォーカス移動
+   - フォーカスアウト(blur): render()して確定
+   nextId: Enter押下時にフォーカスを移す次の入力欄のID。末尾の欄は null。
+   ============================================================ */
+function bindNumInput(input, onSet, nextId){
+  // 入力中は値を裏で保存するだけ
+  input.addEventListener('input', e=>{ onSet(e.target.value); });
+  // Enterキー: 確定 → 次の欄へ
+  input.addEventListener('keydown', e=>{
+    if(e.key==='Enter'){
+      e.preventDefault();
+      render();
+      if(nextId){
+        // renderで新しいDOMに置き換わっているので、IDで探して新しい要素にフォーカス
+        setTimeout(()=>{
+          const next=document.getElementById(nextId);
+          if(next){ next.focus(); try{next.select();}catch(err){} }
+        }, 0);
+      }
+    }
+  });
+  // フォーカスを外したら確定
+  input.addEventListener('blur', ()=>{ render(); });
+}
+
+/* 古いAPIを互換のために残す（実際には使わない） */
+function setAutoFocus(inp1, inp2){}
+function bindDeferredInput(input, onSet){ bindNumInput(input, onSet, null); }
+
+/* ============================================================
+   タブ定義
+   ============================================================ */
+const TABS = [
+  {id:'speech',      title:'Ⅱ.発話の検査',       render:renderSpeechTab},
+  {id:'organ-resp',  title:'Ⅲ-1.呼吸機能',       render:renderOrganRespTab},
+  {id:'organ-voice', title:'Ⅲ-2.発声機能',       render:renderOrganVoiceTab},
+  {id:'organ-nasal', title:'Ⅲ-3.鼻咽腔閉鎖機能', render:renderOrganNasalTab},
+  {id:'organ-oral-a',title:'Ⅲ-4a.運動範囲',      render:renderOrganOralATab},
+  {id:'organ-oral-b',title:'Ⅲ-4b.交互反復速度',  render:renderOrganOralBTab},
+  {id:'organ-oral-c',title:'Ⅲ-4c.筋力',          render:renderOrganOralCTab},
+  {id:'result',      title:'結果・QRコード',       render:renderResultTab}
+];
+let activeTab='speech';
+
+function render(){
+  const tabs=document.getElementById('tabs');
+  tabs.innerHTML='';
+  TABS.forEach(t=>{
+    const b=el('div','tab-btn'+(activeTab===t.id?' active':''),t.title);
+    b.onclick=()=>{ activeTab=t.id; render(); window.scrollTo(0,0); };
+    tabs.appendChild(b);
+  });
+  const panels=document.getElementById('panels');
+  panels.innerHTML='';
+  const panel=el('div','tab-panel active');
+
+  // 患者情報バー
+  const pb=el('div','patient-bar');
+  const lbl=el('label',null,'患者氏名：');
+  const inp=document.createElement('input');
+  inp.type='text'; inp.value=STATE.patientName;
+  inp.oninput=e=>{ STATE.patientName=e.target.value; };
+  pb.appendChild(lbl); pb.appendChild(inp);
+  const ageL=el('label',null,'年齢：');
+  const ageI=document.createElement('input');
+  ageI.type='number'; ageI.value=STATE.age==null?'':STATE.age; ageI.style.maxWidth='80px';
+  ageI.oninput=e=>{ STATE.age=e.target.value===''?null:Number(e.target.value); };
+  pb.appendChild(ageL); pb.appendChild(ageI);
+  pb.appendChild(el('span','tag','歳'));
+  pb.appendChild(el('div','patient-note','※ 氏名はQRコードには含まれません。画面表示のみに使用します。'));
+  panel.appendChild(pb);
+
+  const tabDef=TABS.find(t=>t.id===activeTab);
+  tabDef.render(panel);
+
+  if(activeTab!=='result'){
+    const br=el('div','btn-row');
+    const rb=el('button','btn btn-reset','このタブをリセット');
+    rb.onclick=()=>{ if(confirm('このタブの回答をリセットしますか？')){ resetCurrentTab(); render(); } };
+    br.appendChild(rb);
+    const ra=el('button','btn btn-reset','全タブをリセット');
+    ra.onclick=()=>{ if(confirm('すべての回答・氏名・年齢をリセットしますか？')){ resetAll(); render(); } };
+    br.appendChild(ra);
+    panel.appendChild(br);
+  }
+  panels.appendChild(panel);
+}
+
+/* ============================================================
+   タブ1: Ⅱ.発話の検査
+   ============================================================ */
+function renderSpeechTab(panel){
+  panel.appendChild(el('h2','','Ⅱ. 発話の検査'));
+
+  // 1. 発話明瞭度
+  const q1=el('div','question');
+  const q1h=el('div','q-title');
+  q1h.appendChild(el('span','label','1. 発話明瞭度'));
+  q1h.appendChild(evalBadge(STATE.mingryodo!=null?STATE.mingryodo:null));
+  q1.appendChild(q1h);
+  q1.appendChild(el('div','instr','1回施行。該当する1つを選択してください。'));
+  q1.appendChild(makeOptionBtns(MINGRYODO_OPTS,STATE.mingryodo,v=>STATE.mingryodo=v));
+  panel.appendChild(q1);
+
+  // 2. 発話の自然度
+  const q2=el('div','question');
+  const q2h=el('div','q-title');
+  q2h.appendChild(el('span','label','2. 発話の自然度'));
+  q2h.appendChild(evalBadge(STATE.shizendo!=null?STATE.shizendo:null));
+  q2.appendChild(q2h);
+  q2.appendChild(el('div','instr','1回施行。該当する1つを選択してください。'));
+  q2.appendChild(makeOptionBtns(SHIZENDO_OPTS,STATE.shizendo,v=>STATE.shizendo=v));
+  panel.appendChild(q2);
+
+  // 3. 発話特徴 [修正5] チェックボックス → スコアボタン（0〜3）
+  panel.appendChild(el('h3','','3. 発話特徴'));
+  panel.appendChild(el('div','section-meta','各特徴項目について0〜3のスコアを選択してください（0=良好/該当なし、1=軽度、2=中等度、3=重度）'));
+
+  Object.keys(FEATURES).forEach(fkey=>{
+    const f=FEATURES[fkey];
+    const state=STATE.features[fkey];
+    const box=el('div','feature-func');
+
+    // ヘッダ（機能名のみ）
+    const head=el('div','ff-head');
+    head.appendChild(el('span','',f.name));
+    // 機能全体の最高スコアを表示
+    const maxScore=f.items.reduce((mx,it)=>{ const v=state.items[it]||0; return v>mx?v:mx; },0);
+    const maxHasAny=f.items.some(it=>(state.items[it]||0)>0);
+    const sumSpan=el('span','');
+    sumSpan.style.fontSize='12px';
+    sumSpan.style.color='var(--muted)';
+    sumSpan.textContent=maxHasAny?`最高スコア：${maxScore}`:'（すべて0）';
+    head.appendChild(sumSpan);
+    box.appendChild(head);
+
+    // 各特徴項目ごとに行を作る
+    f.items.forEach(it=>{
+      const row=el('div','feat-item-row');
+      row.appendChild(el('span','feat-item-name',it));
+      const btns=el('div','feat-item-btns');
+      const scoreLabels=['0','1','2','3'];
+      scoreLabels.forEach((sl,sv)=>{
+        const b=el('button','feat-item-btn',sl);
+        const cur=state.items[it]||0;
+        if(cur===sv) b.classList.add('score-'+sv);
+        b.onclick=()=>{ state.items[it]=sv; render(); };
+        btns.appendChild(b);
+      });
+      row.appendChild(btns);
+      box.appendChild(row);
+    });
+
+    panel.appendChild(box);
+  });
+
+  // 4. 発話速度
+  panel.appendChild(el('h3','','4. 発話速度（「北風と太陽」）'));
+  const spq=el('div','question');
+  const spg=el('div','supp');
+  spg.appendChild(el('span','tag','a. 所要時間：'));
+  const ai=document.createElement('input'); ai.type='number'; ai.step='0.1'; ai.value=STATE.speechRate.a;
+  ai.id='sp-a';
+  bindNumInput(ai, v=>{ STATE.speechRate.a=v; }, 'sp-b');
+  spg.appendChild(ai); spg.appendChild(el('span','tag','秒'));
+  spg.appendChild(el('span','tag','b. 加算するモーラ：'));
+  const bi=document.createElement('input'); bi.type='number'; bi.value=STATE.speechRate.b;
+  bi.id='sp-b';
+  bindNumInput(bi, v=>{ STATE.speechRate.b=v; }, 'sp-c');
+  spg.appendChild(bi); spg.appendChild(el('span','tag','個'));
+  spg.appendChild(el('span','tag','c. 減算するモーラ：'));
+  const ci=document.createElement('input'); ci.type='number'; ci.value=STATE.speechRate.c;
+  ci.id='sp-c';
+  bindNumInput(ci, v=>{ STATE.speechRate.c=v; }, null);
+  spg.appendChild(ci); spg.appendChild(el('span','tag','個'));
+  spq.appendChild(spg);
+
+  const a=Number(STATE.speechRate.a), b_val=STATE.speechRate.b===''?0:Number(STATE.speechRate.b), c_val=STATE.speechRate.c===''?0:Number(STATE.speechRate.c);
+  let rate=null;
+  if(STATE.speechRate.a!==''&&!isNaN(a)&&a>0) rate=(223+b_val-c_val)/a;
+  const rateBox=el('div','speech-rate-calc');
+  rateBox.textContent=rate!=null?`発話速度 = (223 + ${b_val} - ${c_val}) / ${a} = ${rate.toFixed(2)} モーラ/秒`:'発話速度 = (223 + b - c) / a （所要時間aを入力してください）';
+  spq.appendChild(rateBox);
+
+  const crit=getAgeCriteria(STATE.age);
+  const cb=el('div','age-criteria show');
+  if(crit) cb.innerHTML=`<b>${crit.label}基準：</b>${crit.min}モーラ/秒以上（平均${crit.avg}モーラ/秒）`;
+  else cb.innerHTML='年齢を入力すると該当する基準値が表示されます。<br><small>青年(18-34歳):4.7以上（平均5.8） / 中年(35-59歳):3.9以上（平均5.7） / 老年(60歳以上):3.2以上（平均4.6）</small>';
+  spq.appendChild(cb);
+  panel.appendChild(spq);
+}
+
+function getAgeCriteria(age){
+  if(age==null||isNaN(age))return null;
+  if(age>=18&&age<=34)return{label:'青年（18〜34歳）',min:4.7,avg:5.8};
+  if(age>=35&&age<=59)return{label:'中年（35〜59歳）',min:3.9,avg:5.7};
+  if(age>=60)return{label:'老年（60歳以上）',min:3.2,avg:4.6};
+  return null;
+}
+
+/* ============================================================
+   汎用: 2回施行 + 数値入力 + 自動評価 + [修正4]自動フォーカス
+   ============================================================ */
+function makeNumericTrialQuestion(panel,qNo,title,state,evalFn,opts){
+  opts=opts||{};
+  const q=el('div','question');
+  const th=el('div','q-title');
+  th.appendChild(el('span','label',qNo+' '+title));
+  let score=null, adopted=null;
+  if(state.nt){
+    score=state.nt;
+  } else {
+    if(opts.pickLow) adopted=pickLow(state.t1,state.t2);
+    else adopted=pickHigh(state.t1,state.t2);
+    if(adopted!==null) score=evalFn(adopted);
+  }
+  th.appendChild(evalBadge(score));
+  q.appendChild(th);
+  if(opts.instr) q.appendChild(el('div','instr',opts.instr));
+
+  const g=el('div','supp');
+  g.appendChild(el('span','tag','1回目：'));
+  const i1=document.createElement('input'); i1.type='text'; i1.inputMode='decimal'; i1.value=state.t1; i1.style.width='90px';
+  const id1=opts.idPrefix?opts.idPrefix+'-t1':null;
+  const id2=opts.idPrefix?opts.idPrefix+'-t2':null;
+  if(id1) i1.id=id1;
+  if(state.nt){ i1.disabled=true; i1.classList.add('unavailable'); }
+  g.appendChild(i1);
+  if(opts.unit) g.appendChild(el('span','tag',opts.unit));
+  g.appendChild(el('span','tag','2回目：'));
+  const i2=document.createElement('input'); i2.type='text'; i2.inputMode='decimal'; i2.value=state.t2; i2.style.width='90px';
+  if(id2) i2.id=id2;
+  if(state.nt){ i2.disabled=true; i2.classList.add('unavailable'); }
+  g.appendChild(i2);
+  if(opts.unit) g.appendChild(el('span','tag',opts.unit));
+  q.appendChild(g);
+
+  // bindNumInput: Enter → 次欄 / blur → render
+  bindNumInput(i1, v=>{ state.t1=v; state.nt=null; }, id2);
+  bindNumInput(i2, v=>{ state.t2=v; state.nt=null; }, opts.nextAfterT2||null);
+
+  if(adopted!==null){
+    const r=el('div','result-box');
+    r.appendChild(el('span','pill',`採用値：${adopted}${opts.unit||''} (${opts.pickLow?'低い方':'高い方'})`));
+    if(typeof score==='number') r.appendChild(el('span','pill',`評価点：${score}/3`));
+    q.appendChild(r);
+  }
+  q.appendChild(makeNTRow(state.nt,v=>{ state.nt=v; if(v){state.t1='';state.t2='';} }));
+  if(opts.extra) opts.extra(q,state);
+  panel.appendChild(q);
+}
+
+/* ============================================================
+   タブ2: Ⅲ-1.呼吸機能
+   ============================================================ */
+function renderOrganRespTab(panel){
+  panel.appendChild(el('h2','','Ⅲ-1. 呼吸機能'));
+  const avg=computeOrganRespAvg();
+  if(avg.display) panel.appendChild(el('div','avg-display','平均評価点：'+avg.display));
+
+  // ①呼吸数（1回施行のみ）
+  {
+    const s=STATE.oseo.q1;
+    const q=el('div','question');
+    const qh=el('div','q-title');
+    qh.appendChild(el('span','label','① 呼吸数（回/1分）'));
+    // 評価点を計算
+    let score=null;
+    if(s.nt) score=s.nt;
+    else {
+      const v=Number(s.t1);
+      if(s.t1!==''&&s.t1!=null&&!isNaN(v)) score=evalBreathingRate(v);
+    }
+    qh.appendChild(evalBadge(score));
+    q.appendChild(qh);
+    q.appendChild(el('div','instr','1回施行。'));
+
+    // 数値入力欄
+    const g=el('div','supp');
+    g.appendChild(el('span','tag','測定値：'));
+    const i1=document.createElement('input');
+    i1.type='text'; i1.inputMode='decimal'; i1.value=s.t1; i1.style.width='90px';
+    i1.id='q1-t1';
+    bindNumInput(i1, v=>{ s.t1=v; s.nt=null; }, 'q2-t1');
+    if(s.nt){ i1.disabled=true; i1.classList.add('unavailable'); }
+    g.appendChild(i1);
+    g.appendChild(el('span','tag','回/分'));
+    q.appendChild(g);
+
+    // 結果ボックス
+    if(!s.nt&&s.t1!==''&&s.t1!=null&&!isNaN(Number(s.t1))){
+      const rb=el('div','result-box');
+      const ev=evalBreathingRate(Number(s.t1));
+      if(ev!==null) rb.appendChild(el('span','pill',`評価点：${ev}/3`));
+      q.appendChild(rb);
+    }
+
+    // 検査肢位
+    const sw=el('div','supp');
+    sw.appendChild(el('span','tag','検査肢位：'));
+    ['仰臥位','半臥位','座位'].forEach(p=>{
+      const b=el('div','opt opt-sm',p);
+      if(s.stance===p) b.classList.add('selected');
+      b.onclick=()=>{ s.stance=p; render(); };
+      sw.appendChild(b);
+    });
+    q.appendChild(sw);
+
+    // NT/NR/X
+    q.appendChild(makeNTRow(s.nt,v=>{ s.nt=v; if(v){s.t1='';} }));
+    panel.appendChild(q);
+  }
+
+  makeNumericTrialQuestion(panel,'②','最長呼気持続時間（秒）',STATE.oseo.q2,evalSecond,{
+    unit:'秒', instr:'2回施行。高い方を採用。外鼻孔閉鎖時の値は記録のみ。',
+    idPrefix:'q2', nextAfterT2:'q2-nc1',
+    extra:(q,s)=>{
+      const sw=el('div','supp');
+      sw.appendChild(el('span','tag','外鼻孔閉鎖時 1回目：'));
+      const i1=document.createElement('input'); i1.type='text'; i1.inputMode='decimal'; i1.value=s.nc1; i1.style.width='70px';
+      i1.id='q2-nc1';
+      bindNumInput(i1, v=>{ s.nc1=v; }, 'q2-nc2');
+      sw.appendChild(i1); sw.appendChild(el('span','tag','秒　2回目：'));
+      const i2=document.createElement('input'); i2.type='text'; i2.inputMode='decimal'; i2.value=s.nc2; i2.style.width='70px';
+      i2.id='q2-nc2';
+      bindNumInput(i2, v=>{ s.nc2=v; }, 'q3-t1');
+      sw.appendChild(i2); sw.appendChild(el('span','tag','秒'));
+      q.appendChild(sw);
+    }
+  });
+
+  makeNumericTrialQuestion(panel,'③','呼気圧・持続時間（秒）',STATE.oseo.q3,evalSecond,{
+    unit:'秒', instr:'2回施行。高い方を採用。',
+    idPrefix:'q3', nextAfterT2:null
+  });
+}
+
+function computeScoreQ1(){
+  const s=STATE.oseo.q1;
+  if(s.nt)return s.nt;
+  const v=Number(s.t1);
+  if(s.t1===''||s.t1==null||isNaN(v))return null;
+  return evalBreathingRate(v);
+}
+function computeScoreQ2(){ const s=STATE.oseo.q2; if(s.nt)return s.nt; const v=pickHigh(s.t1,s.t2); return v===null?null:evalSecond(v); }
+function computeScoreQ3(){ const s=STATE.oseo.q3; if(s.nt)return s.nt; const v=pickHigh(s.t1,s.t2); return v===null?null:evalSecond(v); }
+function computeOrganRespAvg(){
+  const scores=[computeScoreQ1(),computeScoreQ2(),computeScoreQ3()].filter(s=>typeof s==='number');
+  if(!scores.length)return{display:null,value:null};
+  const avg=scores.reduce((a,b)=>a+b,0)/scores.length;
+  return{display:avg.toFixed(1)+' ('+scores.length+'項目)',value:avg};
+}
+
+/* ============================================================
+   タブ3: Ⅲ-2.発声機能
+   ============================================================ */
+function renderOrganVoiceTab(panel){
+  panel.appendChild(el('h2','','Ⅲ-2. 発声機能'));
+  const avg=computeOrganVoiceAvg();
+  if(avg.display) panel.appendChild(el('div','avg-display','平均評価点：'+avg.display));
+  makeNumericTrialQuestion(panel,'④','最長発声持続時間（MPT）（秒）',STATE.oseo.q4,evalSecond,{unit:'秒',instr:'2回施行。高い方を採用。',idPrefix:'q4',nextAfterT2:'q5-t1'});
+  makeNumericTrialQuestion(panel,'⑤','/a/の交互反復（回/3秒）',STATE.oseo.q5,evalADDK,{unit:'回/3秒',instr:'2回施行。高い方を採用。',idPrefix:'q5',nextAfterT2:null});
+}
+function computeScoreQ4(){ const s=STATE.oseo.q4; if(s.nt)return s.nt; const v=pickHigh(s.t1,s.t2); return v===null?null:evalSecond(v); }
+function computeScoreQ5(){ const s=STATE.oseo.q5; if(s.nt)return s.nt; const v=pickHigh(s.t1,s.t2); return v===null?null:evalADDK(v); }
+function computeOrganVoiceAvg(){
+  const scores=[computeScoreQ4(),computeScoreQ5()].filter(s=>typeof s==='number');
+  if(!scores.length)return{display:null,value:null};
+  const avg=scores.reduce((a,b)=>a+b,0)/scores.length;
+  return{display:avg.toFixed(1)+' ('+scores.length+'項目)',value:avg};
+}
+
+/* ============================================================
+   タブ4: Ⅲ-3.鼻咽腔閉鎖機能
+   ============================================================ */
+function renderOrganNasalTab(panel){
+  panel.appendChild(el('h2','','Ⅲ-3. 鼻咽腔閉鎖機能'));
+  const avg=computeOrganNasalAvg();
+  if(avg.display) panel.appendChild(el('div','avg-display','平均評価点：'+avg.display));
+
+  // ⑥ /a/発声時の視診
+  const q6s=STATE.oseo.q6;
+  const q6=el('div','question');
+  const q6h=el('div','q-title');
+  q6h.appendChild(el('span','label','⑥ /a/発声時の視診'));
+  const q6Score=computeScoreQ6();
+  q6h.appendChild(evalBadge(q6Score.display));
+  q6.appendChild(q6h);
+  q6.appendChild(el('div','instr','R・Lそれぞれ0〜3の評価点を選択。2回施行、高い方を採用（R/L独立）。'));
+  ['R','L'].forEach(side=>{
+    ['t1','t2'].forEach(trial=>{
+      const r=el('div','rl-row');
+      r.appendChild(el('span','rl-label',`${side} ${trial==='t1'?'1回目':'2回目'}：`));
+      const key=side+'_'+trial;
+      const cur=q6s[key];
+      const opts=el('div','rl-opts');
+      [0,1,2,3].forEach(v=>{
+        const b=el('div','opt opt-sm',String(v));
+        if(cur===v) b.classList.add('selected');
+        b.onclick=()=>{ q6s[key]=cur===v?null:v; q6s.nt=null; render(); };
+        if(q6s.nt) b.classList.add('unavailable');
+        opts.appendChild(b);
+      });
+      r.appendChild(opts);
+      q6.appendChild(r);
+    });
+  });
+  const ppWrap=el('div','supp');
+  ppWrap.appendChild(el('span','tag','軟口蓋麻痺：'));
+  ['＋','－'].forEach(v=>{
+    const b=el('div','opt opt-sm',v);
+    if(q6s.paralysis===v) b.classList.add('selected');
+    b.onclick=()=>{ q6s.paralysis=q6s.paralysis===v?'':v; render(); };
+    ppWrap.appendChild(b);
+  });
+  ppWrap.appendChild(el('span','tag','　側：'));
+  ['R','L'].forEach(side=>{
+    const lb=el('label','');
+    const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=!!q6s.paralysis_side[side];
+    cb.onchange=()=>{ q6s.paralysis_side[side]=cb.checked; render(); };
+    lb.style.cssText='padding:4px 8px;border:1px solid #d8dee4;border-radius:4px;margin:0 2px;font-size:13px;cursor:pointer';
+    lb.appendChild(cb); lb.appendChild(document.createTextNode(side));
+    ppWrap.appendChild(lb);
+  });
+  q6.appendChild(ppWrap);
+  q6.appendChild(makeNTRow(q6s.nt,v=>{ q6s.nt=v; if(v){q6s.R_t1=null;q6s.L_t1=null;q6s.R_t2=null;q6s.L_t2=null;} }));
+  panel.appendChild(q6);
+
+  // ⑦ ブローイング時の鼻漏出
+  const q7s=STATE.oseo.q7;
+  const q7=el('div','question');
+  const q7h=el('div','q-title');
+  q7h.appendChild(el('span','label','⑦ ブローイング時の鼻漏出'));
+  const q7Score=computeScoreQ7();
+  q7h.appendChild(evalBadge(q7Score.display));
+  q7.appendChild(q7h);
+  q7.appendChild(el('div','instr','R・Lそれぞれ0〜5度を数値入力。2回施行、低い方を採用（R/L独立）。'));
+  // 入力チェーン: R_t1 → R_t2 → L_t1 → L_t2 → (⑧のR_t1)
+  const q7Chain={R_t1:'q7-R-t2', R_t2:'q7-L-t1', L_t1:'q7-L-t2', L_t2:'q8-R-t1'};
+  ['R','L'].forEach(side=>{
+    const r=el('div','rl-row');
+    r.appendChild(el('span','rl-label',`${side} 1回目：`));
+    const i1=document.createElement('input'); i1.type='text'; i1.inputMode='decimal'; i1.value=q7s[side+'_t1']; i1.style.width='70px';
+    i1.id='q7-'+side+'-t1';
+    bindNumInput(i1, v=>{ q7s[side+'_t1']=v; q7s.nt=null; }, q7Chain[side+'_t1']);
+    if(q7s.nt){ i1.disabled=true; i1.classList.add('unavailable'); }
+    r.appendChild(i1); r.appendChild(el('span','tag','度'));
+    r.appendChild(el('span','tag','2回目：'));
+    const i2=document.createElement('input'); i2.type='text'; i2.inputMode='decimal'; i2.value=q7s[side+'_t2']; i2.style.width='70px';
+    i2.id='q7-'+side+'-t2';
+    bindNumInput(i2, v=>{ q7s[side+'_t2']=v; q7s.nt=null; }, q7Chain[side+'_t2']);
+    if(q7s.nt){ i2.disabled=true; i2.classList.add('unavailable'); }
+    r.appendChild(i2); r.appendChild(el('span','tag','度'));
+    q7.appendChild(r);
+  });
+  if(q7Score.details){ const rb=el('div','result-box'); q7Score.details.forEach(d=>rb.appendChild(el('span','pill',d))); q7.appendChild(rb); }
+  q7.appendChild(makeNTRow(q7s.nt,v=>{ q7s.nt=v; if(v){q7s.R_t1='';q7s.L_t1='';q7s.R_t2='';q7s.L_t2='';} }));
+  panel.appendChild(q7);
+
+  // ⑧ /a/発声時の鼻漏出
+  const q8s=STATE.oseo.q8;
+  const q8=el('div','question');
+  const q8h=el('div','q-title');
+  q8h.appendChild(el('span','label','⑧ /a/発声時の鼻漏出'));
+  const q8Score=computeScoreQ8();
+  q8h.appendChild(evalBadge(q8Score.display));
+  q8.appendChild(q8h);
+  q8.appendChild(el('div','instr','R・Lそれぞれ0〜5度を数値入力。2回施行、低い方を採用（R/L独立）。'));
+  const q8Chain={R_t1:'q8-R-t2', R_t2:'q8-L-t1', L_t1:'q8-L-t2', L_t2:null};
+  ['R','L'].forEach(side=>{
+    const r=el('div','rl-row');
+    r.appendChild(el('span','rl-label',`${side} 1回目：`));
+    const i1=document.createElement('input'); i1.type='text'; i1.inputMode='decimal'; i1.value=q8s[side+'_t1']; i1.style.width='70px';
+    i1.id='q8-'+side+'-t1';
+    bindNumInput(i1, v=>{ q8s[side+'_t1']=v; q8s.nt=null; }, q8Chain[side+'_t1']);
+    if(q8s.nt){ i1.disabled=true; i1.classList.add('unavailable'); }
+    r.appendChild(i1); r.appendChild(el('span','tag','度'));
+    r.appendChild(el('span','tag','2回目：'));
+    const i2=document.createElement('input'); i2.type='text'; i2.inputMode='decimal'; i2.value=q8s[side+'_t2']; i2.style.width='70px';
+    i2.id='q8-'+side+'-t2';
+    bindNumInput(i2, v=>{ q8s[side+'_t2']=v; q8s.nt=null; }, q8Chain[side+'_t2']);
+    if(q8s.nt){ i2.disabled=true; i2.classList.add('unavailable'); }
+    r.appendChild(i2); r.appendChild(el('span','tag','度'));
+    q8.appendChild(r);
+  });
+  if(q8Score.details){ const rb=el('div','result-box'); q8Score.details.forEach(d=>rb.appendChild(el('span','pill',d))); q8.appendChild(rb); }
+  q8.appendChild(makeNTRow(q8s.nt,v=>{ q8s.nt=v; if(v){q8s.R_t1='';q8s.L_t1='';q8s.R_t2='';q8s.L_t2='';} }));
+  panel.appendChild(q8);
+}
+
+function computeScoreQ6(){
+  const s=STATE.oseo.q6;
+  if(s.nt)return{display:s.nt,score:s.nt,R:null,L:null};
+  const R=pickHighScore(s.R_t1,s.R_t2);
+  const L=pickHighScore(s.L_t1,s.L_t2);
+  if(R===null&&L===null)return{display:null,score:null,R:null,L:null};
+  const arr=[R,L].filter(v=>v!==null);
+  const avg=arr.reduce((a,b)=>a+b,0)/arr.length;
+  return{display:`R:${R!==null?R:'—'} L:${L!==null?L:'—'} 平均:${avg.toFixed(1)}`,score:avg,R,L};
+}
+function computeScoreQ7(){
+  const s=STATE.oseo.q7;
+  if(s.nt)return{display:s.nt,score:s.nt};
+  const R_adopted=pickLow(s.R_t1,s.R_t2);
+  const L_adopted=pickLow(s.L_t1,s.L_t2);
+  const R_eval=R_adopted!==null?evalNasalLeak(R_adopted):null;
+  const L_eval=L_adopted!==null?evalNasalLeak(L_adopted):null;
+  if(R_adopted===null&&L_adopted===null)return{display:null,score:null};
+  const details=[];
+  if(R_adopted!==null)details.push(`R採用:${R_adopted}度→評価${R_eval}`);
+  if(L_adopted!==null)details.push(`L採用:${L_adopted}度→評価${L_eval}`);
+  const arr=[R_eval,L_eval].filter(v=>v!==null);
+  const avg=arr.length>0?arr.reduce((a,b)=>a+b,0)/arr.length:null;
+  return{display:avg!==null?`R:${R_eval!==null?R_eval:'—'} L:${L_eval!==null?L_eval:'—'} 平均:${avg.toFixed(1)}`:null,score:avg,R_eval,L_eval,R_adopted,L_adopted,details};
+}
+function computeScoreQ8(){
+  const s=STATE.oseo.q8;
+  if(s.nt)return{display:s.nt,score:s.nt};
+  const R_adopted=pickLow(s.R_t1,s.R_t2);
+  const L_adopted=pickLow(s.L_t1,s.L_t2);
+  const R_eval=R_adopted!==null?evalNasalLeak8(R_adopted):null;
+  const L_eval=L_adopted!==null?evalNasalLeak8(L_adopted):null;
+  if(R_adopted===null&&L_adopted===null)return{display:null,score:null};
+  const details=[];
+  if(R_adopted!==null)details.push(`R採用:${R_adopted}度→評価${R_eval}`);
+  if(L_adopted!==null)details.push(`L採用:${L_adopted}度→評価${L_eval}`);
+  const arr=[R_eval,L_eval].filter(v=>v!==null);
+  const avg=arr.length>0?arr.reduce((a,b)=>a+b,0)/arr.length:null;
+  return{display:avg!==null?`R:${R_eval!==null?R_eval:'—'} L:${L_eval!==null?L_eval:'—'} 平均:${avg.toFixed(1)}`:null,score:avg,R_eval,L_eval,R_adopted,L_adopted,details};
+}
+function computeOrganNasalAvg(){
+  const scores=[computeScoreQ6(),computeScoreQ7(),computeScoreQ8()].map(o=>o.score).filter(s=>typeof s==='number');
+  if(!scores.length)return{display:null,value:null};
+  const avg=scores.reduce((a,b)=>a+b,0)/scores.length;
+  return{display:avg.toFixed(1)+' ('+scores.length+'項目)',value:avg};
+}
+
+/* ============================================================
+   タブ5: Ⅲ-4a.運動範囲
+   ============================================================ */
+function renderOrganOralATab(panel){
+  panel.appendChild(el('h2','','Ⅲ-4a. 口腔構音機能：運動範囲'));
+  const avg=computeOrganOralAAvg();
+  if(avg.display) panel.appendChild(el('div','avg-display','平均評価点：'+avg.display));
+
+  const items=[
+    {id:'q9', no:'⑨',label:'舌の突出',type:'select',criteria:['不動','下顎前歯列上まで舌尖を突出できる','下唇上まで舌尖を突出できる','下唇より偏位することなく前方に舌尖を突出できる'],extra:'paralysis'},
+    {id:'q10',no:'⑩',label:'舌の右移動',type:'select',criteria:['不動','移動距離が正中位-口角間の1/2以下','口角に届かないが移動距離が1/2以上','舌尖が口角まで達する']},
+    {id:'q11',no:'⑪',label:'舌の左移動',type:'select',criteria:['不動','移動距離が正中位-口角間の1/2以下','口角に届かないが移動距離が1/2以上','舌尖が口角まで達する']},
+    {id:'q12',no:'⑫',label:'前舌の挙上',type:'select',criteria:['不動','舌面が全く口蓋に接触できない','口蓋と接触できるが舌圧子を保持できない','舌面と口蓋の間で舌圧子を保持できる']},
+    {id:'q13',no:'⑬',label:'奥舌の挙上',type:'select',criteria:['不動','奥舌が全く軟口蓋に触れず音が置換される','奥舌がようやく軟口蓋に触れるが歪みが生じる','奥舌が軟口蓋に接触し歪みがない']},
+    {id:'q14',no:'⑭',label:'口唇の閉鎖（開放距離mm）',type:'mm'},
+    {id:'q15',no:'⑮',label:'口唇を引く',type:'select',criteria:['不動','顕著に引きの程度が小さい','若干引きの程度が小さい','明確に引くことができる']},
+    {id:'q16',no:'⑯',label:'口唇の突出',type:'select',criteria:['不動','顕著に突出の程度が小さい','若干突出の程度が小さい','明確に突出することができる'],extra:'facial'},
+    {id:'q17',no:'⑰',label:'下顎の下制',type:'select',criteria:['最大開口距離5mm未満','5mm以上20mm未満','20mm以上35mm未満','35mm以上']},
+    {id:'q18',no:'⑱',label:'下顎の挙上',type:'select',criteria:['不動','臼歯・前歯が全く触れられない','ようやく触れるが保持できない','舌圧子を噛んで保持できる']}
+  ];
+
+  items.forEach(item=>{
+    const state=STATE.oseo[item.id];
+    const q=el('div','question');
+    const qh=el('div','q-title');
+    qh.appendChild(el('span','label',item.no+' '+item.label));
+    const score=computeOralAItemScore(item);
+    qh.appendChild(evalBadge(score.display));
+    q.appendChild(qh);
+    q.appendChild(el('div','instr','2回施行、高い方を採用。'));
+
+    if(item.type==='select'){
+      const opts=item.criteria.map((c,i)=>({value:i,label:`${i} ${c}`}));
+      const r1=el('div','supp'); r1.appendChild(el('span','tag','1回目：'));
+      const b1=makeOptionBtns(opts,state.t1,v=>{ state.t1=v; state.nt=null; });
+      if(state.nt) b1.querySelectorAll('.opt').forEach(o=>o.classList.add('unavailable'));
+      r1.appendChild(b1); q.appendChild(r1);
+      const r2=el('div','supp'); r2.appendChild(el('span','tag','2回目：'));
+      const b2=makeOptionBtns(opts,state.t2,v=>{ state.t2=v; state.nt=null; });
+      if(state.nt) b2.querySelectorAll('.opt').forEach(o=>o.classList.add('unavailable'));
+      r2.appendChild(b2); q.appendChild(r2);
+    } else if(item.type==='mm'){
+      /* [修正1] ⑭口唇の閉鎖: 小さい方を採用 */
+      const r=el('div','supp');
+      r.appendChild(el('span','tag','1回目：'));
+      const i1=document.createElement('input'); i1.type='text'; i1.inputMode='decimal'; i1.value=state.t1; i1.style.width='90px';
+      i1.id='q14-t1';
+      bindNumInput(i1, v=>{ state.t1=v; state.nt=null; }, 'q14-t2');
+      if(state.nt){ i1.disabled=true; i1.classList.add('unavailable'); }
+      r.appendChild(i1); r.appendChild(el('span','tag','mm'));
+      r.appendChild(el('span','tag','2回目：'));
+      const i2=document.createElement('input'); i2.type='text'; i2.inputMode='decimal'; i2.value=state.t2; i2.style.width='90px';
+      i2.id='q14-t2';
+      bindNumInput(i2, v=>{ state.t2=v; state.nt=null; }, null);
+      if(state.nt){ i2.disabled=true; i2.classList.add('unavailable'); }
+      r.appendChild(i2); r.appendChild(el('span','tag','mm'));
+      q.appendChild(r);
+      // 採用値表示（小さい方）
+      const adopted=pickLow(state.t1,state.t2);
+      if(adopted!==null){
+        const rb=el('div','result-box');
+        rb.appendChild(el('span','pill',`採用値：${adopted}mm（小さい方）`));
+        const ev=evalLipOpen(adopted);
+        if(ev!==null) rb.appendChild(el('span','pill',`評価点：${ev}/3`));
+        q.appendChild(rb);
+      }
+    }
+
+    // 付加情報
+    if(item.extra==='paralysis'){
+      const w=el('div','supp');
+      w.appendChild(el('span','tag','舌下神経麻痺：'));
+      ['＋','－'].forEach(v=>{
+        const b=el('div','opt opt-sm',v);
+        if(state.paralysis===v) b.classList.add('selected');
+        b.onclick=()=>{ state.paralysis=state.paralysis===v?'':v; render(); };
+        w.appendChild(b);
+      });
+      w.appendChild(el('span','tag','　側：'));
+      ['R','L'].forEach(side=>{
+        const lb=el('label','');
+        const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=!!state.paralysis_side[side];
+        cb.onchange=()=>{ state.paralysis_side[side]=cb.checked; render(); };
+        lb.style.cssText='padding:4px 8px;border:1px solid #d8dee4;border-radius:4px;margin:0 2px;font-size:13px;cursor:pointer';
+        lb.appendChild(cb); lb.appendChild(document.createTextNode(side));
+        w.appendChild(lb);
+      });
+      q.appendChild(w);
+    } else if(item.extra==='facial'){
+      const w=el('div','supp');
+      w.appendChild(el('span','tag','顔面神経麻痺：'));
+      ['＋','－'].forEach(v=>{
+        const b=el('div','opt opt-sm',v);
+        if(state.facialParalysis===v) b.classList.add('selected');
+        b.onclick=()=>{ state.facialParalysis=state.facialParalysis===v?'':v; render(); };
+        w.appendChild(b);
+      });
+      w.appendChild(el('span','tag','　側：'));
+      ['R','L'].forEach(side=>{
+        const lb=el('label','');
+        const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=!!state.fp_side[side];
+        cb.onchange=()=>{ state.fp_side[side]=cb.checked; render(); };
+        lb.style.cssText='padding:4px 8px;border:1px solid #d8dee4;border-radius:4px;margin:0 2px;font-size:13px;cursor:pointer';
+        lb.appendChild(cb); lb.appendChild(document.createTextNode(side));
+        w.appendChild(lb);
+      });
+      q.appendChild(w);
+    }
+
+    q.appendChild(makeNTRow(state.nt,v=>{ state.nt=v; if(v){state.t1=item.type==='mm'?'':null; state.t2=item.type==='mm'?'':null;} }));
+    panel.appendChild(q);
+  });
+}
+
+function computeOralAItemScore(item){
+  const s=STATE.oseo[item.id];
+  if(s.nt)return{display:s.nt,score:s.nt};
+  if(item.type==='select'){
+    const v=pickHighScore(s.t1,s.t2);
+    return{display:v,score:v};
+  } else {
+    /* [修正1] ⑭: 小さい方を採用 */
+    const adopted=pickLow(s.t1,s.t2);
+    if(adopted===null)return{display:null,score:null};
+    const ev=evalLipOpen(adopted);
+    return{display:ev,score:ev};
+  }
+}
+function computeOrganOralAAvg(){
+  const items=[
+    {id:'q9',type:'select'},{id:'q10',type:'select'},{id:'q11',type:'select'},
+    {id:'q12',type:'select'},{id:'q13',type:'select'},{id:'q14',type:'mm'},
+    {id:'q15',type:'select'},{id:'q16',type:'select'},{id:'q17',type:'select'},{id:'q18',type:'select'}
+  ];
+  const scores=items.map(it=>computeOralAItemScore(it).score).filter(s=>typeof s==='number');
+  if(!scores.length)return{display:null,value:null};
+  const avg=scores.reduce((a,b)=>a+b,0)/scores.length;
+  return{display:avg.toFixed(1)+' ('+scores.length+'項目)',value:avg};
+}
+
+/* ============================================================
+   タブ6: Ⅲ-4b.交互反復速度
+   ============================================================ */
+function renderOrganOralBTab(panel){
+  panel.appendChild(el('h2','','Ⅲ-4b. 口腔構音機能：交互反復運動での速度'));
+  const avg=computeOrganOralBAvg();
+  if(avg.display) panel.appendChild(el('div','avg-display','平均評価点：'+avg.display));
+
+  const items=[
+    {id:'q19',no:'⑲',label:'舌の突出－後退',fn:evalDDK12,zeroLabel:'単発的運動時でも下唇より前方に舌尖が突出しない'},
+    {id:'q20',no:'⑳',label:'舌の左右移動',fn:evalDDK12,zeroLabel:'単発的運動時でも左右の口角まで舌尖が達しない'},
+    {id:'q21',no:'㉑',label:'下顎の挙上－下制',fn:evalDDK12,zeroLabel:'単発的運動時でも下顎をほとんど開閉できない'},
+    {id:'q22',no:'㉒',label:'/pa/の交互反復',fn:evalDDK34,zeroLabel:'単発的運動時でも不可'},
+    {id:'q23',no:'㉓',label:'/ta/の交互反復',fn:evalDDK34,zeroLabel:'単発的運動時でも不可'},
+    {id:'q24',no:'㉔',label:'/ka/の交互反復',fn:evalDDK34,zeroLabel:'単発的運動時でも不可'}
+  ];
+
+  items.forEach((item, idx)=>{
+    const s=STATE.oseo[item.id];
+    // 回数÷秒数から自動計算（毎回renderで再計算）
+    const rate1=computeRate(s.c1,s.s1);
+    const rate2=computeRate(s.c2,s.s2);
+    s.t1=rate1!==null?String(rate1):'';
+    s.t2=rate2!==null?String(rate2):'';
+
+    // 次項目への連結用ID（最後の項目はnull）
+    const nextItem=items[idx+1];
+    const nextItemFirstId=nextItem?nextItem.id+'-c1':null;
+
+    const q=el('div','question');
+    const qh=el('div','q-title');
+    qh.appendChild(el('span','label',item.no+' '+item.label));
+    const score=computeOralBItemScore(item);
+    qh.appendChild(evalBadge(score.display));
+    q.appendChild(qh);
+    q.appendChild(el('div','instr','2回施行、高い方を採用。回数と秒数を入力すると「回/秒」を自動計算します。'));
+
+    const zeroRow=el('div','toggle-row');
+    const lb=el('label','');
+    const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=!!s.zero;
+    cb.onchange=()=>{ s.zero=cb.checked; if(cb.checked){s.c1='';s.s1='';s.c2='';s.s2='';s.t1='';s.t2='';s.nt=null;} render(); };
+    lb.appendChild(cb); lb.appendChild(document.createTextNode(' '+item.zeroLabel+'（評価0）'));
+    zeroRow.appendChild(lb);
+    q.appendChild(zeroRow);
+
+    // 1回目の入力欄（回数・秒数）
+    const r1=el('div','supp');
+    r1.appendChild(el('span','tag','1回目：'));
+    const c1=document.createElement('input'); c1.type='text'; c1.inputMode='decimal'; c1.value=s.c1; c1.style.width='70px';
+    c1.id=item.id+'-c1';
+    bindNumInput(c1, v=>{ s.c1=v; s.zero=false; s.nt=null; }, item.id+'-s1');
+    if(s.zero||s.nt){ c1.disabled=true; c1.classList.add('unavailable'); }
+    r1.appendChild(c1); r1.appendChild(el('span','tag','回 ÷'));
+    const sec1=document.createElement('input'); sec1.type='text'; sec1.inputMode='decimal'; sec1.value=s.s1; sec1.style.width='70px';
+    sec1.id=item.id+'-s1';
+    bindNumInput(sec1, v=>{ s.s1=v; s.zero=false; s.nt=null; }, item.id+'-c2');
+    if(s.zero||s.nt){ sec1.disabled=true; sec1.classList.add('unavailable'); }
+    r1.appendChild(sec1); r1.appendChild(el('span','tag','秒'));
+    if(rate1!==null){
+      r1.appendChild(el('span','tag','→'));
+      const res1=el('span','pill'); res1.style.background='#fff'; res1.style.border='1px solid var(--accent)'; res1.style.padding='2px 8px'; res1.style.borderRadius='12px';
+      res1.textContent=`${rate1.toFixed(1)} 回/秒`;
+      r1.appendChild(res1);
+    }
+    q.appendChild(r1);
+
+    // 2回目の入力欄（回数・秒数）
+    const r2=el('div','supp');
+    r2.appendChild(el('span','tag','2回目：'));
+    const c2=document.createElement('input'); c2.type='text'; c2.inputMode='decimal'; c2.value=s.c2; c2.style.width='70px';
+    c2.id=item.id+'-c2';
+    bindNumInput(c2, v=>{ s.c2=v; s.zero=false; s.nt=null; }, item.id+'-s2');
+    if(s.zero||s.nt){ c2.disabled=true; c2.classList.add('unavailable'); }
+    r2.appendChild(c2); r2.appendChild(el('span','tag','回 ÷'));
+    const sec2=document.createElement('input'); sec2.type='text'; sec2.inputMode='decimal'; sec2.value=s.s2; sec2.style.width='70px';
+    sec2.id=item.id+'-s2';
+    bindNumInput(sec2, v=>{ s.s2=v; s.zero=false; s.nt=null; }, nextItemFirstId);
+    if(s.zero||s.nt){ sec2.disabled=true; sec2.classList.add('unavailable'); }
+    r2.appendChild(sec2); r2.appendChild(el('span','tag','秒'));
+    if(rate2!==null){
+      r2.appendChild(el('span','tag','→'));
+      const res2=el('span','pill'); res2.style.background='#fff'; res2.style.border='1px solid var(--accent)'; res2.style.padding='2px 8px'; res2.style.borderRadius='12px';
+      res2.textContent=`${rate2.toFixed(1)} 回/秒`;
+      r2.appendChild(res2);
+    }
+    q.appendChild(r2);
+
+    /* 結果ボックスに採用値・評価点を表示 */
+    if(!s.zero&&!s.nt){
+      const adopted=pickHigh(s.t1,s.t2);
+      if(adopted!==null){
+        const rb=el('div','result-box');
+        rb.appendChild(el('span','pill',`採用値：${adopted.toFixed(1)}回/秒（高い方）`));
+        const ev=item.fn(adopted);
+        if(ev!==null) rb.appendChild(el('span','pill',`評価点：${ev}/3`));
+        q.appendChild(rb);
+      }
+    }
+    q.appendChild(makeNTRow(s.nt,v=>{ s.nt=v; if(v){s.c1='';s.s1='';s.c2='';s.s2='';s.t1='';s.t2='';s.zero=false;} }));
+    panel.appendChild(q);
+  });
+}
+
+/* 回数÷秒数 から 回/秒 を算出 */
+function computeRate(count, sec){
+  const c=Number(count), s=Number(sec);
+  if(count===''||count==null||sec===''||sec==null)return null;
+  if(isNaN(c)||isNaN(s)||s<=0)return null;
+  return c/s;
+}
+
+function computeOralBItemScore(item){
+  const s=STATE.oseo[item.id];
+  if(s.nt)return{display:s.nt,score:s.nt};
+  if(s.zero)return{display:0,score:0};
+  const v=pickHigh(s.t1,s.t2);
+  if(v===null)return{display:null,score:null};
+  const ev=item.fn(v);
+  return{display:ev,score:ev};
+}
+function computeOrganOralBAvg(){
+  const items=[
+    {id:'q19',fn:evalDDK12},{id:'q20',fn:evalDDK12},{id:'q21',fn:evalDDK12},
+    {id:'q22',fn:evalDDK34},{id:'q23',fn:evalDDK34},{id:'q24',fn:evalDDK34}
+  ];
+  const scores=items.map(it=>computeOralBItemScore(it).score).filter(s=>typeof s==='number');
+  if(!scores.length)return{display:null,value:null};
+  const avg=scores.reduce((a,b)=>a+b,0)/scores.length;
+  return{display:avg.toFixed(1)+' ('+scores.length+'項目)',value:avg};
+}
+
+/* ============================================================
+   タブ7: Ⅲ-4c.筋力
+   ============================================================ */
+function renderOrganOralCTab(panel){
+  panel.appendChild(el('h2','','Ⅲ-4c. 口腔構音機能：筋力'));
+  const avg=computeOrganOralCAvg();
+  if(avg.display) panel.appendChild(el('div','avg-display','平均評価点：'+avg.display));
+
+  const items=[
+    {id:'q25',no:'㉕',label:'下顎の下制',resistance:'中等度'},
+    {id:'q26',no:'㉖',label:'下顎の挙上',resistance:'軽度'},
+    {id:'q27',no:'㉗',label:'舌の突出',resistance:'軽度'},
+    {id:'q28',no:'㉘',label:'舌面の挙上',resistance:'軽度'},
+    {id:'q29',no:'㉙',label:'口唇の閉鎖',resistance:'軽度'}
+  ];
+  const criteria=[
+    '自動運動でも全く運動することができない',
+    '自動運動では部分的に運動することができる',
+    '自動運動では基準の運動範囲まで運動を行うことができる',
+    'の徒手的抵抗を加えても基準の運動範囲まで運動を行うことができる'
+  ];
+  items.forEach(item=>{
+    const s=STATE.oseo[item.id];
+    const q=el('div','question');
+    const qh=el('div','q-title');
+    qh.appendChild(el('span','label',item.no+' '+item.label));
+    const score=computeOralCItemScore(item);
+    qh.appendChild(evalBadge(score.display));
+    q.appendChild(qh);
+    q.appendChild(el('div','instr','2回施行、高い方を採用。'));
+    const opts=[
+      {value:0,label:`0 ${criteria[0]}`},
+      {value:1,label:`1 ${criteria[1]}`},
+      {value:2,label:`2 ${criteria[2]}`},
+      {value:3,label:`3 ${item.resistance}${criteria[3]}`}
+    ];
+    const r1=el('div','supp'); r1.appendChild(el('span','tag','1回目：'));
+    const b1=makeOptionBtns(opts,s.t1,v=>{ s.t1=v; s.nt=null; });
+    if(s.nt) b1.querySelectorAll('.opt').forEach(o=>o.classList.add('unavailable'));
+    r1.appendChild(b1); q.appendChild(r1);
+    const r2=el('div','supp'); r2.appendChild(el('span','tag','2回目：'));
+    const b2=makeOptionBtns(opts,s.t2,v=>{ s.t2=v; s.nt=null; });
+    if(s.nt) b2.querySelectorAll('.opt').forEach(o=>o.classList.add('unavailable'));
+    r2.appendChild(b2); q.appendChild(r2);
+    q.appendChild(makeNTRow(s.nt,v=>{ s.nt=v; if(v){s.t1=null;s.t2=null;} }));
+    panel.appendChild(q);
+  });
+}
+function computeOralCItemScore(item){
+  const s=STATE.oseo[item.id];
+  if(s.nt)return{display:s.nt,score:s.nt};
+  const v=pickHighScore(s.t1,s.t2);
+  return{display:v,score:v};
+}
+function computeOrganOralCAvg(){
+  const ids=['q25','q26','q27','q28','q29'];
+  const scores=ids.map(id=>computeOralCItemScore({id}).score).filter(s=>typeof s==='number');
+  if(!scores.length)return{display:null,value:null};
+  const avg=scores.reduce((a,b)=>a+b,0)/scores.length;
+  return{display:avg.toFixed(1)+' ('+scores.length+'項目)',value:avg};
+}
+
+/* ============================================================
+   タブ8: 結果・QRコード（3個版 / セクション別）
+   ============================================================ */
+function renderResultTab(panel){
+  panel.appendChild(el('h2','','結果・QRコード生成'));
+  const unanswered=countUnanswered();
+  const warn=el('div','warn-box'+(unanswered>0?' show':''));
+  warn.textContent=unanswered>0?`⚠ 未回答の項目が${unanswered}項目あります。QRは生成できますが、未回答項目はQRテキストから省略されます。`:'';
+  panel.appendChild(warn);
+
+  const btnRow=el('div','btn-row');
+  const genBtn=el('button','btn btn-primary','QRコードを生成（3枚）');
+  genBtn.onclick=()=>generateQR();
+  btnRow.appendChild(genBtn);
+  const resetBtn=el('button','btn btn-reset','全タブをリセット');
+  resetBtn.onclick=()=>{ if(confirm('すべての回答・氏名・年齢をリセットしますか？')){ resetAll(); render(); } };
+  btnRow.appendChild(resetBtn);
+  panel.appendChild(btnRow);
+
+  // QR表示エリア（3個）
+  const parts=[
+    {id:'qr-area-1', canvasId:'qr-canvas-1', textId:'qr-text-1', label:'[1/3] Ⅱ.発話の検査'},
+    {id:'qr-area-2', canvasId:'qr-canvas-2', textId:'qr-text-2', label:'[2/3] Ⅲ.発声発語器官検査(1)'},
+    {id:'qr-area-3', canvasId:'qr-canvas-3', textId:'qr-text-3', label:'[3/3] Ⅲ.発声発語器官検査(2) 口腔構音機能'}
+  ];
+  parts.forEach(p=>{
+    const qrArea=el('div','qr-area'); qrArea.id=p.id; qrArea.style.display='none';
+    const title=el('div',''); title.style.cssText='font-weight:bold;margin-bottom:6px;font-size:14px;';
+    title.textContent='◆ '+p.label;
+    qrArea.appendChild(title);
+    const qrCanvas=el('div','qr-canvas'); qrCanvas.id=p.canvasId;
+    qrArea.appendChild(qrCanvas);
+    const copyBtn=el('button','btn btn-copy','テキストをコピー');
+    copyBtn.onclick=(()=>{
+      const tid=p.textId;
+      return ()=>{
+        const t=document.getElementById(tid).textContent;
+        navigator.clipboard.writeText(t).then(()=>{
+          copyBtn.textContent='コピーしました ✓';
+          setTimeout(()=>{ copyBtn.textContent='テキストをコピー'; },2000);
+        },()=>{
+          const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select();
+          try{document.execCommand('copy');copyBtn.textContent='コピーしました ✓';}catch(e){}
+          document.body.removeChild(ta); setTimeout(()=>{copyBtn.textContent='テキストをコピー';},2000);
+        });
+      };
+    })();
+    const copyRow=el('div','btn-row'); copyRow.style.margin='10px 0 0'; copyRow.appendChild(copyBtn);
+    qrArea.appendChild(copyRow);
+    const qrText=el('pre','qr-text'); qrText.id=p.textId;
+    qrArea.appendChild(qrText);
+    panel.appendChild(qrArea);
+  });
+
+  panel.appendChild(el('h3','','プレビュー（現在の入力状況）'));
+  const preview=el('pre','qr-text'); preview.textContent=buildQRText();
+  panel.appendChild(preview);
+}
+
+function toCRLF(raw){ return raw.replace(/\r\n/g,'\n').replace(/\n/g,'\r\n'); }
+
+function generateQR(){
+  const parts=[
+    {rawFn:buildQRPart1, areaId:'qr-area-1', canvasId:'qr-canvas-1', textId:'qr-text-1'},
+    {rawFn:buildQRPart2, areaId:'qr-area-2', canvasId:'qr-canvas-2', textId:'qr-text-2'},
+    {rawFn:buildQRPart3, areaId:'qr-area-3', canvasId:'qr-canvas-3', textId:'qr-text-3'}
+  ];
+  let firstArea=null;
+  parts.forEach(p=>{
+    const text=toCRLF(p.rawFn());
+    const qrArea=document.getElementById(p.areaId);
+    const qrCanvas=document.getElementById(p.canvasId);
+    const qrText=document.getElementById(p.textId);
+    qrCanvas.innerHTML=''; qrText.textContent=text;
+    try{
+      const qr=qrcode(0,'M');
+      qr.addData(text);
+      qr.make();
+      qrCanvas.innerHTML=qr.createSvgTag(3,4);
+    }catch(e){
+      qrCanvas.innerHTML='<div style="color:red;padding:10px">QR生成エラー（テキストが長すぎる可能性があります）: '+e.message+'</div>';
+    }
+    qrArea.style.display='block';
+    if(!firstArea)firstArea=qrArea;
+  });
+  if(firstArea){ try{firstArea.scrollIntoView({behavior:'smooth',block:'start'});}catch(e){} }
+}
+
+function countUnanswered(){
+  let n=0;
+  if(STATE.mingryodo==null)n++;
+  if(STATE.shizendo==null)n++;
+  if(STATE.speechRate.a===''||STATE.speechRate.a==null)n++;
+  const ids=['q1','q2','q3','q4','q5','q6','q7','q8','q9','q10','q11','q12','q13','q14','q15','q16','q17','q18','q19','q20','q21','q22','q23','q24','q25','q26','q27','q28','q29'];
+  ids.forEach(id=>{
+    const s=STATE.oseo[id];
+    if(s.nt)return;
+    if(id==='q1'){
+      if(s.t1===''||s.t1==null)n++;
+    }else if(id==='q6'){
+      if(s.R_t1==null&&s.L_t1==null&&s.R_t2==null&&s.L_t2==null)n++;
+    }else if(id==='q7'||id==='q8'){
+      if([s.R_t1,s.L_t1,s.R_t2,s.L_t2].every(v=>v===''||v==null))n++;
+    }else if(['q19','q20','q21','q22','q23','q24'].includes(id)){
+      if(!s.zero&&(s.t1===''||s.t1==null)&&(s.t2===''||s.t2==null))n++;
+    }else if(['q9','q10','q11','q12','q13','q15','q16','q17','q18','q25','q26','q27','q28','q29'].includes(id)){
+      if(s.t1==null&&s.t2==null)n++;
+    }else{
+      if((s.t1===''||s.t1==null)&&(s.t2===''||s.t2==null))n++;
+    }
+  });
+  return n;
+}
+
+/* ============================================================
+   QRテキスト生成
+   ============================================================ */
+function fmtScore(v){ if(v==null)return'—'; if(typeof v==='string')return v; return String(v); }
+function fmtNum(v,digits){ if(v==null||v===''||isNaN(v))return'—'; return Number(v).toFixed(digits||1); }
+
+function buildQRText(){
+  // 1個のQRに全内容を格納（先頭に標題、各パートを見出しで区切る）
+  const lines=[];
+  lines.push('◆標準ディサースリア検査（AMSD）');
+  lines.push('');
+  lines.push('Ⅱ.発話の検査');
+  // Part1のヘッダ行（「◆AMSD [1/3] Ⅱ.発話の検査」）は除去し、中身だけを使う
+  const p1=buildQRPart1().split('\n').slice(1).join('\n');
+  lines.push(p1);
+  lines.push('');
+  lines.push('Ⅲ.発声発語器官検査');
+  const p2=buildQRPart2().split('\n').slice(1).join('\n');
+  lines.push(p2);
+  lines.push('');
+  lines.push('4.口腔構音機能');
+  const p3=buildQRPart3().split('\n').slice(1).join('\n');
+  lines.push(p3);
+  return lines.join('\n');
+}
+
+/* QR1: Ⅱ.発話の検査 */
+function buildQRPart1(){
+  const lines=[];
+  lines.push('◆AMSD [1/3] Ⅱ.発話の検査');
+  const mopt=MINGRYODO_OPTS.find(o=>o.value===STATE.mingryodo);
+  lines.push(`1.発話明瞭度：${STATE.mingryodo!=null?STATE.mingryodo:'—'}/${mopt?mopt.label:'未回答'}`);
+  const sopt=SHIZENDO_OPTS.find(o=>o.value===STATE.shizendo);
+  lines.push(`2.発話の自然度：${STATE.shizendo!=null?STATE.shizendo:'—'}/${sopt?sopt.label:'未回答'}`);
+
+  lines.push('3.発話特徴：');
+  const funcs=[
+    {key:'respiration',num:'①',name:'呼吸・発声機能'},
+    {key:'velopharyngeal',num:'②',name:'鼻咽腔閉鎖機能'},
+    {key:'articulation',num:'③',name:'口腔構音機能'},
+    {key:'prosody',num:'④',name:'プロソディー機能'}
+  ];
+  funcs.forEach(f=>{
+    const st=STATE.features[f.key];
+    const f_def=FEATURES[f.key];
+    const scored=f_def.items.filter(it=>(st.items[it]||0)>0);
+    if(scored.length===0)return;
+    const maxScore=f_def.items.reduce((mx,it)=>{ const v=st.items[it]||0; return v>mx?v:mx; },0);
+    const itemDetails=scored.map(it=>`${it}(${st.items[it]})`).join('、');
+    lines.push(`${f.num}${f.name}（最高スコア${maxScore}）：${itemDetails}`);
+  });
+
+  const a=Number(STATE.speechRate.a);
+  const b_val=STATE.speechRate.b===''?0:Number(STATE.speechRate.b);
+  const c_val=STATE.speechRate.c===''?0:Number(STATE.speechRate.c);
+  let rate=null;
+  if(STATE.speechRate.a!==''&&!isNaN(a)&&a>0) rate=(223+b_val-c_val)/a;
+  const crit=getAgeCriteria(STATE.age);
+  if(rate!==null){
+    let line=`4.発話速度：${rate.toFixed(2)}モーラ/秒`;
+    if(crit) line+=`（基準：${crit.label} ${crit.min}モーラ/秒以上、平均${crit.avg}）`;
+    lines.push(line);
+  }else lines.push('4.発話速度：—（未計測）');
+
+  return lines.join('\n');
+}
+
+/* QR2: Ⅲ-1〜Ⅲ-3（呼吸・発声・鼻咽腔閉鎖機能） */
+function buildQRPart2(){
+  const lines=[];
+  lines.push('◆AMSD [2/3] Ⅲ.発声発語器官検査(1)');
+
+  // 1. 呼吸機能
+  const respAvg=computeOrganRespAvg();
+  lines.push(`1.呼吸機能（平均評価点：${respAvg.value!=null?respAvg.value.toFixed(1):'—'}）`);
+  {const s=STATE.oseo.q1;
+    if(s.nt)lines.push(`①呼吸数：${s.nt} 検査肢位：${s.stance||'—'}`);
+    else{
+      const v=Number(s.t1);
+      const valid=s.t1!==''&&s.t1!=null&&!isNaN(v);
+      const ev=valid?evalBreathingRate(v):null;
+      lines.push(`①呼吸数：${valid?v:'—'}回/分（評価${fmtScore(ev)}）検査肢位：${s.stance||'—'}`);
+    }}
+  {const s=STATE.oseo.q2;
+    if(s.nt)lines.push(`②最長呼気持続時間：${s.nt}`);
+    else{const ad=pickHigh(s.t1,s.t2);const ev=ad!==null?evalSecond(ad):null;let line=`②最長呼気持続時間：${ad!==null?Number(ad).toFixed(1):'—'}秒（評価${fmtScore(ev)}）`;const nc=pickHigh(s.nc1,s.nc2);if(nc!==null)line+=` 外鼻孔閉鎖：${Number(nc).toFixed(1)}秒`;lines.push(line);}}
+  {const s=STATE.oseo.q3;
+    if(s.nt)lines.push(`③呼気圧・持続時間：${s.nt}`);
+    else{const ad=pickHigh(s.t1,s.t2);const ev=ad!==null?evalSecond(ad):null;lines.push(`③呼気圧・持続時間：${ad!==null?Number(ad).toFixed(1):'—'}秒（評価${fmtScore(ev)}）`);}}
+
+  // 2. 発声機能
+  const voiceAvg=computeOrganVoiceAvg();
+  lines.push(`2.発声機能（平均評価点：${voiceAvg.value!=null?voiceAvg.value.toFixed(1):'—'}）`);
+  {const s=STATE.oseo.q4;if(s.nt)lines.push(`④最長発声持続時間：${s.nt}`);else{const ad=pickHigh(s.t1,s.t2);const ev=ad!==null?evalSecond(ad):null;lines.push(`④最長発声持続時間：${ad!==null?Number(ad).toFixed(1):'—'}秒（評価${fmtScore(ev)}）`);}}
+  {const s=STATE.oseo.q5;if(s.nt)lines.push(`⑤/a/の交互反復：${s.nt}`);else{const ad=pickHigh(s.t1,s.t2);const ev=ad!==null?evalADDK(ad):null;lines.push(`⑤/a/の交互反復：${ad!==null?Number(ad).toFixed(1):'—'}回/3秒（評価${fmtScore(ev)}）`);}}
+
+  // 3. 鼻咽腔閉鎖機能
+  const nasalAvg=computeOrganNasalAvg();
+  lines.push(`3.鼻咽腔閉鎖機能（平均評価点：${nasalAvg.value!=null?nasalAvg.value.toFixed(1):'—'}）`);
+  {const s=STATE.oseo.q6;const sc=computeScoreQ6();
+    if(s.nt)lines.push(`⑥/a/発声時の視診：${s.nt}`);
+    else{const R=pickHighScore(s.R_t1,s.R_t2);const L=pickHighScore(s.L_t1,s.L_t2);let line=`⑥/a/発声時の視診：R-${R!==null?R:'—'} L-${L!==null?L:'—'}（評価${typeof sc.score==='number'?sc.score.toFixed(1):fmtScore(sc.score)}）`;if(s.paralysis){const sides=Object.keys(s.paralysis_side).filter(k=>s.paralysis_side[k]).join('/');line+=` 軟口蓋麻痺：${s.paralysis}${sides?'('+sides+')':''}`;}lines.push(line);}}
+  {const s=STATE.oseo.q7;
+    if(s.nt)lines.push(`⑦ブローイング時の鼻漏出：${s.nt}`);
+    else{const R=pickLow(s.R_t1,s.R_t2);const L=pickLow(s.L_t1,s.L_t2);const R_ev=R!==null?evalNasalLeak(R):null;const L_ev=L!==null?evalNasalLeak(L):null;lines.push(`⑦ブローイング時の鼻漏出：R-${R!==null?R:'—'}度 L-${L!==null?L:'—'}度（評価R:${fmtScore(R_ev)} L:${fmtScore(L_ev)}）`);}}
+  {const s=STATE.oseo.q8;
+    if(s.nt)lines.push(`⑧/a/発声時の鼻漏出：${s.nt}`);
+    else{const R=pickLow(s.R_t1,s.R_t2);const L=pickLow(s.L_t1,s.L_t2);const R_ev=R!==null?evalNasalLeak8(R):null;const L_ev=L!==null?evalNasalLeak8(L):null;lines.push(`⑧/a/発声時の鼻漏出：R-${R!==null?R:'—'}度 L-${L!==null?L:'—'}度（評価R:${fmtScore(R_ev)} L:${fmtScore(L_ev)}）`);}}
+
+  return lines.join('\n');
+}
+
+/* QR3: Ⅲ-4.口腔構音機能（a運動範囲・b速度・c筋力） */
+function buildQRPart3(){
+  const lines=[];
+  lines.push('◆AMSD [3/3] Ⅲ.発声発語器官検査(2) 口腔構音機能');
+  const aAvg=computeOrganOralAAvg();
+  lines.push(`a.運動範囲（平均評価点：${aAvg.value!=null?aAvg.value.toFixed(1):'—'}）`);
+  // ⑨〜⑬ 1項目1行
+  {
+    const ids=['q9','q10','q11','q12','q13'];
+    const labels={q9:'⑨舌の突出',q10:'⑩舌の右移動',q11:'⑪舌の左移動',q12:'⑫前舌の挙上',q13:'⑬奥舌の挙上'};
+    ids.forEach(id=>{const s=STATE.oseo[id];if(s.nt)lines.push(`${labels[id]}：${s.nt}`);else{const v=pickHighScore(s.t1,s.t2);lines.push(`${labels[id]}：${v!==null?v:'—'}`);}});
+  }
+  {const s=STATE.oseo.q9;if(s.paralysis){const sides=Object.keys(s.paralysis_side).filter(k=>s.paralysis_side[k]).join('/');lines.push(`　舌下神経麻痺：${s.paralysis}${sides?'('+sides+')':''}`);}}  // ⑭〜⑱ 1項目1行
+  {
+    const s14=STATE.oseo.q14;
+    if(s14.nt)lines.push(`⑭口唇の閉鎖：${s14.nt}`);
+    else{const adopted=pickLow(s14.t1,s14.t2);const ev=adopted!==null?evalLipOpen(adopted):null;lines.push(`⑭口唇の閉鎖：${adopted!==null?adopted:'—'}mm（評価${fmtScore(ev)}）`);}
+    const ids2=['q15','q16','q17','q18'];
+    const labels2={q15:'⑮口唇を引く',q16:'⑯口唇の突出',q17:'⑰下顎の下制',q18:'⑱下顎の挙上'};
+    ids2.forEach(id=>{const s=STATE.oseo[id];if(s.nt)lines.push(`${labels2[id]}：${s.nt}`);else{const v=pickHighScore(s.t1,s.t2);lines.push(`${labels2[id]}：${v!==null?v:'—'}`);}});
+    const q16=STATE.oseo.q16;
+    if(q16.facialParalysis){const sides=Object.keys(q16.fp_side).filter(k=>q16.fp_side[k]).join('/');lines.push(`　顔面神経麻痺：${q16.facialParalysis}${sides?'('+sides+')':''}`);}
+  }
+
+  const bAvg=computeOrganOralBAvg();
+  lines.push(`b.交互反復運動での速度（平均評価点：${bAvg.value!=null?bAvg.value.toFixed(1):'—'}）`);
+  // ⑲〜㉔ 1項目1行
+  {
+    const items=[
+      {id:'q19',label:'⑲舌突出－後退',fn:evalDDK12},
+      {id:'q20',label:'⑳舌左右',fn:evalDDK12},
+      {id:'q21',label:'㉑下顎挙上－下制',fn:evalDDK12},
+      {id:'q22',label:'㉒/pa/',fn:evalDDK34},
+      {id:'q23',label:'㉓/ta/',fn:evalDDK34},
+      {id:'q24',label:'㉔/ka/',fn:evalDDK34}
+    ];
+    items.forEach(it=>{
+      const s=STATE.oseo[it.id];
+      if(s.nt){lines.push(`${it.label}：${s.nt}`);return;}
+      if(s.zero){lines.push(`${it.label}：0回/秒（評価0）`);return;}
+      const v=pickHigh(s.t1,s.t2);
+      if(v===null){lines.push(`${it.label}：—`);return;}
+      const ev=it.fn(v);
+      lines.push(`${it.label}：${Number(v).toFixed(1)}回/秒（評価${fmtScore(ev)}）`);
+    });
+  }
+
+  const cAvg=computeOrganOralCAvg();
+  lines.push(`c.筋力（平均評価点：${cAvg.value!=null?cAvg.value.toFixed(1):'—'}）`);
+  // ㉕〜㉙ 1項目1行
+  {
+    const items=[{id:'q25',label:'㉕下顎下制'},{id:'q26',label:'㉖下顎挙上'},{id:'q27',label:'㉗舌突出'},{id:'q28',label:'㉘舌面挙上'},{id:'q29',label:'㉙口唇閉鎖'}];
+    items.forEach(it=>{const s=STATE.oseo[it.id];if(s.nt)lines.push(`${it.label}：${s.nt}`);else{const v=pickHighScore(s.t1,s.t2);lines.push(`${it.label}：${v!==null?v:'—'}`);}});
+  }
+
+  return lines.join('\n');
+}
+
+
+/* ============================================================
+   リセット
+   ============================================================ */
+function resetAll(){
+  STATE.patientName=''; STATE.age=null;
+  STATE.mingryodo=null; STATE.shizendo=null;
+  Object.keys(STATE.features).forEach(k=>{ STATE.features[k].items={}; });
+  STATE.speechRate={a:'',b:'',c:''};
+  Object.keys(STATE.oseo).forEach(k=>resetOseoItem(k));
+}
+
+function resetCurrentTab(){
+  if(activeTab==='speech'){
+    STATE.mingryodo=null; STATE.shizendo=null;
+    Object.keys(STATE.features).forEach(k=>{ STATE.features[k].items={}; });
+    STATE.speechRate={a:'',b:'',c:''};
+  }else if(activeTab==='organ-resp') ['q1','q2','q3'].forEach(k=>resetOseoItem(k));
+  else if(activeTab==='organ-voice') ['q4','q5'].forEach(k=>resetOseoItem(k));
+  else if(activeTab==='organ-nasal') ['q6','q7','q8'].forEach(k=>resetOseoItem(k));
+  else if(activeTab==='organ-oral-a') ['q9','q10','q11','q12','q13','q14','q15','q16','q17','q18'].forEach(k=>resetOseoItem(k));
+  else if(activeTab==='organ-oral-b') ['q19','q20','q21','q22','q23','q24'].forEach(k=>resetOseoItem(k));
+  else if(activeTab==='organ-oral-c') ['q25','q26','q27','q28','q29'].forEach(k=>resetOseoItem(k));
+}
+
+function resetOseoItem(k){
+  const s=STATE.oseo[k];
+  Object.keys(s).forEach(prop=>{
+    if(prop==='stance') s.stance='座位';
+    else if(prop==='paralysis'||prop==='facialParalysis') s[prop]='';
+    else if(prop==='paralysis_side'||prop==='fp_side') s[prop]={R:false,L:false};
+    else if(prop==='zero') s.zero=false;
+    else if(prop==='nt') s.nt=null;
+    /* [修正3] リセットバグ修正: 選択式(t1/t2)はnull、数値入力は空文字に正確に戻す */
+    else if(prop==='t1'||prop==='t2'){
+      // 選択式項目はnull、数値入力項目は空文字
+      const numericItems=['q1','q2','q3','q4','q5','q7','q8','q14','q19','q20','q21','q22','q23','q24'];
+      const rlItems=['q7','q8'];
+      if(numericItems.includes(k)) s[prop]='';
+      else s[prop]=null;
+    }
+    else if(prop==='nc1'||prop==='nc2'||prop==='R_t1'||prop==='L_t1'||prop==='R_t2'||prop==='L_t2') s[prop]='';
+    else if(prop==='c1'||prop==='s1'||prop==='c2'||prop==='s2') s[prop]='';
+  });
+}
+
+/* ============================================================
+   初期化
+   ============================================================ */
+render();
+</script>
+</body>
+</html>
