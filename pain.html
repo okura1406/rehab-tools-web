@@ -2774,10 +2774,13 @@ function showDraftBanner(dA,dB){
     var slot=dA?'A':'B';
     var d=dA||dB;
     h+=bannerRow(slot,d);
+    // 仕様7-3：空きスロットがある場合のみ。既存の下書きには一切触れずにバナーを閉じる
+    h+='<div class="db-row"><span class="db-msg">この下書きを残したまま、別の患者の入力を始める場合：</span><span class="db-btns"><button class="btn b3" onclick="keepDrafts()">下書きは残して新規入力</button></span></div>';
   }
   h+='</div>';
   el.innerHTML=h;
 }
+function keepDrafts(){hideDraftBanner()}
 function hideDraftBanner(){var el=E('draftBanner');if(el)el.innerHTML=''}
 function resumeSlot(slot){
   var d=readSlot(slot);

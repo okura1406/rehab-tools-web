@@ -2828,10 +2828,13 @@ function showDraftBanner(dA,dB){
     var slot=dA?'A':'B';
     var d=dA||dB;
     h+=bannerRow(slot,d);
+    // 仕様7-3：空きスロットがある場合のみ。既存の下書きには一切触れずにバナーを閉じる
+    h+='<div class="db-row"><span class="db-msg">この下書きを残したまま、別の患者の入力を始める場合：</span><span class="db-btns"><button class="btn b3" onclick="keepDrafts()">下書きは残して新規入力</button></span></div>';
   }
   h+='</div>';
   el.innerHTML=h;
 }
+function keepDrafts(){hideDraftBanner()}
 function hideDraftBanner(){var el=E('draftBanner');if(el)el.innerHTML=''}
 function resumeSlot(slot){
   var d=readSlot(slot);
@@ -3223,8 +3226,8 @@ function sppbQrText(){
   var bal=sppbScoreBal(),gait=sppbScoreGait(),chair=sppbScoreChair();
   var total=null;
   if(bal!==null&&gait!==null&&chair!==null)total=bal+gait+chair;
-  var risk=sppbRisk(total);var nm=NM;var t='';
-  if(nm)t+=nm+'さん\r\n';
+  var risk=sppbRisk(total);var t='';
+  // 仕様3-2・6-2：患者氏名はQRコードに含めない（画面表示のみ）
   t+='◆SPPB（Short Physical Performance Battery）\r\n\r\n';
   t+='1.立位バランス（'+(bal!==null?bal:'—')+'点）\r\n';
   function balStr(id,lbl){var st=SPPB[id];var tm=SPPB['tm_'+id];
