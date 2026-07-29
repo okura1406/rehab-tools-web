@@ -7,7 +7,7 @@
  * （数字を変えないと、スタッフの端末に古い版が残り続けます）
  */
 
-var CACHE_VERSION = 'v10';
+var CACHE_VERSION = 'v11';
 var CACHE_NAME = 'rehab-tools-' + CACHE_VERSION;
 
 // 端末に保存しておくファイル一覧。ツールを増やしたらここにも追記する。
@@ -18,6 +18,8 @@ var PRECACHE_URLS = [
   './pain.html',
   './updrs.html',
   './amsd.html',
+  './token.html',
+  './rcpm.html',
   './manifest.webmanifest',
   './icon-192.png',
   './icon-512.png'
