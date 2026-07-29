@@ -35,7 +35,9 @@ button{-webkit-appearance:none;appearance:none;font-family:var(--f)}
 input,textarea{font-family:var(--f)}
 .hd{background:var(--sf);border-bottom:1px solid var(--bd);padding:14px 16px;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.04)}
 .hd h1{font-size:1.05rem;font-weight:700;text-align:center;letter-spacing:.02em}
-.tabs{display:flex;background:var(--sf);border-bottom:2px solid var(--bd);padding:0 8px;position:sticky;top:49px;z-index:99;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+/* タブ帯はヘッダーのすぐ下に固定する。top は実際のヘッダーの高さ（--hdH）に合わせる。
+   固定値にすると、画面が狭くてヘッダーの文字が折り返したときにタブが隠れてしまうため */
+.tabs{display:flex;background:var(--sf);border-bottom:2px solid var(--bd);padding:0 8px;position:sticky;top:var(--hdH,49px);z-index:99;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
 .tab{padding:11px 20px;font-size:.86rem;font-weight:600;color:var(--tx2);border:none;background:none;cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;transition:all .15s}
 .tab.on{color:var(--pr);border-bottom-color:var(--pr)}
@@ -3280,6 +3282,20 @@ function sppbReset(){
   toast('SPPBをリセットしました');
   saveState();
 }
+/* ヘッダーの高さを測ってタブ帯の固定位置（--hdH）に反映する。
+   画面の幅や文字サイズでヘッダーの高さが変わっても、タブ帯が隠れないようにするため */
+function syncHeaderHeight(){
+  var hd=document.querySelector('.hd');
+  if(!hd)return;
+  document.documentElement.style.setProperty('--hdH',hd.offsetHeight+'px');
+}
+window.addEventListener('resize',syncHeaderHeight);
+window.addEventListener('orientationchange',syncHeaderHeight);
+document.addEventListener('DOMContentLoaded',function(){
+  syncHeaderHeight();
+  var hd=document.querySelector('.hd');
+  if(hd&&window.ResizeObserver){ try{ new ResizeObserver(syncHeaderHeight).observe(hd); }catch(e){} }
+});
 document.addEventListener('DOMContentLoaded',init);
 </script>
 <script>

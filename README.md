@@ -8,7 +8,15 @@
 |---|---|
 | `index.html` | ツール一覧（トップページ） |
 | `battery.html` | 評価尺度ツール（HDS-R・MMSE・FBS・SPPB・SIAS） |
-| `pain.html` | 疼痛評価ツール |
+| `pain.html` | 疼痛評価ツール（PCS・SF-MPQ-2・HADS・PDAS・STarT Back・SSEQ） |
+| `updrs.html` | MDS-UPDRS（Part Ⅰ〜Ⅳ） |
+| `st.html` | **ST評価ツールの一覧ページ**（下の3つへの入口。ツール本体ではない） |
+| `amsd.html` | 標準ディサースリア検査（AMSD） |
+| `token.html` | 新日本版トークンテスト |
+| `rcpm.html` | レーヴン色彩マトリックス検査（RCPM） |
+
+`index.html` と `st.html` は**このフォルダが正本**です（`公開に反映.bat` の対象外）。
+ツールを増やしたときは、この2つのどちらかに手で追記してください。
 
 ## 特徴
 
@@ -32,8 +40,8 @@ var CACHE_VERSION = 'v1';   // → 'v2' に変更する
 
 この数字を変えないと、すでにツールを開いたことがある端末に古い版が残り続けます。
 
-新しいツールを追加した場合は、`sw.js` の `PRECACHE_URLS`、`index.html` の一覧、
-`_publish_tools.py` の `TOOLS` の3か所に追記してください。
+新しいツールを追加した場合は、`sw.js` の `PRECACHE_URLS`、一覧ページ（`index.html`
+または `st.html`）、`_publish_tools.py` の `TOOLS` の3か所に追記してください。
 
 ## 取り扱い
 
