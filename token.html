@@ -166,11 +166,7 @@ getLengthInBits:function(mode,type){if(1<=type&&type<10){switch(mode){case Mode_
 getLostPoint:function(qrCode){var moduleCount=qrCode.getModuleCount();var lostPoint=0;for(var row=0;row<moduleCount;row++)for(var col=0;col<moduleCount;col++){var sameCount=0;var dark=qrCode.isDark(row,col);for(var r=-1;r<=1;r++){if(row+r<0||moduleCount<=row+r)continue;for(var c=-1;c<=1;c++){if(col+c<0||moduleCount<=col+c)continue;if(r==0&&c==0)continue;if(dark==qrCode.isDark(row+r,col+c))sameCount++;}}if(sameCount>5)lostPoint+=(3+sameCount-5);}for(var row=0;row<moduleCount-1;row++)for(var col=0;col<moduleCount-1;col++){var count=0;if(qrCode.isDark(row,col))count++;if(qrCode.isDark(row+1,col))count++;if(qrCode.isDark(row,col+1))count++;if(qrCode.isDark(row+1,col+1))count++;if(count==0||count==4)lostPoint+=3;}for(var row=0;row<moduleCount;row++)for(var col=0;col<moduleCount-6;col++)if(qrCode.isDark(row,col)&&!qrCode.isDark(row,col+1)&&qrCode.isDark(row,col+2)&&qrCode.isDark(row,col+3)&&qrCode.isDark(row,col+4)&&!qrCode.isDark(row,col+5)&&qrCode.isDark(row,col+6))lostPoint+=40;for(var col=0;col<moduleCount;col++)for(var row=0;row<moduleCount-6;row++)if(qrCode.isDark(row,col)&&!qrCode.isDark(row+1,col)&&qrCode.isDark(row+2,col)&&qrCode.isDark(row+3,col)&&qrCode.isDark(row+4,col)&&!qrCode.isDark(row+5,col)&&qrCode.isDark(row+6,col))lostPoint+=40;var darkCount=0;for(var col=0;col<moduleCount;col++)for(var row=0;row<moduleCount;row++)if(qrCode.isDark(row,col))darkCount++;var ratio=Math.abs(100*darkCount/moduleCount/moduleCount-50)/5;return lostPoint+ratio*10;}};
 function QRBitBuffer(){this.buffer=[];this.length=0;}
 QRBitBuffer.prototype={get:function(i){var bufIdx=Math.floor(i/8);return((this.buffer[bufIdx]>>>(7-i%8))&1)==1;},put:function(n,length){for(var i=0;i<length;i++)this.putBit(((n>>>(length-i-1))&1)==1);},getLengthInBits:function(){return this.length;},putBit:function(bit){var bufIdx=Math.floor(this.length/8);if(this.buffer.length<=bufIdx)this.buffer.push(0);if(bit)this.buffer[bufIdx]|=(0x80>>>(this.length%8));this.length++;}};
-/* QRに載せる文字列をUTF-8のバイト列に変換する。
-   以前は charCodeAt を使った自前実装で、日本語を含むと必ず先頭に不要なBOM(EF BB BF)が付き、
-   さらにサロゲートペア（環境依存漢字）が壊れて読み取り側で文字化けしていた。
-   対象端末（iPad・iPhone・最新Chrome/Safari）はTextEncoderに対応しているため標準実装を使う */
-function QR8bitByte(data){this.mode=Mode_8BIT_BYTE;this.data=data;this.parsedData=Array.prototype.slice.call(new TextEncoder().encode(data));}
+function QR8bitByte(data){this.mode=Mode_8BIT_BYTE;this.data=data;this.parsedData=[];for(var i=0,l=this.data.length;i<l;i++){var byteArray=[];var code=this.data.charCodeAt(i);if(code>0x10000){byteArray[0]=0xF0|((code&0x1C0000)>>>18);byteArray[1]=0x80|((code&0x3F000)>>>12);byteArray[2]=0x80|((code&0xFC0)>>>6);byteArray[3]=0x80|(code&0x3F);}else if(code>0x800){byteArray[0]=0xE0|((code&0xF000)>>>12);byteArray[1]=0x80|((code&0xFC0)>>>6);byteArray[2]=0x80|(code&0x3F);}else if(code>0x80){byteArray[0]=0xC0|((code&0x7C0)>>>6);byteArray[1]=0x80|(code&0x3F);}else byteArray[0]=code;this.parsedData.push(byteArray);}this.parsedData=Array.prototype.concat.apply([],this.parsedData);if(this.parsedData.length!=this.data.length){this.parsedData.unshift(191);this.parsedData.unshift(187);this.parsedData.unshift(239);}}
 QR8bitByte.prototype={getMode:function(){return this.mode;},getLength:function(){return this.parsedData.length;},write:function(buffer){for(var i=0,l=this.parsedData.length;i<l;i++)buffer.put(this.parsedData[i],8);}};
 function createData(typeNumber,eclLevel,dataList){var rsBlocks=QRRSBlock.getRSBlocks(typeNumber,eclLevel);var buffer=new QRBitBuffer();for(var i=0;i<dataList.length;i++){var data=dataList[i];buffer.put(data.getMode(),4);buffer.put(data.getLength(),QRUtil.getLengthInBits(data.getMode(),typeNumber));data.write(buffer);}var totalDataCount=0;for(var i=0;i<rsBlocks.length;i++)totalDataCount+=rsBlocks[i].dataCount;if(buffer.getLengthInBits()>totalDataCount*8)throw new Error("code length overflow.");if(buffer.getLengthInBits()+4<=totalDataCount*8)buffer.put(0,4);while(buffer.getLengthInBits()%8!=0)buffer.putBit(false);while(true){if(buffer.getLengthInBits()>=totalDataCount*8)break;buffer.put(0xEC,8);if(buffer.getLengthInBits()>=totalDataCount*8)break;buffer.put(0x11,8);}return createBytes(buffer,rsBlocks);}
 function createBytes(buffer,rsBlocks){var offset=0;var maxDcCount=0;var maxEcCount=0;var dcdata=new Array(rsBlocks.length);var ecdata=new Array(rsBlocks.length);for(var r=0;r<rsBlocks.length;r++){var dcCount=rsBlocks[r].dataCount;var ecCount=rsBlocks[r].totalCount-dcCount;maxDcCount=Math.max(maxDcCount,dcCount);maxEcCount=Math.max(maxEcCount,ecCount);dcdata[r]=new Array(dcCount);for(var i=0;i<dcdata[r].length;i++)dcdata[r][i]=0xff&buffer.buffer[i+offset];offset+=dcCount;var rsPoly=QRUtil.getErrorCorrectPolynomial(ecCount);var rawPoly=new QRPolynomial(dcdata[r],rsPoly.getLength()-1);var modPoly=rawPoly.mod(rsPoly);ecdata[r]=new Array(rsPoly.getLength()-1);for(var i=0;i<ecdata[r].length;i++){var modIndex=i+modPoly.getLength()-ecdata[r].length;ecdata[r][i]=(modIndex>=0)?modPoly.get(modIndex):0;}}var totalCodeCount=0;for(var i=0;i<rsBlocks.length;i++)totalCodeCount+=rsBlocks[i].totalCount;var data=new Array(totalCodeCount);var index=0;for(var i=0;i<maxDcCount;i++)for(var r=0;r<rsBlocks.length;r++)if(i<dcdata[r].length)data[index++]=dcdata[r][i];for(var i=0;i<maxEcCount;i++)for(var r=0;r<rsBlocks.length;r++)if(i<ecdata[r].length)data[index++]=ecdata[r][i];return data;}
@@ -711,9 +707,7 @@ function resetAll(){
   STATE.E=QE.map(q=>new Array(q.phrases.length).fill(null));
   STATE.F=QF.map(q=>new Array(q.phrases.length).fill(null));
   clearTimeout(saveTimer);
-  if(mySlot)clearSlot(mySlot);
-  // 消去ボタンで保存を止めていた場合に、新しい患者の入力がまた保存されるよう枠を割り当て直す
-  if(!mySlot)refreshDraftBanner();   // 全リセットでは下書きも消す（ベース仕様書 8章）
+  if(mySlot)clearSlot(mySlot);   // 全リセットでは下書きも消す（ベース仕様書 8章）
 }
 
 /* ============================================================
@@ -835,23 +829,7 @@ function requestClearDraft(btn){
   if(!confirm('この端末に一時保存されている入力データ（下書き）を消去しますか？\n※表示中のQRコード・テキストはそのまま確認できます。'))return;
   clearTimeout(saveTimer);
   if(mySlot)clearSlot(mySlot);
-  // 消去したあとに画面のどこかを操作すると render()→scheduleSave() が走り、
-  // 同じスロットへ下書きが書き戻されてしまう。共用端末で前の患者の入力が残る原因になるため、
-  // 消去したらこのページでは以後保存しない（次の患者は［全リセット］で開始する）
-  mySlot=null;
-  showClearedNotice();
   if(btn){ btn.disabled=true; btn.textContent='消去しました'; }
-}
-
-/* 消去したことと、まだ画面には表示が残っていることを画面上に出しておく。
-   何も出さないと「消した＝画面も空になった」と誤解したまま端末を次の人へ渡してしまう */
-function showClearedNotice(){
-  var box=document.getElementById('draftBanner');
-  if(!box)return;
-  box.innerHTML='';
-  var wrap=el('div','draft-banner');
-  wrap.appendChild(el('div','db-msg','消去しました。この端末に保存されていた入力は残っていません。画面の表示は転記の確認用に残しています。次の患者に使う前に［全リセット］を押してください。'));
-  box.appendChild(wrap);
 }
 
 /* ============================================================
