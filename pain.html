@@ -2733,8 +2733,11 @@ var DT='';   // 評価日（YYYY-MM-DD）。QRテキストの1行目に入れる
 // ========== PERSISTENCE (下書き自動保存・2スロット) ==========
 // 仕様：sessionStorage/Cookie/外部送信は使用しない。localStorageは下書き自動保存のみに限定。
 // 既存の下書きがある場合は自動復元せず、確認バナーで検査者に選択させる。
-var SLOT_KEYS={A:'painToolSave_slotA',B:'painToolSave_slotB'};
-var mySlot=null;      // このタブが書き込むスロット（'A' or 'B'）。決定するまでnull。
+var SLOT_KEYS={A:'painToolSave_slotA',B:'painToolSave_slotB',C:'painToolSave_slotC'};
+/* 下書きの保存枠。共用端末で複数の患者を並行して扱えるようにするためのもの。
+   枠を増減するときは、この配列と SLOT_KEYS を直すだけでよい（以下の処理は枠数に依存しない） */
+var SLOTS=['A','B','C'];
+var mySlot=null;      // このタブが書き込む枠。決定するまで null（＝保存しない）。
 var saveTimer=null;   // デバウンス用タイマー
 
 function readSlot(slot){
@@ -2802,44 +2805,47 @@ function initPersistence(){
   refreshDraftBanner();
 }
 // 現在のスロット状況を読み取る
+/* いま各枠に何が入っているかを調べる。
+   used＝中身のある枠の一覧、free＝空いている枠の一覧 */
 function computeDraftState(){
-  var dA=readSlot('A'), dB=readSlot('B');
-  return {dA:dA,dB:dB,hasA:slotHasData(dA),hasB:slotHasData(dB)};
+  var used=[],free=[];
+  for(var i=0;i<SLOTS.length;i++){
+    var s=SLOTS[i],d=readSlot(s);
+    if(slotHasData(d))used.push({slot:s,d:d});else free.push(s);
+  }
+  return {used:used,free:free};
 }
 // バナー表示・mySlot（暫定割り当て含む）を現在のスロット状況に合わせて更新する。
 // 「この下書きを削除」で片方だけ消えた場合など、状態変化のたびに呼び直す。
 function refreshDraftBanner(){
   var st=computeDraftState();
-  if(!st.hasA&&!st.hasB){
+  if(st.used.length===0){
     hideDraftBanner();
-    if(!mySlot)mySlot='A';
+    if(!mySlot)mySlot=st.free.length?st.free[0]:null;
     return;
   }
-  if(st.hasA&&st.hasB){
-    mySlot=null; // 両方に下書きあり：解決するまで保存を保留
-    showDraftBanner(st.dA,st.dB);
-    return;
-  }
-  // 片方のみ下書きあり：もう一方の空いているスロットを暫定的に割り当てる
-  mySlot = st.hasA ? 'B' : 'A';
-  showDraftBanner(st.hasA?st.dA:null, st.hasB?st.dB:null);
+  // 空きがあれば暫定的に割り当てる。空きが無ければ、検査者が選ぶまで保存を保留する
+  mySlot=st.free.length?st.free[0]:null;
+  showDraftBanner(st);
 }
-function bannerRow(slot,d){
-  return '<div class="db-row"><span class="db-msg">保存されている入力があります（氏名：'+esc(d.n||'(未入力)')+'　最終更新：'+fmtTime(d.t)+'）</span><span class="db-btns"><button class="btn b1" onclick="resumeSlot(\''+slot+'\')">続きから再開</button><button class="btn b2" onclick="deleteSlotDraft(\''+slot+'\')">この下書きを削除</button></span></div>';
+function bannerRow(slot,d,no){
+  return '<div class="db-row"><span class="db-msg">'+no+'件目：氏名 <b>'+esc(d.n||'(未入力)')+'</b>　最終更新 '+fmtTime(d.t)+'</span><span class="db-btns"><button class="btn b1" onclick="resumeSlot(\''+slot+'\')">この続きをする</button><button class="btn b2" onclick="deleteSlotDraft(\''+slot+'\')">これを消す</button></span></div>';
 }
-function showDraftBanner(dA,dB){
+function showDraftBanner(st){
   var el=E('draftBanner');if(!el)return;
   var h='<div class="draft-banner">';
-  if(dA&&dB){
-    h+=bannerRow('A',dA);
-    h+=bannerRow('B',dB);
-    h+='<div class="db-row"><span class="db-msg">まとめて操作する場合：</span><span class="db-btns"><button class="btn b2" onclick="discardBoth()">両方とも破棄して新規入力</button></span></div>';
-  }else{
-    var slot=dA?'A':'B';
-    var d=dA||dB;
-    h+=bannerRow(slot,d);
-    // 仕様7-3：空きスロットがある場合のみ。既存の下書きには一切触れずにバナーを閉じる
-    h+='<div class="db-row"><span class="db-msg">この下書きを残したまま、別の患者の入力を始める場合：</span><span class="db-btns"><button class="btn b3" onclick="keepDrafts()">下書きは残して新規入力</button></span></div>';
+  h+='<div class="db-row"><span class="db-msg"><b>保存されている入力が'+st.used.length+'件あります。</b>自動では戻しません。'
+    +(st.free.length
+      ? '（空きはあと'+st.free.length+'件。このまま新しい患者の入力を始められます）'
+      : '<b>空きがないため、いまのままでは入力が保存されません。</b>下のどれかを選んでください。')
+    +'</span></div>';
+  for(var i=0;i<st.used.length;i++)h+=bannerRow(st.used[i].slot,st.used[i].d,i+1);
+  // 仕様7-3：空きがある場合のみ。既存の下書きには一切触れずにバナーを閉じる
+  if(st.free.length){
+    h+='<div class="db-row"><span class="db-msg">これらを残したまま、別の患者の入力を始める場合：</span><span class="db-btns"><button class="btn b3" onclick="keepDrafts()">残したまま新しく始める</button></span></div>';
+  }
+  if(st.used.length>1){
+    h+='<div class="db-row"><span class="db-msg">まとめて操作する場合：</span><span class="db-btns"><button class="btn b2" onclick="discardAll()">すべて消して新しく始める</button></span></div>';
   }
   h+='</div>';
   el.innerHTML=h;
@@ -2858,7 +2864,7 @@ function resumeSlot(slot){
   toast('前回の入力を復元しました');
 }
 // スロットごとの個別削除：確認ダイアログの後、該当スロットのみを空にする。
-// もう一方に下書きが残っていればバナー表示を継続し、両方空になれば新規入力画面に切り替える。
+// 他の枠に下書きが残っていればバナー表示を継続し、すべて空になれば新規入力画面に切り替える。
 function deleteSlotDraft(slot){
   var d=readSlot(slot);
   var info=d?('（氏名：'+(d.n||'(未入力)')+'　最終更新：'+fmtTime(d.t)+'）'):'';
@@ -2867,10 +2873,10 @@ function deleteSlotDraft(slot){
   toast('下書きを削除しました');
   refreshDraftBanner();
 }
-function discardBoth(){
-  if(!confirm('保存されている入力（下書き）を両方とも削除して、新規入力を開始しますか？\nこの操作は取り消せません。'))return;
-  clearSlot('A');clearSlot('B');
-  mySlot='A';
+function discardAll(){
+  if(!confirm('保存されている入力（下書き）をすべて削除して、新規入力を開始しますか？\nこの操作は取り消せません。'))return;
+  for(var _i=0;_i<SLOTS.length;_i++)clearSlot(SLOTS[_i]);
+  mySlot=SLOTS[0];
   ANS={};NM='';
   hideDraftBanner();
   restoreUI();

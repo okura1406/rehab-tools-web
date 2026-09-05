@@ -2702,7 +2702,7 @@ function scoredQs(sec){ return sec.questions.filter(function(x){return x.countIn
    下書き自動保存（仕様書 7章）
    ===================================================================== */
 var STORE_PREFIX='rating_tool_draft_';
-var SLOTS=['A','B'];
+var SLOTS=['A','B','C'];
 /* QRテキストの改行は CRLF に揃える（ベース仕様書 追記5①）。
    LF単独だと電子カルテ側の入力欄で改行として扱われず、全項目が1行に連結されて貼り付く恐れがあるため */
 function toCRLF(raw){ return String(raw).replace(/\r\n/g,'\n').replace(/\n/g,'\r\n'); }
@@ -2799,10 +2799,10 @@ function showBanner(list){
     foot.appendChild(keep);
   }
   if(list.length>1){
-    var both=mk('button','mini-btn del','両方とも破棄して新規入力'); both.type='button';
+    var both=mk('button','mini-btn del','すべて消して新しく始める'); both.type='button';
     both.style.marginLeft='6px';
     both.addEventListener('click',function(){
-      if(!confirm('両方の下書きを破棄して新規入力にします。よろしいですか？')) return;
+      if(!confirm('保存されている下書きをすべて消して、新規入力にします。よろしいですか？')) return;
       SLOTS.forEach(clearSlot); hideBanner(); assignFreeSlot();
     });
     foot.appendChild(both);
