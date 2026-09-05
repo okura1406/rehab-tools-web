@@ -184,7 +184,7 @@ main{padding-top:12px}
 .qr-card .ch{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:10px}
 .qr-card .ch .nm{font-size:14.5px;font-weight:800}
 .qr-card .ch .sc{font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums;margin-left:auto}
-.qr-card canvas{display:block;margin:0 auto;background:#fff;padding:12px;border:1px solid var(--line);border-radius:10px;image-rendering:pixelated}
+.qr-card canvas{display:block;margin:0 auto;max-width:100%;height:auto;background:#fff;padding:12px;border:1px solid var(--line);border-radius:10px;image-rendering:pixelated}
 .qr-card .cap{text-align:center;font-size:11px;color:var(--ink-2);margin-top:6px}
 .qr-card .fail{background:#fff7ed;border:1px solid #e8cf9a;color:#8a6218;border-radius:10px;padding:9px 11px;font-size:12px;font-weight:700}
 .qr-card .th{display:flex;justify-content:space-between;align-items:center;margin:14px 0 6px;gap:8px}
@@ -2674,12 +2674,12 @@ var SCALES={
         L.push('----------');
         L.push('全Part合計:'+(g.ans>0?g.sum:'—')+'/'+SCALE.maxScore+'（'+g.total+'項目中'+g.ans+'項目回答, UR除外）');
       }
-      return L.join('\n');
+      return toCRLF(L.join('\n'));
     },
     /* 全Partをまとめたテキスト（「すべてのテキストをコピー」用。QRには使わない） */
     qrTemplate:function(st){
       var self=this;
-      return st.parts.map(function(p){ return self.qrTemplatePart(st,p); }).join('\n\n');
+      return toCRLF(st.parts.map(function(p){ return self.qrTemplatePart(st,p); }).join('\n\n'));
     }
   }
 };
@@ -2703,6 +2703,10 @@ function scoredQs(sec){ return sec.questions.filter(function(x){return x.countIn
    ===================================================================== */
 var STORE_PREFIX='rating_tool_draft_';
 var SLOTS=['A','B'];
+/* QRテキストの改行は CRLF に揃える（ベース仕様書 追記5①）。
+   LF単独だと電子カルテ側の入力欄で改行として扱われず、全項目が1行に連結されて貼り付く恐れがあるため */
+function toCRLF(raw){ return String(raw).replace(/\r\n/g,'\n').replace(/\n/g,'\r\n'); }
+
 var currentSlot=null;      // 未確定の間は保存しない
 var saveTimer=null;
 
@@ -2753,7 +2757,7 @@ function assignFreeSlot(){
 function updateSlotTag(){
   var t=document.getElementById('slotTag');
   t.textContent = currentSlot ? ('（保存先：スロット'+currentSlot+'）')
-    : '（保存スロットが空くまで一時保存は行われません。3人以上の同時入力は端末を分けてください）';
+    : '⚠ 現在この入力は端末に保存されていません（保存枠が空くか、［リセット］で新しく始めると保存されます）';
 }
 function initDrafts(){
   var existing=SLOTS.filter(function(s){ return !!readSlot(s); });
@@ -2953,7 +2957,8 @@ function buildSummaryPanel(){
   var eb=mk('div','erase-box');
   eb.appendChild(mk('div','t','カルテ転記は完了しましたか？'));
   eb.appendChild(mk('div','d','QRを生成しただけでは、この端末に一時保存された入力内容は消えません。転記が終わったら消去してください。'));
-  var ebtn=mk('button','btn danger','入力データを消去する'); ebtn.type='button'; ebtn.addEventListener('click',resetAll);
+  var ebtn=mk('button','btn danger','入力データを消去する'); ebtn.type='button'; ebtn.id='eraseBtn';
+  ebtn.addEventListener('click',requestClearDraft);
   eb.appendChild(ebtn); qb.appendChild(eb);
   ps.appendChild(qb);
   return ps;
@@ -3142,6 +3147,20 @@ function copyAllText(){
 /* =====================================================================
    リセット（仕様書 8章：下書きスロットも消去）
    ===================================================================== */
+/* ［入力データを消去する］。仕様7-4のとおり、消すのは端末に一時保存された下書きだけで、
+   表示中のQRコード・テキストは転記の確認のために残す。
+   以前は resetAll に直結していたため、まだ読み取っていないQRごと画面から消えていた */
+function requestClearDraft(){
+  if(!confirm('この端末に一時保存されている入力データ（下書き）を消去しますか？\n※表示中のQRコード・テキストはそのまま確認できます。')) return;
+  if(saveTimer) clearTimeout(saveTimer);
+  if(currentSlot) clearSlot(currentSlot);
+  // 消去後に画面を操作すると同じスロットへ書き戻されてしまうため、以後この画面では保存しない。
+  // 次の患者は［リセット］で開始する（resetAll が枠を割り当て直す）
+  currentSlot=null; updateSlotTag();
+  var b=document.getElementById('eraseBtn');
+  if(b){ b.disabled=true; b.textContent='消去しました'; }
+}
+
 function resetAll(){
   if(!confirm('全ての回答・QR・氏名を消去します。この端末に一時保存された下書きも削除されます。よろしいですか？')) return;
   Object.keys(SCALES).forEach(function(k){ answers[k]={}; supplements[k]={}; });

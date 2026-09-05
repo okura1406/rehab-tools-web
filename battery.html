@@ -33,8 +33,10 @@ html{font-size:15px;-webkit-text-size-adjust:100%}
 body{font-family:var(--f);color:var(--tx);background:var(--bg);line-height:1.6;min-height:100vh;-webkit-tap-highlight-color:transparent}
 button{-webkit-appearance:none;appearance:none;font-family:var(--f)}
 input,textarea{font-family:var(--f)}
-.hd{background:var(--sf);border-bottom:1px solid var(--bd);padding:14px 16px;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-.hd h1{font-size:1.05rem;font-weight:700;text-align:center;letter-spacing:.02em}
+/* 題名とボタンを横並びにする。以前はボタンを絶対配置にしていたため、
+   画面が狭いと題名の文字がボタンの下に潜り込んで読めなくなっていた */
+.hd{background:var(--sf);border-bottom:1px solid var(--bd);padding:11px 14px;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.04);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hd h1{font-size:1.02rem;font-weight:700;text-align:left;letter-spacing:.02em;flex:1;min-width:0;line-height:1.35}
 /* タブ帯はヘッダーのすぐ下に固定する。top は実際のヘッダーの高さ（--hdH）に合わせる。
    固定値にすると、画面が狭くてヘッダーの文字が折り返したときにタブが隠れてしまうため */
 .tabs{display:flex;background:var(--sf);border-bottom:2px solid var(--bd);padding:0 8px;position:sticky;top:var(--hdH,49px);z-index:99;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
@@ -109,9 +111,22 @@ input,textarea{font-family:var(--f)}
 .b2{background:var(--rd2);color:var(--rd)}.b2:hover{background:#fecaca}
 .b3{background:var(--sf2);color:var(--tx);border:1px solid var(--bd)}.b3:hover{background:var(--bd2)}
 .qa{margin-top:24px;text-align:center}
-.qw{display:inline-block;padding:20px;background:#fff;border-radius:var(--r);border:1px solid var(--bd);box-shadow:var(--sh)}
+.qw{display:inline-block;max-width:100%;padding:20px;background:#fff;border-radius:var(--r);border:1px solid var(--bd);box-shadow:var(--sh)}
+/* QRが画面幅を超えると右端の位置検出パターンが切れて読み取れなくなるため、必ず画面内に収める */
+.qw canvas{max-width:100%;height:auto;image-rendering:pixelated}
+/* 下書きが保存されていない状態を、入力中でも必ず気づけるよう画面下に固定して出す */
+.savewarn{position:fixed;left:0;right:0;bottom:0;background:var(--rd);color:#fff;padding:11px 14px;font-size:.85rem;font-weight:700;text-align:center;line-height:1.5;z-index:300;box-shadow:0 -2px 8px rgba(0,0,0,.2)}
+/* SPPBの採点上とくに間違えやすい点の注意書き */
+.sppb-warn{background:var(--rd2);border:1px solid #fca5a5;color:#991b1b;border-radius:8px;padding:9px 12px;margin-bottom:12px;font-size:.8rem;font-weight:600;line-height:1.55}
 .qt{margin-top:14px;text-align:left;background:var(--sf2);border:1px solid var(--bd);border-radius:var(--r);padding:14px;font-size:.8rem;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;line-height:1.6;color:var(--tx2)}
 .qwn{background:var(--yw2);color:#92400e;padding:10px 14px;border-radius:8px;font-size:.82rem;margin-bottom:14px;text-align:left;border:1px solid #fde68a}
+/* QRを複数枚に分けたときの表示（疼痛評価ツールと同じ） */
+.qwrap{margin-bottom:14px}
+.qnum{font-size:.8rem;color:var(--pr3);font-weight:700;margin-bottom:10px;letter-spacing:.02em}
+.qmulti{background:var(--pr2);color:var(--pr3);padding:10px 14px;border-radius:8px;font-size:.82rem;margin-bottom:14px;text-align:left;border:1px solid #bfdbfe;line-height:1.6}
+/* QRを読み取ってから消すまでの手順。ここで手が止まる人が多いため常に出す */
+.qsteps{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:11px 14px;margin-bottom:14px;text-align:left;font-size:.82rem;line-height:1.7;color:var(--tx2)}
+.qsteps b{color:var(--tx)}
 .tst{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;padding:10px 24px;border-radius:24px;font-size:.85rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:200}
 .tst.on{opacity:1}
 .draft-banner{background:var(--yw2);border-bottom:1px solid #fde68a;padding:10px 16px}
@@ -120,8 +135,8 @@ input,textarea{font-family:var(--f)}
 .draft-banner .db-msg{flex:1;min-width:200px}
 .draft-banner .db-btns{display:flex;gap:8px;flex-wrap:wrap}
 .draft-banner .btn{padding:7px 14px;font-size:.78rem}
-.hbtn{position:absolute;right:12px;top:50%;transform:translateY(-50%);padding:6px 12px;font-size:.78rem;font-weight:600;color:var(--rd);background:var(--rd2);border:none;border-radius:8px;cursor:pointer}
-.hbtn:active{transform:translateY(-50%) scale(.96)}
+.hbtn{flex-shrink:0;padding:9px 13px;font-size:.78rem;font-weight:700;color:var(--rd);background:var(--rd2);border:1px solid #fca5a5;border-radius:8px;cursor:pointer;min-height:40px;font-family:var(--f)}
+.hbtn:active{transform:scale(.96)}
 .sec-h{font-size:.9rem;font-weight:700;color:var(--pr);margin:20px 0 8px;padding-left:9px;border-left:4px solid var(--pr)}
 .cutn{font-size:.72rem;color:var(--tx2);margin-top:10px;line-height:1.5}
 @media(max-width:600px){
@@ -147,6 +162,24 @@ input,textarea{font-family:var(--f)}
 .sppb-time:disabled{background:#eee;color:#aaa;cursor:not-allowed}
 .sppb-pts{font-size:.82rem;font-weight:700;color:var(--pr);min-width:50px}
 .sppb-grey{opacity:.4;pointer-events:none}
+/* ストップウォッチ。患者から目を離さずに押せるよう大きめにする */
+.swbtn{min-width:96px;min-height:48px;padding:8px 14px;border:1px solid var(--pr);border-radius:8px;background:var(--pr2);color:var(--pr3);font-size:.86rem;font-weight:700;font-family:var(--f);cursor:pointer;-webkit-user-select:none;user-select:none;transition:background .12s}
+.swbtn:active{transform:scale(.97)}
+.swbtn.run{background:var(--rd);color:#fff;border-color:var(--rd)}
+.swbtn:disabled{opacity:.35;cursor:not-allowed}
+.swhint{font-size:.72rem;color:var(--tx2);margin:2px 0 10px}
+/* 評価日 */
+.pb input.pd{max-width:170px;flex:0 0 auto}
+/* 前回との比較。カンファ前に前回値をカルテから探す手間をなくすため */
+.cmpline{margin-top:8px;padding:8px 10px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;font-size:.8rem;color:var(--tx2);line-height:1.6}
+.cmpline b{color:var(--tx)}
+.cmpline .up{color:var(--gn);font-weight:700}
+.cmpline .dn{color:var(--rd);font-weight:700}
+.cmpline .same{color:var(--tx2);font-weight:700}
+/* 画面末尾の説明。この端末に何が残っているかを常に見えるようにする */
+.foot{max-width:780px;margin:24px auto 40px;padding:14px 16px;background:var(--sf2);border:1px solid var(--bd);border-radius:var(--r);font-size:.78rem;color:var(--tx2);line-height:1.7}
+.foot h4{font-size:.82rem;color:var(--tx);margin-bottom:6px}
+.foot .btn{margin-top:10px;padding:9px 16px;font-size:.8rem}
 .sppb-chk{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .sppb-chk input[type=checkbox]{width:18px;height:18px;accent-color:var(--rd)}
 .sppb-chk label{font-size:.84rem;color:var(--rd);font-weight:600}
@@ -156,17 +189,18 @@ input,textarea{font-family:var(--f)}
 .sppb-risk-high{background:var(--or2);color:var(--or)}
 .sppb-risk-vhigh{background:var(--rd2);color:var(--rd)}
 </style></head><body>
-<header class="hd"><h1>評価尺度自動計算・QRコード生成ツール</h1><button class="hbtn" onclick="resetAll()">新規患者</button></header>
+<header class="hd"><h1>リハ評価ツール</h1><button class="hbtn" onclick="resetAll()">この患者を終わる</button></header>
 <div id="draftBanner"></div>
 <div id="guide" style="background:#fef3c7;border:2px solid #f59e0b;border-radius:10px;margin:12px 16px;padding:16px;font-size:.88rem;color:#92400e;line-height:1.7"><b>⚠ ブラウザで開いてください</b><br><br><b>【iPad】</b>Safari または Edge でこのファイルを開く<br><b>【iPhone】</b>Edge アプリでファイルを開く<br><br><span style="font-size:.78rem;color:#a16207">Gmail・ファイルアプリのプレビューでは動作しません</span></div>
 <nav class="tabs" id="T"><button class="tab on" data-t="cognitive" onclick="showTab('cognitive')">認知機能検査</button><button class="tab" data-t="fbs" onclick="showTab('fbs')">FBS</button><button class="tab" data-t="sppb" onclick="showTab('sppb')">SPPB</button><button class="tab" data-t="sias" onclick="showTab('sias')">SIAS</button></nav>
-<main id="M"><div class="tc on" id="t-cognitive"><div class="pb"><label>氏名</label><input type="text" class="pn" placeholder="患者氏名を入力" value=""><span class="nt">※ QRコードには含まれません。この端末に一時保存されています。カルテ転記が完了したら、QR生成後に表示される「入力データを消去する」ボタン、またはリセットで消去してください。</span></div><div class="stabs"><button class="stab on" data-s="hdsr" onclick="showSub('cognitive','hdsr')">HDS-R</button><button class="stab" data-s="mmse" onclick="showSub('cognitive','mmse')">MMSE</button></div><div class="sc on" id="s-hdsr"><div class="qc" id="c-s_nenrei"><div class="qh"><span class="qn">1</span><span class="ql">お歳はいくつですか？</span></div><div class="qi">2年までの誤差は正解</div><div class="os"><button class="ob" data-q="s_nenrei" data-v="1"><span class="bg">1</span>正解（±2年以内）</button><button class="ob" data-q="s_nenrei" data-v="0"><span class="bg">0</span>不正解</button></div></div><div class="qc" id="c-s_hiduke1"><div class="qh"><span class="qn">2</span><span class="ql">今日は何年何月何日ですか？何曜日ですか？</span></div><div class="qi">年・月・日・曜日 各1点</div><div class="os"><button class="ob" data-q="s_hiduke1" data-v="4"><span class="bg">4</span>4点（全問正解）</button><button class="ob" data-q="s_hiduke1" data-v="3"><span class="bg">3</span>3点</button><button class="ob" data-q="s_hiduke1" data-v="2"><span class="bg">2</span>2点</button><button class="ob" data-q="s_hiduke1" data-v="1"><span class="bg">1</span>1点</button><button class="ob" data-q="s_hiduke1" data-v="0"><span class="bg">0</span>0点（全問不正解）</button></div></div><div class="qc" id="c-s_basho1"><div class="qh"><span class="qn">3</span><span class="ql">私たちがいるところはどこですか？</span></div><div class="qi">自発的に答えられれば2点 / ヒント（家？病院？施設？）後正解＝1点</div><div class="os"><button class="ob" data-q="s_basho1" data-v="2"><span class="bg">2</span>自発正解（2点）</button><button class="ob" data-q="s_basho1" data-v="1"><span class="bg">1</span>ヒント後正解（1点）</button><button class="ob" data-q="s_basho1" data-v="0"><span class="bg">0</span>不正解（0点）</button></div></div><div class="qc" id="c-s_fukusho1"><div class="qh"><span class="qn">4</span><span class="ql">これから言う3つの言葉を覚えてください</span></div><div class="qi">3つの言葉を聞かせ繰り返させる（即時再生）各1点</div><div class="sb"><div class="sl">採用した系列：</div><div class="sbs"><button class="sbtn" data-si="0">系列1：桜・猫・電車</button><button class="sbtn" data-si="1">系列2：梅・犬・自動車</button></div></div><div class="os" style="margin-top:8px"><button class="ob" data-q="s_fukusho1" data-v="3"><span class="bg">3</span>3点（3語正解）</button><button class="ob" data-q="s_fukusho1" data-v="2"><span class="bg">2</span>2点</button><button class="ob" data-q="s_fukusho1" data-v="1"><span class="bg">1</span>1点</button><button class="ob" data-q="s_fukusho1" data-v="0"><span class="bg">0</span>0点</button></div></div><div class="qc" id="c-s_hikizan1"><div class="qh"><span class="qn">5</span><span class="ql">100から7を順番に引いてください</span></div><div class="qi">93は？→86は？ 各1点（最初が不正解なら打ち切り）</div><div class="os"><button class="ob" data-q="s_hikizan1" data-v="2"><span class="bg">2</span>2点（両方正解）</button><button class="ob" data-q="s_hikizan1" data-v="1"><span class="bg">1</span>1点（93のみ正解）</button><button class="ob" data-q="s_hikizan1" data-v="0"><span class="bg">0</span>0点</button></div></div><div class="qc" id="c-s_gyakukara"><div class="qh"><span class="qn">6</span><span class="ql">数字を逆から言ってください</span></div><div class="qi">6-8-2→2-8-6 / 3-5-2-9→9-2-5-3（3桁失敗で打ち切り）</div><div class="os"><button class="ob" data-q="s_gyakukara" data-v="2"><span class="bg">2</span>2点（両方正解）</button><button class="ob" data-q="s_gyakukara" data-v="1"><span class="bg">1</span>1点（3桁のみ正解）</button><button class="ob" data-q="s_gyakukara" data-v="0"><span class="bg">0</span>0点</button></div></div><div class="qc" id="c-s_fukusho2_1"><div class="qh"><span class="qn">7a</span><span class="ql">先ほど覚えた言葉を言ってください（a）</span></div><div class="qi">自発正解＝2点 / ヒント（植物・動物・乗り物）後正解＝1点</div><div class="os"><button class="ob" data-q="s_fukusho2_1" data-v="2"><span class="bg">2</span>自発正解（2点）</button><button class="ob" data-q="s_fukusho2_1" data-v="1"><span class="bg">1</span>ヒント後正解（1点）</button><button class="ob" data-q="s_fukusho2_1" data-v="0"><span class="bg">0</span>不正解（0点）</button></div></div><div class="qc" id="c-s_fukusho2_2"><div class="qh"><span class="qn">7b</span><span class="ql">先ほど覚えた言葉を言ってください（b）</span></div><div class="qi">同上</div><div class="os"><button class="ob" data-q="s_fukusho2_2" data-v="2"><span class="bg">2</span>自発正解（2点）</button><button class="ob" data-q="s_fukusho2_2" data-v="1"><span class="bg">1</span>ヒント後正解（1点）</button><button class="ob" data-q="s_fukusho2_2" data-v="0"><span class="bg">0</span>不正解（0点）</button></div></div><div class="qc" id="c-s_fukusho2_3"><div class="qh"><span class="qn">7c</span><span class="ql">先ほど覚えた言葉を言ってください（c）</span></div><div class="qi">同上</div><div class="os"><button class="ob" data-q="s_fukusho2_3" data-v="2"><span class="bg">2</span>自発正解（2点）</button><button class="ob" data-q="s_fukusho2_3" data-v="1"><span class="bg">1</span>ヒント後正解（1点）</button><button class="ob" data-q="s_fukusho2_3" data-v="0"><span class="bg">0</span>不正解（0点）</button></div></div><div class="qc" id="c-s_shinamono"><div class="qh"><span class="qn">8</span><span class="ql">これから5つの物品を見せます。隠しますので何があったか言ってください</span></div><div class="qi">時計・鍵・タバコ・ペン・硬貨など相互に無関係なもの 各1点</div><div class="os"><button class="ob" data-q="s_shinamono" data-v="5"><span class="bg">5</span>5点</button><button class="ob" data-q="s_shinamono" data-v="4"><span class="bg">4</span>4点</button><button class="ob" data-q="s_shinamono" data-v="3"><span class="bg">3</span>3点</button><button class="ob" data-q="s_shinamono" data-v="2"><span class="bg">2</span>2点</button><button class="ob" data-q="s_shinamono" data-v="1"><span class="bg">1</span>1点</button><button class="ob" data-q="s_shinamono" data-v="0"><span class="bg">0</span>0点</button></div></div><div class="qc" id="c-s_yasai"><div class="qh"><span class="qn">9</span><span class="ql">知っている野菜の名前をできるだけ多く言ってください</span></div><div class="qi">約10秒待っても出なければ打ち切り<br>0〜5個＝0点 / 6個＝1点 / 7個＝2点 / 8個＝3点 / 9個＝4点 / 10個以上＝5点</div><div class="os"><button class="ob" data-q="s_yasai" data-v="5"><span class="bg">5</span>5点（10個以上）</button><button class="ob" data-q="s_yasai" data-v="4"><span class="bg">4</span>4点（9個）</button><button class="ob" data-q="s_yasai" data-v="3"><span class="bg">3</span>3点（8個）</button><button class="ob" data-q="s_yasai" data-v="2"><span class="bg">2</span>2点（7個）</button><button class="ob" data-q="s_yasai" data-v="1"><span class="bg">1</span>1点（6個）</button><button class="ob" data-q="s_yasai" data-v="0"><span class="bg">0</span>0点（5個以下）</button></div></div><div class="sp res" id="p-hdsr"><div class="sh"><span class="st">HDS-R スコア</span><span class="sv" id="v-hdsr">—<span class="mx"> / 30点</span></span></div><div class="pbar"><div class="pfill" id="f-hdsr" style="width:0;background:var(--bd)"></div></div><div id="j-hdsr"></div><div class="ua" id="u-hdsr"></div><div class="sgs"><div class="sg"><div class="gl">見当識</div><div class="gv" id="g-hdsr-見当識">—/7</div></div><div class="sg"><div class="gl">記憶</div><div class="gv" id="g-hdsr-記憶">—/14</div></div><div class="sg"><div class="gl">注意</div><div class="gv" id="g-hdsr-注意">—/4</div></div><div class="sg"><div class="gl">言語</div><div class="gv" id="g-hdsr-言語">—/5</div></div></div></div></div><div class="sc" id="s-mmse"><div class="qc" id="c-s_hiduke2"><div class="qh"><span class="qn">1</span><span class="ql">今年は何年ですか？今の季節は？今月は？今日は何日？今日は何曜日？</span></div><div class="qi">各1点（年・季節・月・日・曜日）</div><div class="os"><button class="ob" data-q="s_hiduke2" data-v="5"><span class="bg">5</span>5点</button><button class="ob" data-q="s_hiduke2" data-v="4"><span class="bg">4</span>4点</button><button class="ob" data-q="s_hiduke2" data-v="3"><span class="bg">3</span>3点</button><button class="ob" data-q="s_hiduke2" data-v="2"><span class="bg">2</span>2点</button><button class="ob" data-q="s_hiduke2" data-v="1"><span class="bg">1</span>1点</button><button class="ob" data-q="s_hiduke2" data-v="0"><span class="bg">0</span>0点</button></div></div><div class="qc" id="c-s_basho2"><div class="qh"><span class="qn">2</span><span class="ql">ここはどこですか？</span></div><div class="qi">国・都道府県・市町村・病院名・何階 各1点</div><div class="os"><button class="ob" data-q="s_basho2" data-v="5"><span class="bg">5</span>5点</button><button class="ob" data-q="s_basho2" data-v="4"><span class="bg">4</span>4点</button><button class="ob" data-q="s_basho2" data-v="3"><span class="bg">3</span>3点</button><button class="ob" data-q="s_basho2" data-v="2"><span class="bg">2</span>2点</button><button class="ob" data-q="s_basho2" data-v="1"><span class="bg">1</span>1点</button><button class="ob" data-q="s_basho2" data-v="0"><span class="bg">0</span>0点</button></div></div><div class="qc" id="c-s_fukusho3"><div class="qh"><span class="qn">3</span><span class="ql">3つの言葉を覚えてください</span></div><div class="qi">各1点（使用した単語を下に記録）</div><div class="os"><button class="ob" data-q="s_fukusho3" data-v="3"><span class="bg">3</span>3点</button><button class="ob" data-q="s_fukusho3" data-v="2"><span class="bg">2</span>2点</button><button class="ob" data-q="s_fukusho3" data-v="1"><span class="bg">1</span>1点</button><button class="ob" data-q="s_fukusho3" data-v="0"><span class="bg">0</span>0点</button></div><div class="kr"><label>使用した3単語：</label><input type="text" class="kwi" data-i="0" placeholder="単語1" value=""><input type="text" class="kwi" data-i="1" placeholder="単語2" value=""><input type="text" class="kwi" data-i="2" placeholder="単語3" value=""></div></div><div class="qc" id="c-s_hikizan2"><div class="qh"><span class="qn">4</span><span class="ql">100から7を順に引いてください</span></div><div class="qi">または「ふじのやま」を逆唱 各1点（5段階）</div><div class="os"><button class="ob" data-q="s_hikizan2" data-v="5"><span class="bg">5</span>5点</button><button class="ob" data-q="s_hikizan2" data-v="4"><span class="bg">4</span>4点</button><button class="ob" data-q="s_hikizan2" data-v="3"><span class="bg">3</span>3点</button><button class="ob" data-q="s_hikizan2" data-v="2"><span class="bg">2</span>2点</button><button class="ob" data-q="s_hikizan2" data-v="1"><span class="bg">1</span>1点</button><button class="ob" data-q="s_hikizan2" data-v="0"><span class="bg">0</span>0点</button></div></div><div class="qc" id="c-s_fukusho4"><div class="qh"><span class="qn">5</span><span class="ql">先ほど覚えた3つの言葉を言ってください</span></div><div class="qi">各1点</div><div class="os"><button class="ob" data-q="s_fukusho4" data-v="3"><span class="bg">3</span>3点</button><button class="ob" data-q="s_fukusho4" data-v="2"><span class="bg">2</span>2点</button><button class="ob" data-q="s_fukusho4" data-v="1"><span class="bg">1</span>1点</button><button class="ob" data-q="s_fukusho4" data-v="0"><span class="bg">0</span>0点</button></div></div><div class="qc" id="c-s_buppin"><div class="qh"><span class="qn">6</span><span class="ql">これは何ですか？（鉛筆と時計を見せて）</span></div><div class="qi">各1点</div><div class="os"><button class="ob" data-q="s_buppin" data-v="2"><span class="bg">2</span>2点（両方正解）</button><button class="ob" data-q="s_buppin" data-v="1"><span class="bg">1</span>1点</button><button class="ob" data-q="s_buppin" data-v="0"><span class="bg">0</span>0点</button></div></div><div class="qc" id="c-s_bunsho"><div class="qh"><span class="qn">7</span><span class="ql">「みんなで力を合わせて綱を引きます」と繰り返してください</span></div><div class="qi">1回で正確に言えれば1点</div><div class="os"><button class="ob" data-q="s_bunsho" data-v="1"><span class="bg">1</span>可（1点）</button><button class="ob" data-q="s_bunsho" data-v="0"><span class="bg">0</span>不可（0点）</button></div></div><div class="qc" id="c-s_koutou"><div class="qh"><span class="qn">8</span><span class="ql">右手で紙を持ち、両手で半分に折り、膝の上に置いてください</span></div><div class="qi">各動作1点（右手で持つ・半分に折る・膝に置く）</div><div class="os"><button class="ob" data-q="s_koutou" data-v="3"><span class="bg">3</span>3点</button><button class="ob" data-q="s_koutou" data-v="2"><span class="bg">2</span>2点</button><button class="ob" data-q="s_koutou" data-v="1"><span class="bg">1</span>1点</button><button class="ob" data-q="s_koutou" data-v="0"><span class="bg">0</span>0点</button></div></div><div class="qc" id="c-s_shoji_rikai"><div class="qh"><span class="qn">9</span><span class="ql">「目を閉じてください」と書いた紙を見せる</span></div><div class="qi">読んで実行できれば1点</div><div class="os"><button class="ob" data-q="s_shoji_rikai" data-v="1"><span class="bg">1</span>可（1点）</button><button class="ob" data-q="s_shoji_rikai" data-v="0"><span class="bg">0</span>不可（0点）</button></div></div><div class="qc" id="c-s_jihatsu_shoji"><div class="qh"><span class="qn">10</span><span class="ql">何か文章を書いてください</span></div><div class="qi">主語と述語を含む文であれば1点</div><div class="os"><button class="ob" data-q="s_jihatsu_shoji" data-v="1"><span class="bg">1</span>可（1点）</button><button class="ob" data-q="s_jihatsu_shoji" data-v="0"><span class="bg">0</span>不可（0点）</button></div></div><div class="qc" id="c-s_zukei"><div class="qh"><span class="qn">11</span><span class="ql">この図形を書いてください（五角形2つの重なり）</span></div><div class="qi">五角形が2つ重なり交差部分が四角形であれば1点</div><div class="os"><button class="ob" data-q="s_zukei" data-v="1"><span class="bg">1</span>可（1点）</button><button class="ob" data-q="s_zukei" data-v="0"><span class="bg">0</span>不可（0点）</button></div></div><div class="sp res" id="p-mmse"><div class="sh"><span class="st">MMSE スコア</span><span class="sv" id="v-mmse">—<span class="mx"> / 30点</span></span></div><div class="pbar"><div class="pfill" id="f-mmse" style="width:0;background:var(--bd)"></div></div><div id="j-mmse"></div><div class="ua" id="u-mmse"></div><div class="sgs"><div class="sg"><div class="gl">見当識</div><div class="gv" id="g-mmse-見当識">—/10</div></div><div class="sg"><div class="gl">記憶</div><div class="gv" id="g-mmse-記憶">—/6</div></div><div class="sg"><div class="gl">注意</div><div class="gv" id="g-mmse-注意">—/5</div></div><div class="sg"><div class="gl">言語</div><div class="gv" id="g-mmse-言語">—/8</div></div><div class="sg"><div class="gl">構成</div><div class="gv" id="g-mmse-構成">—/1</div></div></div></div></div><div class="acts"><button class="btn b1" onclick="genQR('cognitive')">QRコードを生成</button><button class="btn b2" onclick="doReset('cognitive')">リセット</button></div><div class="qa" id="qr-cognitive"></div></div><div class="tc" id="t-fbs"><div class="pb"><label>氏名</label><input type="text" class="pn" placeholder="患者氏名を入力" value=""><span class="nt">※ QRコードには含まれません。この端末に一時保存されています。カルテ転記が完了したら、QR生成後に表示される「入力データを消去する」ボタン、またはリセットで消去してください。</span></div><div class="qc" id="c-s_ans3"><div class="qh"><span class="qn">1</span><span class="ql">起立</span></div><div class="os"><button class="ob" data-q="s_ans3" data-v="4"><span class="bg">4</span>4点：立ち上がりが可能</button><button class="ob" data-q="s_ans3" data-v="3"><span class="bg">3</span>3点：手を使用して一人で立ち上がりが可能</button><button class="ob" data-q="s_ans3" data-v="2"><span class="bg">2</span>2点：数回の試行後，手を使用して立ち上がりが可能</button><button class="ob" data-q="s_ans3" data-v="1"><span class="bg">1</span>1点：立ち上がり，または安定のために最小の介助が必要</button><button class="ob" data-q="s_ans3" data-v="0"><span class="bg">0</span>0点：立ち上がりに介助が必要</button></div></div><div class="qc" id="c-s_ans4"><div class="qh"><span class="qn">2</span><span class="ql">立位保持</span></div><div class="os"><button class="ob" data-q="s_ans4" data-v="4"><span class="bg">4</span>4点：安全に2分間の立位保持が可能</button><button class="ob" data-q="s_ans4" data-v="3"><span class="bg">3</span>3点：監視下で2分間の立位保持が可能</button><button class="ob" data-q="s_ans4" data-v="2"><span class="bg">2</span>2点：30秒間の立位保持が可能</button><button class="ob" data-q="s_ans4" data-v="1"><span class="bg">1</span>1点：数回の試行にて30秒間の立位保持が可能</button><button class="ob" data-q="s_ans4" data-v="0"><span class="bg">0</span>0点：介助なしでは30秒間の立位保持が不可能</button></div></div><div class="qc" id="c-s_ans5"><div class="qh"><span class="qn">3</span><span class="ql">座位保持</span></div><div class="os"><button class="ob" data-q="s_ans5" data-v="4"><span class="bg">4</span>4点：安全に2分間の座位保持が可能</button><button class="ob" data-q="s_ans5" data-v="3"><span class="bg">3</span>3点：監視下で2分間の座位保持が可能</button><button class="ob" data-q="s_ans5" data-v="2"><span class="bg">2</span>2点：30秒間の座位保持が可能</button><button class="ob" data-q="s_ans5" data-v="1"><span class="bg">1</span>1点：10秒間の座位保持が可能</button><button class="ob" data-q="s_ans5" data-v="0"><span class="bg">0</span>0点：支持なしでは10秒間の座位保持が不可能</button></div></div><div class="qc" id="c-s_ans6"><div class="qh"><span class="qn">4</span><span class="ql">着座</span></div><div class="os"><button class="ob" data-q="s_ans6" data-v="4"><span class="bg">4</span>4点：ほとんど手を用いずに安全に座れる</button><button class="ob" data-q="s_ans6" data-v="3"><span class="bg">3</span>3点：手を用いてしゃがみこみを制御する</button><button class="ob" data-q="s_ans6" data-v="2"><span class="bg">2</span>2点：下腿後面を椅子に押しつけてしゃがみこみを制御する</button><button class="ob" data-q="s_ans6" data-v="1"><span class="bg">1</span>1点：一人で座れるが，しゃがみこみを制御できない</button><button class="ob" data-q="s_ans6" data-v="0"><span class="bg">0</span>0点：座るために介助が必要</button></div></div><div class="qc" id="c-s_ans7"><div class="qh"><span class="qn">5</span><span class="ql">移乗</span></div><div class="os"><button class="ob" data-q="s_ans7" data-v="4"><span class="bg">4</span>4点：ほとんど手を用いずに安全に移乗が可能</button><button class="ob" data-q="s_ans7" data-v="3"><span class="bg">3</span>3点：手を用いれば安全に移乗が可能</button><button class="ob" data-q="s_ans7" data-v="2"><span class="bg">2</span>2点：言語指示，あるいは監視下にて移乗が可能</button><button class="ob" data-q="s_ans7" data-v="1"><span class="bg">1</span>1点：移乗に介助者1名が必要</button><button class="ob" data-q="s_ans7" data-v="0"><span class="bg">0</span>0点：移乗に介助者2名が必要，または監視が必要</button></div></div><div class="qc" id="c-s_ans8"><div class="qh"><span class="qn">6</span><span class="ql">閉眼立位</span></div><div class="os"><button class="ob" data-q="s_ans8" data-v="4"><span class="bg">4</span>4点：安全に10秒間の閉眼立位保持が可能</button><button class="ob" data-q="s_ans8" data-v="3"><span class="bg">3</span>3点：監視下にて10秒間の閉眼立位保持が可能</button><button class="ob" data-q="s_ans8" data-v="2"><span class="bg">2</span>2点：3秒間の閉眼立位保持が可能</button><button class="ob" data-q="s_ans8" data-v="1"><span class="bg">1</span>1点：3秒間の閉眼立位保持ができないが安定して立っていられる</button><button class="ob" data-q="s_ans8" data-v="0"><span class="bg">0</span>0点：転倒を防ぐために介助が必要</button></div></div><div class="qc" id="c-s_ans9"><div class="qh"><span class="qn">7</span><span class="ql">閉脚立位</span></div><div class="os"><button class="ob" data-q="s_ans9" data-v="4"><span class="bg">4</span>4点：自分で閉脚立位ができ1分間安全に立位保持が可能</button><button class="ob" data-q="s_ans9" data-v="3"><span class="bg">3</span>3点：自分で閉脚立位ができ監視下にて1分間の立位保持が可能</button><button class="ob" data-q="s_ans9" data-v="2"><span class="bg">2</span>2点：自分で閉脚立位ができるが30秒間の立位保持は不可能</button><button class="ob" data-q="s_ans9" data-v="1"><span class="bg">1</span>1点：閉脚立位をとるのに介助が必要だが閉脚で15秒間の保持が可能</button><button class="ob" data-q="s_ans9" data-v="0"><span class="bg">0</span>0点：介助なしに閉脚立位がとれず15秒間の保持も不可能</button></div></div><div class="qc" id="c-s_ans10"><div class="qh"><span class="qn">8</span><span class="ql">リーチ</span></div><div class="os"><button class="ob" data-q="s_ans10" data-v="4"><span class="bg">4</span>4点：25cm以上の前方リーチが可能</button><button class="ob" data-q="s_ans10" data-v="3"><span class="bg">3</span>3点：12.5cm以上の前方リーチが可能</button><button class="ob" data-q="s_ans10" data-v="2"><span class="bg">2</span>2点：5cmの前方リーチが可能</button><button class="ob" data-q="s_ans10" data-v="1"><span class="bg">1</span>1点：手を伸ばせるが監視が必要</button><button class="ob" data-q="s_ans10" data-v="0"><span class="bg">0</span>0点：バランスを保つための補助が必要</button></div><div class="sr"><label>リーチ距離：</label><input type="text" class="sui" data-si="ans11" placeholder="例: 25cm" value=""></div></div><div class="qc" id="c-s_ans12"><div class="qh"><span class="qn">9</span><span class="ql">拾い上げ</span></div><div class="os"><button class="ob" data-q="s_ans12" data-v="4"><span class="bg">4</span>4点：安全かつ簡単に物を拾うことが可能</button><button class="ob" data-q="s_ans12" data-v="3"><span class="bg">3</span>3点：監視下にて物を拾うことが可能</button><button class="ob" data-q="s_ans12" data-v="2"><span class="bg">2</span>2点：物は拾えないが靴まで2.5〜5cmくらいまで手を伸ばせる</button><button class="ob" data-q="s_ans12" data-v="1"><span class="bg">1</span>1点：物を拾うことができず監視が必要</button><button class="ob" data-q="s_ans12" data-v="0"><span class="bg">0</span>0点：拾うことが不可能または試みるとバランスを失う</button></div></div><div class="qc" id="c-s_ans13"><div class="qh"><span class="qn">10</span><span class="ql">振り返り</span></div><div class="os"><button class="ob" data-q="s_ans13" data-v="4"><span class="bg">4</span>4点：両側とも後ろを振り向くことができる</button><button class="ob" data-q="s_ans13" data-v="3"><span class="bg">3</span>3点：片側のみ振り向くことができる</button><button class="ob" data-q="s_ans13" data-v="2"><span class="bg">2</span>2点：側方までしか振り向けないが安定している</button><button class="ob" data-q="s_ans13" data-v="1"><span class="bg">1</span>1点：振り向く時に監視が必要</button><button class="ob" data-q="s_ans13" data-v="0"><span class="bg">0</span>0点：バランスを保つための補助が必要</button></div></div><div class="qc" id="c-s_ans14"><div class="qh"><span class="qn">11</span><span class="ql">1回転</span></div><div class="os"><button class="ob" data-q="s_ans14" data-v="4"><span class="bg">4</span>4点：左右それぞれ4秒以内で安全に360°回転が可能</button><button class="ob" data-q="s_ans14" data-v="3"><span class="bg">3</span>3点：一側のみ4秒以内で安全に360°回転が可能</button><button class="ob" data-q="s_ans14" data-v="2"><span class="bg">2</span>2点：360°回転が可能だが両側とも4秒以上</button><button class="ob" data-q="s_ans14" data-v="1"><span class="bg">1</span>1点：監視または言語指示が必要</button><button class="ob" data-q="s_ans14" data-v="0"><span class="bg">0</span>0点：回転中に介助が必要</button></div><div class="sr"><label>秒数：</label><input type="text" class="sui" data-si="ans15" placeholder="例: 3秒" value=""></div></div><div class="qc" id="c-s_ans16"><div class="qh"><span class="qn">12</span><span class="ql">段差昇降</span></div><div class="os"><button class="ob" data-q="s_ans16" data-v="4"><span class="bg">4</span>4点：支持なしで安全かつ20秒以内に8回踏み替え可能</button><button class="ob" data-q="s_ans16" data-v="3"><span class="bg">3</span>3点：支持なしで8回踏み替え可能だが20秒以上</button><button class="ob" data-q="s_ans16" data-v="2"><span class="bg">2</span>2点：監視下で補助具なしに4回踏み替え可能</button><button class="ob" data-q="s_ans16" data-v="1"><span class="bg">1</span>1点：最小限の介助で2回以上踏み替え可能</button><button class="ob" data-q="s_ans16" data-v="0"><span class="bg">0</span>0点：安全に行うために介助が必要または実施不可能</button></div><div class="sr"><label>秒数：</label><input type="text" class="sui" data-si="ans17" placeholder="例: 18秒" value=""></div></div><div class="qc" id="c-s_ans18"><div class="qh"><span class="qn">13</span><span class="ql">タンデム</span></div><div class="os"><button class="ob" data-q="s_ans18" data-v="4"><span class="bg">4</span>4点：自分で継ぎ足位をとり30秒間保持可能</button><button class="ob" data-q="s_ans18" data-v="3"><span class="bg">3</span>3点：自分で足を前におき30秒間保持可能</button><button class="ob" data-q="s_ans18" data-v="2"><span class="bg">2</span>2点：自分で足をわずかにずらし30秒間保持可能</button><button class="ob" data-q="s_ans18" data-v="1"><span class="bg">1</span>1点：足を出すのに介助を要するが15秒間保持可能</button><button class="ob" data-q="s_ans18" data-v="0"><span class="bg">0</span>0点：足を出すまたは立位保持に介助が必要</button></div><div class="sr"><label>秒数：</label><input type="text" class="sui" data-si="ans19" placeholder="例: 30秒" value=""></div></div><div class="qc" id="c-s_ans20"><div class="qh"><span class="qn">14</span><span class="ql">片脚立位</span></div><div class="os"><button class="ob" data-q="s_ans20" data-v="4"><span class="bg">4</span>4点：自分で片脚をあげ10秒以上保持可能</button><button class="ob" data-q="s_ans20" data-v="3"><span class="bg">3</span>3点：自分で片脚をあげ5〜10秒間保持可能</button><button class="ob" data-q="s_ans20" data-v="2"><span class="bg">2</span>2点：自分で片脚をあげ3秒以上保持可能</button><button class="ob" data-q="s_ans20" data-v="1"><span class="bg">1</span>1点：片脚をあげ3秒以上保持不可能</button><button class="ob" data-q="s_ans20" data-v="0"><span class="bg">0</span>0点：試みることができないまたは介助が必要</button></div><div class="sr"><label>秒数：</label><input type="text" class="sui" data-si="ans21" placeholder="例: 8秒" value=""></div></div><div class="sp res" id="p-fbs"><div class="sh"><span class="st">FBS スコア</span><span class="sv" id="v-fbs">—<span class="mx"> / 56点</span></span></div><div class="pbar"><div class="pfill" id="f-fbs" style="width:0;background:var(--bd)"></div></div><div id="j-fbs"></div><div class="ua" id="u-fbs"></div></div><div class="rm"><label>備考</label><textarea class="rmi" data-s="fbs" placeholder="フリーテキスト入力"></textarea></div><div class="acts"><button class="btn b1" onclick="genQR('fbs')">QRコードを生成</button><button class="btn b2" onclick="doReset('fbs')">リセット</button></div><div class="qa" id="qr-fbs"></div></div></main>
+<main id="M"><div class="tc on" id="t-cognitive"><div class="pb"><label>氏名</label><input type="text" class="pn" placeholder="患者氏名を入力" value=""><label>評価日</label><input type="date" class="pd" value=""><span class="nt">※ 氏名はQRコードには含まれません（評価日は入ります）。入力内容はこの端末に一時保存されています。カルテ転記が完了したら、QR生成後に表示される「この端末から入力を消す」ボタン、または「この患者を終わる（全部消す）」で消去してください。</span></div><div class="stabs"><button class="stab on" data-s="hdsr" onclick="showSub('cognitive','hdsr')">HDS-R</button><button class="stab" data-s="mmse" onclick="showSub('cognitive','mmse')">MMSE</button></div><div class="sc on" id="s-hdsr"><div class="qc" id="c-s_nenrei"><div class="qh"><span class="qn">1</span><span class="ql">お歳はいくつですか？</span></div><div class="qi">2年までの誤差は正解</div><div class="os"><button class="ob" data-q="s_nenrei" data-v="1"><span class="bg">1</span>正解（±2年以内）</button><button class="ob" data-q="s_nenrei" data-v="0"><span class="bg">0</span>不正解</button></div></div><div class="qc" id="c-s_hiduke1"><div class="qh"><span class="qn">2</span><span class="ql">今日は何年何月何日ですか？何曜日ですか？</span></div><div class="qi">年・月・日・曜日 各1点</div><div class="os"><button class="ob" data-q="s_hiduke1" data-v="4"><span class="bg">4</span>4点（全問正解）</button><button class="ob" data-q="s_hiduke1" data-v="3"><span class="bg">3</span>3点</button><button class="ob" data-q="s_hiduke1" data-v="2"><span class="bg">2</span>2点</button><button class="ob" data-q="s_hiduke1" data-v="1"><span class="bg">1</span>1点</button><button class="ob" data-q="s_hiduke1" data-v="0"><span class="bg">0</span>0点（全問不正解）</button></div></div><div class="qc" id="c-s_basho1"><div class="qh"><span class="qn">3</span><span class="ql">私たちがいるところはどこですか？</span></div><div class="qi">自発的に答えられれば2点 / ヒント（家？病院？施設？）後正解＝1点</div><div class="os"><button class="ob" data-q="s_basho1" data-v="2"><span class="bg">2</span>自発正解（2点）</button><button class="ob" data-q="s_basho1" data-v="1"><span class="bg">1</span>ヒント後正解（1点）</button><button class="ob" data-q="s_basho1" data-v="0"><span class="bg">0</span>不正解（0点）</button></div></div><div class="qc" id="c-s_fukusho1"><div class="qh"><span class="qn">4</span><span class="ql">これから言う3つの言葉を覚えてください</span></div><div class="qi">3つの言葉を聞かせ繰り返させる（即時再生）各1点</div><div class="sb"><div class="sl">採用した系列：</div><div class="sbs"><button class="sbtn" data-si="0">系列1：桜・猫・電車</button><button class="sbtn" data-si="1">系列2：梅・犬・自動車</button></div></div><div class="os" style="margin-top:8px"><button class="ob" data-q="s_fukusho1" data-v="3"><span class="bg">3</span>3点（3語正解）</button><button class="ob" data-q="s_fukusho1" data-v="2"><span class="bg">2</span>2点</button><button class="ob" data-q="s_fukusho1" data-v="1"><span class="bg">1</span>1点</button><button class="ob" data-q="s_fukusho1" data-v="0"><span class="bg">0</span>0点</button></div></div><div class="qc" id="c-s_hikizan1"><div class="qh"><span class="qn">5</span><span class="ql">100から7を順番に引いてください</span></div><div class="qi">93は？→86は？ 各1点（最初が不正解なら打ち切り）</div><div class="os"><button class="ob" data-q="s_hikizan1" data-v="2"><span class="bg">2</span>2点（両方正解）</button><button class="ob" data-q="s_hikizan1" data-v="1"><span class="bg">1</span>1点（93のみ正解）</button><button class="ob" data-q="s_hikizan1" data-v="0"><span class="bg">0</span>0点</button></div></div><div class="qc" id="c-s_gyakukara"><div class="qh"><span class="qn">6</span><span class="ql">数字を逆から言ってください</span></div><div class="qi">6-8-2→2-8-6 / 3-5-2-9→9-2-5-3（3桁失敗で打ち切り）</div><div class="os"><button class="ob" data-q="s_gyakukara" data-v="2"><span class="bg">2</span>2点（両方正解）</button><button class="ob" data-q="s_gyakukara" data-v="1"><span class="bg">1</span>1点（3桁のみ正解）</button><button class="ob" data-q="s_gyakukara" data-v="0"><span class="bg">0</span>0点</button></div></div><div class="qc" id="c-s_fukusho2_1"><div class="qh"><span class="qn">7a</span><span class="ql">先ほど覚えた言葉を言ってください（a）</span></div><div class="qi">自発正解＝2点 / ヒント（植物・動物・乗り物）後正解＝1点</div><div class="os"><button class="ob" data-q="s_fukusho2_1" data-v="2"><span class="bg">2</span>自発正解（2点）</button><button class="ob" data-q="s_fukusho2_1" data-v="1"><span class="bg">1</span>ヒント後正解（1点）</button><button class="ob" data-q="s_fukusho2_1" data-v="0"><span class="bg">0</span>不正解（0点）</button></div></div><div class="qc" id="c-s_fukusho2_2"><div class="qh"><span class="qn">7b</span><span class="ql">先ほど覚えた言葉を言ってください（b）</span></div><div class="qi">同上</div><div class="os"><button class="ob" data-q="s_fukusho2_2" data-v="2"><span class="bg">2</span>自発正解（2点）</button><button class="ob" data-q="s_fukusho2_2" data-v="1"><span class="bg">1</span>ヒント後正解（1点）</button><button class="ob" data-q="s_fukusho2_2" data-v="0"><span class="bg">0</span>不正解（0点）</button></div></div><div class="qc" id="c-s_fukusho2_3"><div class="qh"><span class="qn">7c</span><span class="ql">先ほど覚えた言葉を言ってください（c）</span></div><div class="qi">同上</div><div class="os"><button class="ob" data-q="s_fukusho2_3" data-v="2"><span class="bg">2</span>自発正解（2点）</button><button class="ob" data-q="s_fukusho2_3" data-v="1"><span class="bg">1</span>ヒント後正解（1点）</button><button class="ob" data-q="s_fukusho2_3" data-v="0"><span class="bg">0</span>不正解（0点）</button></div></div><div class="qc" id="c-s_shinamono"><div class="qh"><span class="qn">8</span><span class="ql">これから5つの物品を見せます。隠しますので何があったか言ってください</span></div><div class="qi">時計・鍵・タバコ・ペン・硬貨など相互に無関係なもの 各1点</div><div class="os"><button class="ob" data-q="s_shinamono" data-v="5"><span class="bg">5</span>5点</button><button class="ob" data-q="s_shinamono" data-v="4"><span class="bg">4</span>4点</button><button class="ob" data-q="s_shinamono" data-v="3"><span class="bg">3</span>3点</button><button class="ob" data-q="s_shinamono" data-v="2"><span class="bg">2</span>2点</button><button class="ob" data-q="s_shinamono" data-v="1"><span class="bg">1</span>1点</button><button class="ob" data-q="s_shinamono" data-v="0"><span class="bg">0</span>0点</button></div></div><div class="qc" id="c-s_yasai"><div class="qh"><span class="qn">9</span><span class="ql">知っている野菜の名前をできるだけ多く言ってください</span></div><div class="qi">約10秒待っても出なければ打ち切り<br>0〜5個＝0点 / 6個＝1点 / 7個＝2点 / 8個＝3点 / 9個＝4点 / 10個以上＝5点</div><div class="os"><button class="ob" data-q="s_yasai" data-v="5"><span class="bg">5</span>5点（10個以上）</button><button class="ob" data-q="s_yasai" data-v="4"><span class="bg">4</span>4点（9個）</button><button class="ob" data-q="s_yasai" data-v="3"><span class="bg">3</span>3点（8個）</button><button class="ob" data-q="s_yasai" data-v="2"><span class="bg">2</span>2点（7個）</button><button class="ob" data-q="s_yasai" data-v="1"><span class="bg">1</span>1点（6個）</button><button class="ob" data-q="s_yasai" data-v="0"><span class="bg">0</span>0点（5個以下）</button></div></div><div class="sp res" id="p-hdsr"><div class="sh"><span class="st">HDS-R スコア</span><span class="sv" id="v-hdsr">—<span class="mx"> / 30点</span></span></div><div class="pbar"><div class="pfill" id="f-hdsr" style="width:0;background:var(--bd)"></div></div><div id="j-hdsr"></div><div class="ua" id="u-hdsr"></div><div class="sgs"><div class="sg"><div class="gl">見当識</div><div class="gv" id="g-hdsr-見当識">—/7</div></div><div class="sg"><div class="gl">記憶</div><div class="gv" id="g-hdsr-記憶">—/14</div></div><div class="sg"><div class="gl">注意</div><div class="gv" id="g-hdsr-注意">—/4</div></div><div class="sg"><div class="gl">言語</div><div class="gv" id="g-hdsr-言語">—/5</div></div></div></div></div><div class="sc" id="s-mmse"><div class="qc" id="c-s_hiduke2"><div class="qh"><span class="qn">1</span><span class="ql">今年は何年ですか？今の季節は？今月は？今日は何日？今日は何曜日？</span></div><div class="qi">各1点（年・季節・月・日・曜日）</div><div class="os"><button class="ob" data-q="s_hiduke2" data-v="5"><span class="bg">5</span>5点</button><button class="ob" data-q="s_hiduke2" data-v="4"><span class="bg">4</span>4点</button><button class="ob" data-q="s_hiduke2" data-v="3"><span class="bg">3</span>3点</button><button class="ob" data-q="s_hiduke2" data-v="2"><span class="bg">2</span>2点</button><button class="ob" data-q="s_hiduke2" data-v="1"><span class="bg">1</span>1点</button><button class="ob" data-q="s_hiduke2" data-v="0"><span class="bg">0</span>0点</button></div></div><div class="qc" id="c-s_basho2"><div class="qh"><span class="qn">2</span><span class="ql">ここはどこですか？</span></div><div class="qi">国・都道府県・市町村・病院名・何階 各1点</div><div class="os"><button class="ob" data-q="s_basho2" data-v="5"><span class="bg">5</span>5点</button><button class="ob" data-q="s_basho2" data-v="4"><span class="bg">4</span>4点</button><button class="ob" data-q="s_basho2" data-v="3"><span class="bg">3</span>3点</button><button class="ob" data-q="s_basho2" data-v="2"><span class="bg">2</span>2点</button><button class="ob" data-q="s_basho2" data-v="1"><span class="bg">1</span>1点</button><button class="ob" data-q="s_basho2" data-v="0"><span class="bg">0</span>0点</button></div></div><div class="qc" id="c-s_fukusho3"><div class="qh"><span class="qn">3</span><span class="ql">3つの言葉を覚えてください</span></div><div class="qi">各1点（使用した単語を下に記録）</div><div class="os"><button class="ob" data-q="s_fukusho3" data-v="3"><span class="bg">3</span>3点</button><button class="ob" data-q="s_fukusho3" data-v="2"><span class="bg">2</span>2点</button><button class="ob" data-q="s_fukusho3" data-v="1"><span class="bg">1</span>1点</button><button class="ob" data-q="s_fukusho3" data-v="0"><span class="bg">0</span>0点</button></div><div class="kr"><label>使用した3単語：</label><input type="text" class="kwi" data-i="0" placeholder="単語1" value=""><input type="text" class="kwi" data-i="1" placeholder="単語2" value=""><input type="text" class="kwi" data-i="2" placeholder="単語3" value=""></div></div><div class="qc" id="c-s_hikizan2"><div class="qh"><span class="qn">4</span><span class="ql">100から7を順に引いてください</span></div><div class="qi">または「ふじのやま」を逆唱 各1点（5段階）</div><div class="os"><button class="ob" data-q="s_hikizan2" data-v="5"><span class="bg">5</span>5点</button><button class="ob" data-q="s_hikizan2" data-v="4"><span class="bg">4</span>4点</button><button class="ob" data-q="s_hikizan2" data-v="3"><span class="bg">3</span>3点</button><button class="ob" data-q="s_hikizan2" data-v="2"><span class="bg">2</span>2点</button><button class="ob" data-q="s_hikizan2" data-v="1"><span class="bg">1</span>1点</button><button class="ob" data-q="s_hikizan2" data-v="0"><span class="bg">0</span>0点</button></div></div><div class="qc" id="c-s_fukusho4"><div class="qh"><span class="qn">5</span><span class="ql">先ほど覚えた3つの言葉を言ってください</span></div><div class="qi">各1点</div><div class="os"><button class="ob" data-q="s_fukusho4" data-v="3"><span class="bg">3</span>3点</button><button class="ob" data-q="s_fukusho4" data-v="2"><span class="bg">2</span>2点</button><button class="ob" data-q="s_fukusho4" data-v="1"><span class="bg">1</span>1点</button><button class="ob" data-q="s_fukusho4" data-v="0"><span class="bg">0</span>0点</button></div></div><div class="qc" id="c-s_buppin"><div class="qh"><span class="qn">6</span><span class="ql">これは何ですか？（鉛筆と時計を見せて）</span></div><div class="qi">各1点</div><div class="os"><button class="ob" data-q="s_buppin" data-v="2"><span class="bg">2</span>2点（両方正解）</button><button class="ob" data-q="s_buppin" data-v="1"><span class="bg">1</span>1点</button><button class="ob" data-q="s_buppin" data-v="0"><span class="bg">0</span>0点</button></div></div><div class="qc" id="c-s_bunsho"><div class="qh"><span class="qn">7</span><span class="ql">「みんなで力を合わせて綱を引きます」と繰り返してください</span></div><div class="qi">1回で正確に言えれば1点</div><div class="os"><button class="ob" data-q="s_bunsho" data-v="1"><span class="bg">1</span>可（1点）</button><button class="ob" data-q="s_bunsho" data-v="0"><span class="bg">0</span>不可（0点）</button></div></div><div class="qc" id="c-s_koutou"><div class="qh"><span class="qn">8</span><span class="ql">右手で紙を持ち、両手で半分に折り、膝の上に置いてください</span></div><div class="qi">各動作1点（右手で持つ・半分に折る・膝に置く）</div><div class="os"><button class="ob" data-q="s_koutou" data-v="3"><span class="bg">3</span>3点</button><button class="ob" data-q="s_koutou" data-v="2"><span class="bg">2</span>2点</button><button class="ob" data-q="s_koutou" data-v="1"><span class="bg">1</span>1点</button><button class="ob" data-q="s_koutou" data-v="0"><span class="bg">0</span>0点</button></div></div><div class="qc" id="c-s_shoji_rikai"><div class="qh"><span class="qn">9</span><span class="ql">「目を閉じてください」と書いた紙を見せる</span></div><div class="qi">読んで実行できれば1点</div><div class="os"><button class="ob" data-q="s_shoji_rikai" data-v="1"><span class="bg">1</span>可（1点）</button><button class="ob" data-q="s_shoji_rikai" data-v="0"><span class="bg">0</span>不可（0点）</button></div></div><div class="qc" id="c-s_jihatsu_shoji"><div class="qh"><span class="qn">10</span><span class="ql">何か文章を書いてください</span></div><div class="qi">主語と述語を含む文であれば1点</div><div class="os"><button class="ob" data-q="s_jihatsu_shoji" data-v="1"><span class="bg">1</span>可（1点）</button><button class="ob" data-q="s_jihatsu_shoji" data-v="0"><span class="bg">0</span>不可（0点）</button></div></div><div class="qc" id="c-s_zukei"><div class="qh"><span class="qn">11</span><span class="ql">この図形を書いてください（五角形2つの重なり）</span></div><div class="qi">五角形が2つ重なり交差部分が四角形であれば1点</div><div class="os"><button class="ob" data-q="s_zukei" data-v="1"><span class="bg">1</span>可（1点）</button><button class="ob" data-q="s_zukei" data-v="0"><span class="bg">0</span>不可（0点）</button></div></div><div class="sp res" id="p-mmse"><div class="sh"><span class="st">MMSE スコア</span><span class="sv" id="v-mmse">—<span class="mx"> / 30点</span></span></div><div class="pbar"><div class="pfill" id="f-mmse" style="width:0;background:var(--bd)"></div></div><div id="j-mmse"></div><div class="ua" id="u-mmse"></div><div class="sgs"><div class="sg"><div class="gl">見当識</div><div class="gv" id="g-mmse-見当識">—/10</div></div><div class="sg"><div class="gl">記憶</div><div class="gv" id="g-mmse-記憶">—/6</div></div><div class="sg"><div class="gl">注意</div><div class="gv" id="g-mmse-注意">—/5</div></div><div class="sg"><div class="gl">言語</div><div class="gv" id="g-mmse-言語">—/8</div></div><div class="sg"><div class="gl">構成</div><div class="gv" id="g-mmse-構成">—/1</div></div></div></div></div><div class="acts"><button class="btn b1" onclick="genQR('cognitive')">QRコードを生成</button><button class="btn b2" onclick="doReset('cognitive')">この検査だけやり直す</button></div><div class="qa" id="qr-cognitive"></div></div><div class="tc" id="t-fbs"><div class="pb"><label>氏名</label><input type="text" class="pn" placeholder="患者氏名を入力" value=""><label>評価日</label><input type="date" class="pd" value=""><span class="nt">※ 氏名はQRコードには含まれません（評価日は入ります）。入力内容はこの端末に一時保存されています。カルテ転記が完了したら、QR生成後に表示される「この端末から入力を消す」ボタン、または「この患者を終わる（全部消す）」で消去してください。</span></div><div class="qc" id="c-s_ans3"><div class="qh"><span class="qn">1</span><span class="ql">起立</span></div><div class="os"><button class="ob" data-q="s_ans3" data-v="4"><span class="bg">4</span>4点：立ち上がりが可能</button><button class="ob" data-q="s_ans3" data-v="3"><span class="bg">3</span>3点：手を使用して一人で立ち上がりが可能</button><button class="ob" data-q="s_ans3" data-v="2"><span class="bg">2</span>2点：数回の試行後，手を使用して立ち上がりが可能</button><button class="ob" data-q="s_ans3" data-v="1"><span class="bg">1</span>1点：立ち上がり，または安定のために最小の介助が必要</button><button class="ob" data-q="s_ans3" data-v="0"><span class="bg">0</span>0点：立ち上がりに介助が必要</button></div></div><div class="qc" id="c-s_ans4"><div class="qh"><span class="qn">2</span><span class="ql">立位保持</span></div><div class="os"><button class="ob" data-q="s_ans4" data-v="4"><span class="bg">4</span>4点：安全に2分間の立位保持が可能</button><button class="ob" data-q="s_ans4" data-v="3"><span class="bg">3</span>3点：監視下で2分間の立位保持が可能</button><button class="ob" data-q="s_ans4" data-v="2"><span class="bg">2</span>2点：30秒間の立位保持が可能</button><button class="ob" data-q="s_ans4" data-v="1"><span class="bg">1</span>1点：数回の試行にて30秒間の立位保持が可能</button><button class="ob" data-q="s_ans4" data-v="0"><span class="bg">0</span>0点：介助なしでは30秒間の立位保持が不可能</button></div></div><div class="qc" id="c-s_ans5"><div class="qh"><span class="qn">3</span><span class="ql">座位保持</span></div><div class="os"><button class="ob" data-q="s_ans5" data-v="4"><span class="bg">4</span>4点：安全に2分間の座位保持が可能</button><button class="ob" data-q="s_ans5" data-v="3"><span class="bg">3</span>3点：監視下で2分間の座位保持が可能</button><button class="ob" data-q="s_ans5" data-v="2"><span class="bg">2</span>2点：30秒間の座位保持が可能</button><button class="ob" data-q="s_ans5" data-v="1"><span class="bg">1</span>1点：10秒間の座位保持が可能</button><button class="ob" data-q="s_ans5" data-v="0"><span class="bg">0</span>0点：支持なしでは10秒間の座位保持が不可能</button></div></div><div class="qc" id="c-s_ans6"><div class="qh"><span class="qn">4</span><span class="ql">着座</span></div><div class="os"><button class="ob" data-q="s_ans6" data-v="4"><span class="bg">4</span>4点：ほとんど手を用いずに安全に座れる</button><button class="ob" data-q="s_ans6" data-v="3"><span class="bg">3</span>3点：手を用いてしゃがみこみを制御する</button><button class="ob" data-q="s_ans6" data-v="2"><span class="bg">2</span>2点：下腿後面を椅子に押しつけてしゃがみこみを制御する</button><button class="ob" data-q="s_ans6" data-v="1"><span class="bg">1</span>1点：一人で座れるが，しゃがみこみを制御できない</button><button class="ob" data-q="s_ans6" data-v="0"><span class="bg">0</span>0点：座るために介助が必要</button></div></div><div class="qc" id="c-s_ans7"><div class="qh"><span class="qn">5</span><span class="ql">移乗</span></div><div class="os"><button class="ob" data-q="s_ans7" data-v="4"><span class="bg">4</span>4点：ほとんど手を用いずに安全に移乗が可能</button><button class="ob" data-q="s_ans7" data-v="3"><span class="bg">3</span>3点：手を用いれば安全に移乗が可能</button><button class="ob" data-q="s_ans7" data-v="2"><span class="bg">2</span>2点：言語指示，あるいは監視下にて移乗が可能</button><button class="ob" data-q="s_ans7" data-v="1"><span class="bg">1</span>1点：移乗に介助者1名が必要</button><button class="ob" data-q="s_ans7" data-v="0"><span class="bg">0</span>0点：移乗に介助者2名が必要，または監視が必要</button></div></div><div class="qc" id="c-s_ans8"><div class="qh"><span class="qn">6</span><span class="ql">閉眼立位</span></div><div class="os"><button class="ob" data-q="s_ans8" data-v="4"><span class="bg">4</span>4点：安全に10秒間の閉眼立位保持が可能</button><button class="ob" data-q="s_ans8" data-v="3"><span class="bg">3</span>3点：監視下にて10秒間の閉眼立位保持が可能</button><button class="ob" data-q="s_ans8" data-v="2"><span class="bg">2</span>2点：3秒間の閉眼立位保持が可能</button><button class="ob" data-q="s_ans8" data-v="1"><span class="bg">1</span>1点：3秒間の閉眼立位保持ができないが安定して立っていられる</button><button class="ob" data-q="s_ans8" data-v="0"><span class="bg">0</span>0点：転倒を防ぐために介助が必要</button></div></div><div class="qc" id="c-s_ans9"><div class="qh"><span class="qn">7</span><span class="ql">閉脚立位</span></div><div class="os"><button class="ob" data-q="s_ans9" data-v="4"><span class="bg">4</span>4点：自分で閉脚立位ができ1分間安全に立位保持が可能</button><button class="ob" data-q="s_ans9" data-v="3"><span class="bg">3</span>3点：自分で閉脚立位ができ監視下にて1分間の立位保持が可能</button><button class="ob" data-q="s_ans9" data-v="2"><span class="bg">2</span>2点：自分で閉脚立位ができるが30秒間の立位保持は不可能</button><button class="ob" data-q="s_ans9" data-v="1"><span class="bg">1</span>1点：閉脚立位をとるのに介助が必要だが閉脚で15秒間の保持が可能</button><button class="ob" data-q="s_ans9" data-v="0"><span class="bg">0</span>0点：介助なしに閉脚立位がとれず15秒間の保持も不可能</button></div></div><div class="qc" id="c-s_ans10"><div class="qh"><span class="qn">8</span><span class="ql">リーチ</span></div><div class="os"><button class="ob" data-q="s_ans10" data-v="4"><span class="bg">4</span>4点：25cm以上の前方リーチが可能</button><button class="ob" data-q="s_ans10" data-v="3"><span class="bg">3</span>3点：12.5cm以上の前方リーチが可能</button><button class="ob" data-q="s_ans10" data-v="2"><span class="bg">2</span>2点：5cmの前方リーチが可能</button><button class="ob" data-q="s_ans10" data-v="1"><span class="bg">1</span>1点：手を伸ばせるが監視が必要</button><button class="ob" data-q="s_ans10" data-v="0"><span class="bg">0</span>0点：バランスを保つための補助が必要</button></div><div class="sr"><label>リーチ距離：</label><input type="text" inputmode="decimal" class="sui" data-si="ans11" placeholder="例: 25cm" value=""></div></div><div class="qc" id="c-s_ans12"><div class="qh"><span class="qn">9</span><span class="ql">拾い上げ</span></div><div class="os"><button class="ob" data-q="s_ans12" data-v="4"><span class="bg">4</span>4点：安全かつ簡単に物を拾うことが可能</button><button class="ob" data-q="s_ans12" data-v="3"><span class="bg">3</span>3点：監視下にて物を拾うことが可能</button><button class="ob" data-q="s_ans12" data-v="2"><span class="bg">2</span>2点：物は拾えないが靴まで2.5〜5cmくらいまで手を伸ばせる</button><button class="ob" data-q="s_ans12" data-v="1"><span class="bg">1</span>1点：物を拾うことができず監視が必要</button><button class="ob" data-q="s_ans12" data-v="0"><span class="bg">0</span>0点：拾うことが不可能または試みるとバランスを失う</button></div></div><div class="qc" id="c-s_ans13"><div class="qh"><span class="qn">10</span><span class="ql">振り返り</span></div><div class="os"><button class="ob" data-q="s_ans13" data-v="4"><span class="bg">4</span>4点：両側とも後ろを振り向くことができる</button><button class="ob" data-q="s_ans13" data-v="3"><span class="bg">3</span>3点：片側のみ振り向くことができる</button><button class="ob" data-q="s_ans13" data-v="2"><span class="bg">2</span>2点：側方までしか振り向けないが安定している</button><button class="ob" data-q="s_ans13" data-v="1"><span class="bg">1</span>1点：振り向く時に監視が必要</button><button class="ob" data-q="s_ans13" data-v="0"><span class="bg">0</span>0点：バランスを保つための補助が必要</button></div></div><div class="qc" id="c-s_ans14"><div class="qh"><span class="qn">11</span><span class="ql">1回転</span></div><div class="os"><button class="ob" data-q="s_ans14" data-v="4"><span class="bg">4</span>4点：左右それぞれ4秒以内で安全に360°回転が可能</button><button class="ob" data-q="s_ans14" data-v="3"><span class="bg">3</span>3点：一側のみ4秒以内で安全に360°回転が可能</button><button class="ob" data-q="s_ans14" data-v="2"><span class="bg">2</span>2点：360°回転が可能だが両側とも4秒以上</button><button class="ob" data-q="s_ans14" data-v="1"><span class="bg">1</span>1点：監視または言語指示が必要</button><button class="ob" data-q="s_ans14" data-v="0"><span class="bg">0</span>0点：回転中に介助が必要</button></div><div class="sr"><label>秒数：</label><input type="text" inputmode="decimal" class="sui" data-si="ans15" placeholder="例: 3秒" value=""></div></div><div class="qc" id="c-s_ans16"><div class="qh"><span class="qn">12</span><span class="ql">段差昇降</span></div><div class="os"><button class="ob" data-q="s_ans16" data-v="4"><span class="bg">4</span>4点：支持なしで安全かつ20秒以内に8回踏み替え可能</button><button class="ob" data-q="s_ans16" data-v="3"><span class="bg">3</span>3点：支持なしで8回踏み替え可能だが20秒以上</button><button class="ob" data-q="s_ans16" data-v="2"><span class="bg">2</span>2点：監視下で補助具なしに4回踏み替え可能</button><button class="ob" data-q="s_ans16" data-v="1"><span class="bg">1</span>1点：最小限の介助で2回以上踏み替え可能</button><button class="ob" data-q="s_ans16" data-v="0"><span class="bg">0</span>0点：安全に行うために介助が必要または実施不可能</button></div><div class="sr"><label>秒数：</label><input type="text" inputmode="decimal" class="sui" data-si="ans17" placeholder="例: 18秒" value=""></div></div><div class="qc" id="c-s_ans18"><div class="qh"><span class="qn">13</span><span class="ql">タンデム</span></div><div class="os"><button class="ob" data-q="s_ans18" data-v="4"><span class="bg">4</span>4点：自分で継ぎ足位をとり30秒間保持可能</button><button class="ob" data-q="s_ans18" data-v="3"><span class="bg">3</span>3点：自分で足を前におき30秒間保持可能</button><button class="ob" data-q="s_ans18" data-v="2"><span class="bg">2</span>2点：自分で足をわずかにずらし30秒間保持可能</button><button class="ob" data-q="s_ans18" data-v="1"><span class="bg">1</span>1点：足を出すのに介助を要するが15秒間保持可能</button><button class="ob" data-q="s_ans18" data-v="0"><span class="bg">0</span>0点：足を出すまたは立位保持に介助が必要</button></div><div class="sr"><label>秒数：</label><input type="text" inputmode="decimal" class="sui" data-si="ans19" placeholder="例: 30秒" value=""></div></div><div class="qc" id="c-s_ans20"><div class="qh"><span class="qn">14</span><span class="ql">片脚立位</span></div><div class="os"><button class="ob" data-q="s_ans20" data-v="4"><span class="bg">4</span>4点：自分で片脚をあげ10秒以上保持可能</button><button class="ob" data-q="s_ans20" data-v="3"><span class="bg">3</span>3点：自分で片脚をあげ5〜10秒間保持可能</button><button class="ob" data-q="s_ans20" data-v="2"><span class="bg">2</span>2点：自分で片脚をあげ3秒以上保持可能</button><button class="ob" data-q="s_ans20" data-v="1"><span class="bg">1</span>1点：片脚をあげ3秒以上保持不可能</button><button class="ob" data-q="s_ans20" data-v="0"><span class="bg">0</span>0点：試みることができないまたは介助が必要</button></div><div class="sr"><label>秒数：</label><input type="text" inputmode="decimal" class="sui" data-si="ans21" placeholder="例: 8秒" value=""></div></div><div class="sp res" id="p-fbs"><div class="sh"><span class="st">FBS スコア</span><span class="sv" id="v-fbs">—<span class="mx"> / 56点</span></span></div><div class="pbar"><div class="pfill" id="f-fbs" style="width:0;background:var(--bd)"></div></div><div id="j-fbs"></div><div class="ua" id="u-fbs"></div></div><div class="rm"><label>備考</label><textarea class="rmi" data-s="fbs" placeholder="フリーテキスト入力"></textarea></div><div class="acts"><button class="btn b1" onclick="genQR('fbs')">QRコードを生成</button><button class="btn b2" onclick="doReset('fbs')">この検査だけやり直す</button></div><div class="qa" id="qr-fbs"></div></div></main>
 
 <div class="tc" id="t-sppb">
-<div class="pb"><label>氏名</label><input class="pn" placeholder="氏名を入力"><span class="nt">※ QRコードには含まれません。この端末に一時保存されています。カルテ転記が完了したら、QR生成後に表示される「入力データを消去する」ボタン、またはリセットで消去してください。</span></div>
+<div class="pb"><label>氏名</label><input type="text" class="pn" placeholder="患者氏名を入力" value=""><label>評価日</label><input type="date" class="pd" value=""><span class="nt">※ 氏名はQRコードには含まれません（評価日は入ります）。入力内容はこの端末に一時保存されています。カルテ転記が完了したら、QR生成後に表示される「この端末から入力を消す」ボタン、または「この患者を終わる（全部消す）」で消去してください。</span></div>
 
 <div class="sppb-sec">
 <h3>1. 立位バランステスト</h3>
+<div class="sppb-warn">※「可」を選んで<b>秒数を空欄のままにすると、10秒保持できた（満点）</b>として計算します。10秒未満で崩れた場合は、必ず保持できた秒数を入力してください。<br>※ 椅子立ち上がりは逆で、秒数を入れるまで点数が出ません（「—」のまま）。</div>
 <div class="sppb-row" id="bal-r1">
 <label>両足立ち</label>
 <div class="sppb-toggle" id="tg-bal1">
@@ -247,15 +281,22 @@ input,textarea{font-family:var(--f)}
 <div class="acts">
 <button class="btn b1" onclick="genQR('sppb')">QRコード生成</button>
 <button class="btn b3" onclick="cpTxt('sppb')">テキストコピー</button>
-<button class="btn b2" onclick="doReset('sppb')">リセット</button>
+<button class="btn b2" onclick="doReset('sppb')">この検査だけやり直す</button>
 </div>
 <div class="qa" id="qr-sppb"></div>
 </div>
-<div class="tc" id="t-sias"><div class="pb"><label>氏名</label><input type="text" class="pn" placeholder="患者氏名を入力" value=""><span class="nt">※ QRコードには含まれません。この端末に一時保存されています。カルテ転記が完了したら、QR生成後に表示される「入力データを消去する」ボタン、またはリセットで消去してください。</span></div><div class="sec-h">運動機能（各0〜5点）</div><div class="qc" id="c-sias_1"><div class="qh"><span class="qn">1</span><span class="ql">上肢近位（knee-mouth test）</span></div><div class="qi">座位において患肢の手部を対側膝（大腿）上より挙上し、手部を口まで運ぶ。この際、肩は90°まで外転させる。そして膝上まで戻す。これを3回繰り返す。<br>肩・肘関節に拘縮が存在する場合は可動域内での運動をもって課題可能と判断する。</div><div class="os"><button class="ob" data-q="sias_1" data-v="5"><span class="bg">5</span>健側と変わらず、正常</button><button class="ob" data-q="sias_1" data-v="4"><span class="bg">4</span>課題可能。軽度のぎこちなさあり</button><button class="ob" data-q="sias_1" data-v="3"><span class="bg">3</span>課題可能。中等度のあるいは著明なぎこちなさあり</button><button class="ob" data-q="sias_1" data-v="2"><span class="bg">2</span>肩肘の共同運動があるが手部が口に届かない</button><button class="ob" data-q="sias_1" data-v="1"><span class="bg">1</span>肩のわずかな動きがあるが手部が乳頭に届かない</button><button class="ob" data-q="sias_1" data-v="0"><span class="bg">0</span>全く動かない</button></div></div><div class="qc" id="c-sias_2"><div class="qh"><span class="qn">2</span><span class="ql">上肢遠位（finger-function test）</span></div><div class="qi">手指の分離運動を、母指〜小指の順に屈曲、小指〜母指の順に伸展することにより行う。</div><div class="os"><button class="ob" data-q="sias_2" data-v="5"><span class="bg">5</span>健側と変わらず、正常</button><button class="ob" data-q="sias_2" data-v="4"><span class="bg">4</span>課題可能。軽度のぎこちなさあり</button><button class="ob" data-q="sias_2" data-v="3"><span class="bg">3</span>課題可能（全指の分離運動が十分な屈曲伸展を伴って可能）。中等度のあるいは著明なぎこちなさあり</button><button class="ob" data-q="sias_2" data-v="2"><span class="bg">2</span>全指の分離運動可能なるも屈曲伸展が不十分</button><button class="ob" data-q="sias_2" data-v="1" data-k="c"><span class="bg">1C</span>分離運動が一部可能</button><button class="ob" data-q="sias_2" data-v="1" data-k="b"><span class="bg">1B</span>集団伸展が可能</button><button class="ob" data-q="sias_2" data-v="1" data-k="a"><span class="bg">1A</span>わずかな動きがある。または集団屈曲可能</button><button class="ob" data-q="sias_2" data-v="0"><span class="bg">0</span>全く動かない</button></div></div><div class="qc" id="c-sias_3"><div class="qh"><span class="qn">3</span><span class="ql">下肢近位（股）（hip-flexion test）</span></div><div class="qi">座位にて股関節を90°より最大屈曲させる。3回行う。必要ならば座位保持のための介助をして構わない。</div><div class="os"><button class="ob" data-q="sias_3" data-v="5"><span class="bg">5</span>健側と変わらず、正常</button><button class="ob" data-q="sias_3" data-v="4"><span class="bg">4</span>課題可能。軽度のぎこちなさあり</button><button class="ob" data-q="sias_3" data-v="3"><span class="bg">3</span>課題可能。中等度のあるいは著明なぎこちなさあり</button><button class="ob" data-q="sias_3" data-v="2"><span class="bg">2</span>股関節の屈曲運動あり、足部は床より離れるが十分ではない</button><button class="ob" data-q="sias_3" data-v="1"><span class="bg">1</span>大腿にわずかな動きがあるが足部は床から離れない</button><button class="ob" data-q="sias_3" data-v="0"><span class="bg">0</span>全く動かない</button></div></div><div class="qc" id="c-sias_4"><div class="qh"><span class="qn">4</span><span class="ql">下肢近位（膝）（knee-extension test）</span></div><div class="qi">座位にて膝関節を90°屈曲位から十分伸展（−10°程度まで）させる。3回行う。必要ならば座位保持のための介助をして構わない。</div><div class="os"><button class="ob" data-q="sias_4" data-v="5"><span class="bg">5</span>健側と変わらず、正常</button><button class="ob" data-q="sias_4" data-v="4"><span class="bg">4</span>課題可能。軽度のぎこちなさあり</button><button class="ob" data-q="sias_4" data-v="3"><span class="bg">3</span>課題可能。中等度のあるいは著明なぎこちなさあり</button><button class="ob" data-q="sias_4" data-v="2"><span class="bg">2</span>膝関節の伸展運動あり、足部は床より離れるが十分ではない</button><button class="ob" data-q="sias_4" data-v="1"><span class="bg">1</span>下腿にわずかな動きがあるが足部は床から離れない</button><button class="ob" data-q="sias_4" data-v="0"><span class="bg">0</span>全く動かない</button></div></div><div class="qc" id="c-sias_5"><div class="qh"><span class="qn">5</span><span class="ql">下肢遠位（foot-pat test）</span></div><div class="qi">座位または臥位（座位は介助しても可）。踵部を床につけたまま、足部の背屈運動を協調しながら背屈・底屈を3回繰り返し、その後なるべく早く背屈を繰り返す。</div><div class="os"><button class="ob" data-q="sias_5" data-v="5"><span class="bg">5</span>健側と変わらず、正常</button><button class="ob" data-q="sias_5" data-v="4"><span class="bg">4</span>課題可能。軽度のぎこちなさあり</button><button class="ob" data-q="sias_5" data-v="3"><span class="bg">3</span>課題可能。中等度のあるいは著明なぎこちなさあり</button><button class="ob" data-q="sias_5" data-v="2"><span class="bg">2</span>背屈運動あり、足部は床より離れるが十分ではない</button><button class="ob" data-q="sias_5" data-v="1"><span class="bg">1</span>わずかな背屈運動があるが前足部は床から離れない</button><button class="ob" data-q="sias_5" data-v="0"><span class="bg">0</span>全く動かない</button></div></div><div class="sec-h">筋緊張（各0〜3点）</div><div class="qc" id="c-sias_6"><div class="qh"><span class="qn">6</span><span class="ql">上肢筋緊張（U/E muscle tone）</span></div><div class="qi">肘関節を他動的に伸展屈曲させる</div><div class="os"><button class="ob" data-q="sias_6" data-v="3"><span class="bg">3</span>正常、健側と対称的</button><button class="ob" data-q="sias_6" data-v="2"><span class="bg">2</span>上肢の筋緊張が軽度（わずかに）亢進している</button><button class="ob" data-q="sias_6" data-v="1" data-k="a"><span class="bg">1</span>上肢の筋緊張が中等度（はっきりと）亢進</button><button class="ob" data-q="sias_6" data-v="1" data-k="b"><span class="bg">1</span>他動的筋緊張の低下</button><button class="ob" data-q="sias_6" data-v="0"><span class="bg">0</span>上肢の筋緊張が著明に亢進している</button></div></div><div class="qc" id="c-sias_7"><div class="qh"><span class="qn">7</span><span class="ql">下肢筋緊張（L/E muscle tone）</span></div><div class="qi">膝関節を他動的に伸展屈曲させる</div><div class="os"><button class="ob" data-q="sias_7" data-v="3"><span class="bg">3</span>正常、健側と対称的</button><button class="ob" data-q="sias_7" data-v="2"><span class="bg">2</span>下肢の筋緊張が軽度（わずかに）亢進している</button><button class="ob" data-q="sias_7" data-v="1" data-k="a"><span class="bg">1</span>下肢の筋緊張が中等度（はっきりと）亢進</button><button class="ob" data-q="sias_7" data-v="1" data-k="b"><span class="bg">1</span>他動的筋緊張の低下</button><button class="ob" data-q="sias_7" data-v="0"><span class="bg">0</span>下肢の筋緊張が著明に亢進している</button></div></div><div class="qc" id="c-sias_8"><div class="qh"><span class="qn">8</span><span class="ql">上肢腱反射（U/E DTR：biceps or triceps）</span></div><div class="os"><button class="ob" data-q="sias_8" data-v="3"><span class="bg">3</span>biceps・triceps反射とも正常。健側と対称的</button><button class="ob" data-q="sias_8" data-v="2"><span class="bg">2</span>biceps あるいは triceps 反射が軽度（わずかに）亢進</button><button class="ob" data-q="sias_8" data-v="1" data-k="a"><span class="bg">1</span>biceps あるいは triceps 反射が中等度（はっきりと）に亢進</button><button class="ob" data-q="sias_8" data-v="1" data-k="b"><span class="bg">1</span>biceps あるいは triceps 反射がほぼ消失</button><button class="ob" data-q="sias_8" data-v="0"><span class="bg">0</span>著明に亢進している。あるいは容易にclonus（肘、手関節）を誘発</button></div></div><div class="qc" id="c-sias_9"><div class="qh"><span class="qn">9</span><span class="ql">下肢腱反射（L/E DTR：PTR or ATR）</span></div><div class="os"><button class="ob" data-q="sias_9" data-v="3"><span class="bg">3</span>PTR・ATR反射とも正常。健側と対称的</button><button class="ob" data-q="sias_9" data-v="2"><span class="bg">2</span>PTR or ATR 反射が軽度（わずかに）亢進</button><button class="ob" data-q="sias_9" data-v="1" data-k="a"><span class="bg">1</span>PTR or ATR 反射が中等度（はっきりと）に亢進</button><button class="ob" data-q="sias_9" data-v="1" data-k="b"><span class="bg">1</span>PTR or ATR 反射がほぼ消失</button><button class="ob" data-q="sias_9" data-v="0"><span class="bg">0</span>著明に亢進している。あるいは容易にclonus（膝、足関節）を誘発</button></div></div><div class="sec-h">感覚（各0〜3点）</div><div class="qc" id="c-sias_10"><div class="qh"><span class="qn">10</span><span class="ql">上肢触覚（U/E light touch：手掌）</span></div><div class="os"><button class="ob" data-q="sias_10" data-v="3"><span class="bg">3</span>正常</button><button class="ob" data-q="sias_10" data-v="2"><span class="bg">2</span>軽度低下、あるいは主観的低下、または異常感覚あり</button><button class="ob" data-q="sias_10" data-v="1"><span class="bg">1</span>重度あるいは中等度低下</button><button class="ob" data-q="sias_10" data-v="0"><span class="bg">0</span>強い皮膚刺激もわからない</button></div></div><div class="qc" id="c-sias_11"><div class="qh"><span class="qn">11</span><span class="ql">下肢触覚（L/E light touch：足底）</span></div><div class="os"><button class="ob" data-q="sias_11" data-v="3"><span class="bg">3</span>正常</button><button class="ob" data-q="sias_11" data-v="2"><span class="bg">2</span>軽度低下、あるいは主観的低下、または異常感覚あり</button><button class="ob" data-q="sias_11" data-v="1"><span class="bg">1</span>重度あるいは中等度低下</button><button class="ob" data-q="sias_11" data-v="0"><span class="bg">0</span>強い皮膚刺激もわからない</button></div></div><div class="qc" id="c-sias_12"><div class="qh"><span class="qn">12</span><span class="ql">上肢位置覚（U/E position：母指or示指）</span></div><div class="qi">指を他動的に運動させる</div><div class="os"><button class="ob" data-q="sias_12" data-v="3"><span class="bg">3</span>ROMの1割未満の動きでも方向がわかる</button><button class="ob" data-q="sias_12" data-v="2"><span class="bg">2</span>ROMの1割以上の動きなら方向がわかる</button><button class="ob" data-q="sias_12" data-v="1"><span class="bg">1</span>全可動域の運動なら方向がわかる</button><button class="ob" data-q="sias_12" data-v="0"><span class="bg">0</span>全可動域の動きもわからない</button></div></div><div class="qc" id="c-sias_13"><div class="qh"><span class="qn">13</span><span class="ql">下肢位置覚（L/E position：母趾）</span></div><div class="qi">趾を他動的に運動させる</div><div class="os"><button class="ob" data-q="sias_13" data-v="3"><span class="bg">3</span>ROMの5割未満の動きでも方向がわかる</button><button class="ob" data-q="sias_13" data-v="2"><span class="bg">2</span>ROMの5割以上の動きなら方向がわかる</button><button class="ob" data-q="sias_13" data-v="1"><span class="bg">1</span>全可動域の運動なら方向がわかる</button><button class="ob" data-q="sias_13" data-v="0"><span class="bg">0</span>全可動域の動きもわからない</button></div></div><div class="sec-h">関節可動域・疼痛（各0〜3点）</div><div class="qc" id="c-sias_14"><div class="qh"><span class="qn">14</span><span class="ql">上肢関節可動域（U/E）</span></div><div class="qi">他動的肩関節外転を行う</div><div class="os"><button class="ob" data-q="sias_14" data-v="3"><span class="bg">3</span>150°以上</button><button class="ob" data-q="sias_14" data-v="2"><span class="bg">2</span>150°以下</button><button class="ob" data-q="sias_14" data-v="1"><span class="bg">1</span>90°以下</button><button class="ob" data-q="sias_14" data-v="0"><span class="bg">0</span>60°以下</button></div></div><div class="qc" id="c-sias_15"><div class="qh"><span class="qn">15</span><span class="ql">下肢関節可動域（L/E）</span></div><div class="qi">膝伸展位にて他動的足関節背屈を行う</div><div class="os"><button class="ob" data-q="sias_15" data-v="3"><span class="bg">3</span>10°以上</button><button class="ob" data-q="sias_15" data-v="2"><span class="bg">2</span>10°以下</button><button class="ob" data-q="sias_15" data-v="1"><span class="bg">1</span>0°以下</button><button class="ob" data-q="sias_15" data-v="0"><span class="bg">0</span>−10°以下</button></div></div><div class="qc" id="c-sias_16"><div class="qh"><span class="qn">16</span><span class="ql">疼痛</span></div><div class="qi">脳卒中に由来する疼痛を評価する。既往としての整形外科的（腰痛など）・内科的（胆石など）疼痛は含めない。また過度でない拘縮伸長時のみの痛みも含めない。</div><div class="os"><button class="ob" data-q="sias_16" data-v="3"><span class="bg">3</span>疼痛の問題がない</button><button class="ob" data-q="sias_16" data-v="2"><span class="bg">2</span>加療を要しない程度の軽度の疼痛</button><button class="ob" data-q="sias_16" data-v="1"><span class="bg">1</span>中等度の疼痛</button><button class="ob" data-q="sias_16" data-v="0"><span class="bg">0</span>睡眠を妨げるほどの著しい疼痛</button></div></div><div class="sec-h">体幹機能（各0〜3点）</div><div class="qc" id="c-sias_17"><div class="qh"><span class="qn">17</span><span class="ql">垂直性</span></div><div class="qi">静的座位における体幹の垂直性（側方への傾き）を評価する</div><div class="os"><button class="ob" data-q="sias_17" data-v="3"><span class="bg">3</span>静的座位は正常</button><button class="ob" data-q="sias_17" data-v="2"><span class="bg">2</span>静的座位にて側方性の姿勢異常（傾き15°以上）があるが、指示にてほぼ垂直位に修正・維持可</button><button class="ob" data-q="sias_17" data-v="1"><span class="bg">1</span>静的座位にて側方性の姿勢異常があり、指摘・指示にても修正されず、介助を要する</button><button class="ob" data-q="sias_17" data-v="0"><span class="bg">0</span>座位がとれない</button></div></div><div class="qc" id="c-sias_18"><div class="qh"><span class="qn">18</span><span class="ql">腹筋</span></div><div class="qi">車椅子または椅子に座り、臀部を前にずらし、体幹を45度後方へ傾け、背もたれによりかかる。大腿部が水平になるように検者が押さえ、体幹を垂直位まで起き上がらせる。検者が抵抗を加える場合には、胸骨上部を押さえること。</div><div class="os"><button class="ob" data-q="sias_18" data-v="3"><span class="bg">3</span>強い抵抗に抗して起き上がれる</button><button class="ob" data-q="sias_18" data-v="2"><span class="bg">2</span>軽度の抵抗に抗して起き上がれる</button><button class="ob" data-q="sias_18" data-v="1"><span class="bg">1</span>抵抗を加えなければ起き上がれる</button><button class="ob" data-q="sias_18" data-v="0"><span class="bg">0</span>垂直位まで起き上がれない</button></div></div><div class="sec-h">高次脳機能障害（各0〜3点）</div><div class="qc" id="c-sias_19"><div class="qh"><span class="qn">19</span><span class="ql">視空間認知</span></div><div class="qi">50cmのテープを眼前約50cmに提示し、中央を健側指で示させる。2回行い、中央よりのずれの大きい値を採用する。</div><div class="os"><button class="ob" data-q="sias_19" data-v="3"><span class="bg">3</span>3cm未満</button><button class="ob" data-q="sias_19" data-v="2"><span class="bg">2</span>3cm以上</button><button class="ob" data-q="sias_19" data-v="1"><span class="bg">1</span>5cm以上</button><button class="ob" data-q="sias_19" data-v="0"><span class="bg">0</span>15cm以上</button></div></div><div class="qc" id="c-sias_20"><div class="qh"><span class="qn">20</span><span class="ql">言語（失語）</span></div><div class="qi">失語症に関して評価する。構音障害はこの項目には含めない。</div><div class="os"><button class="ob" data-q="sias_20" data-v="3"><span class="bg">3</span>失語症なし</button><button class="ob" data-q="sias_20" data-v="2"><span class="bg">2</span>軽度失語症</button><button class="ob" data-q="sias_20" data-v="1" data-k="a"><span class="bg">1</span>重度感覚性失語症</button><button class="ob" data-q="sias_20" data-v="1" data-k="b"><span class="bg">1</span>重度運動性失語症</button><button class="ob" data-q="sias_20" data-v="0"><span class="bg">0</span>全失語症。まったくコミュニケーションがとれない</button></div></div><div class="sec-h">非麻痺側機能（各0〜3点）</div><div class="qc" id="c-sias_21"><div class="qh"><span class="qn">21</span><span class="ql">握力（非麻痺側）</span></div><div class="qi">座位で握力計の握り幅を約5cmにして計測する。実測kg数も下欄に記録する（QRに併記されます）。</div><div class="os"><button class="ob" data-q="sias_21" data-v="3"><span class="bg">3</span>25kg以上</button><button class="ob" data-q="sias_21" data-v="2"><span class="bg">2</span>10〜25kg</button><button class="ob" data-q="sias_21" data-v="1"><span class="bg">1</span>10kg以下</button><button class="ob" data-q="sias_21" data-v="0"><span class="bg">0</span>0kg</button></div><div class="sr"><label>握力（実測）：</label><input type="text" class="sui" data-si="sias_kg" placeholder="例: 28" value=""><span style="font-size:.78rem;color:var(--tx2)">kg</span></div></div><div class="qc" id="c-sias_22"><div class="qh"><span class="qn">22</span><span class="ql">非麻痺側大腿四頭筋力</span></div><div class="qi">座位における非麻痺側の膝伸展筋力を評価</div><div class="os"><button class="ob" data-q="sias_22" data-v="3"><span class="bg">3</span>正常</button><button class="ob" data-q="sias_22" data-v="2"><span class="bg">2</span>わずかな筋力低下</button><button class="ob" data-q="sias_22" data-v="1"><span class="bg">1</span>中等度に筋力低下</button><button class="ob" data-q="sias_22" data-v="0"><span class="bg">0</span>重力に抗しない</button></div></div><div class="sp res" id="p-sias"><div class="sh"><span class="st">SIAS 合計</span><span class="sv" id="v-sias">—<span class="mx"> / 76点</span></span></div><div class="pbar"><div class="pfill" id="f-sias" style="width:0;background:var(--bd)"></div></div><div id="j-sias"></div><div class="ua" id="u-sias"></div><div class="sgs"><div class="sg"><div class="gl">運動機能</div><div class="gv" id="g-sias-運動機能">—/25</div></div><div class="sg"><div class="gl">下肢運動</div><div class="gv" id="g-sias-下肢運動">—/15</div></div><div class="sg"><div class="gl">筋緊張</div><div class="gv" id="g-sias-筋緊張">—/12</div></div><div class="sg"><div class="gl">感覚</div><div class="gv" id="g-sias-感覚">—/12</div></div><div class="sg"><div class="gl">可動域</div><div class="gv" id="g-sias-可動域">—/6</div></div><div class="sg"><div class="gl">体幹</div><div class="gv" id="g-sias-体幹">—/6</div></div><div class="sg"><div class="gl">非麻痺側</div><div class="gv" id="g-sias-非麻痺側">—/6</div></div></div><div class="cutn">歩行自立予測のカットオフ（初期評価時）：総点 59点／下肢運動（SIAS-L/E）9点／体幹（SIAS-Trunk）3点／感覚（SIAS-S）9点</div></div><div class="rm"><label>備考</label><textarea class="rmi" data-s="sias" placeholder="フリーテキスト入力"></textarea></div><div class="acts"><button class="btn b1" onclick="genQR('sias')">QRコードを生成</button><button class="btn b3" onclick="cpTxt('sias')">テキストコピー</button><button class="btn b2" onclick="doReset('sias')">リセット</button></div><div class="qa" id="qr-sias"></div></div>
+<div class="tc" id="t-sias"><div class="pb"><label>氏名</label><input type="text" class="pn" placeholder="患者氏名を入力" value=""><label>評価日</label><input type="date" class="pd" value=""><span class="nt">※ 氏名はQRコードには含まれません（評価日は入ります）。入力内容はこの端末に一時保存されています。カルテ転記が完了したら、QR生成後に表示される「この端末から入力を消す」ボタン、または「この患者を終わる（全部消す）」で消去してください。</span></div><div class="sec-h">運動機能（各0〜5点）</div><div class="qc" id="c-sias_1"><div class="qh"><span class="qn">1</span><span class="ql">上肢近位（knee-mouth test）</span></div><div class="qi">座位において患肢の手部を対側膝（大腿）上より挙上し、手部を口まで運ぶ。この際、肩は90°まで外転させる。そして膝上まで戻す。これを3回繰り返す。<br>肩・肘関節に拘縮が存在する場合は可動域内での運動をもって課題可能と判断する。</div><div class="os"><button class="ob" data-q="sias_1" data-v="5"><span class="bg">5</span>健側と変わらず、正常</button><button class="ob" data-q="sias_1" data-v="4"><span class="bg">4</span>課題可能。軽度のぎこちなさあり</button><button class="ob" data-q="sias_1" data-v="3"><span class="bg">3</span>課題可能。中等度のあるいは著明なぎこちなさあり</button><button class="ob" data-q="sias_1" data-v="2"><span class="bg">2</span>肩肘の共同運動があるが手部が口に届かない</button><button class="ob" data-q="sias_1" data-v="1"><span class="bg">1</span>肩のわずかな動きがあるが手部が乳頭に届かない</button><button class="ob" data-q="sias_1" data-v="0"><span class="bg">0</span>全く動かない</button></div></div><div class="qc" id="c-sias_2"><div class="qh"><span class="qn">2</span><span class="ql">上肢遠位（finger-function test）</span></div><div class="qi">手指の分離運動を、母指〜小指の順に屈曲、小指〜母指の順に伸展することにより行う。</div><div class="os"><button class="ob" data-q="sias_2" data-v="5"><span class="bg">5</span>健側と変わらず、正常</button><button class="ob" data-q="sias_2" data-v="4"><span class="bg">4</span>課題可能。軽度のぎこちなさあり</button><button class="ob" data-q="sias_2" data-v="3"><span class="bg">3</span>課題可能（全指の分離運動が十分な屈曲伸展を伴って可能）。中等度のあるいは著明なぎこちなさあり</button><button class="ob" data-q="sias_2" data-v="2"><span class="bg">2</span>全指の分離運動可能なるも屈曲伸展が不十分</button><button class="ob" data-q="sias_2" data-v="1" data-k="c"><span class="bg">1C</span>分離運動が一部可能</button><button class="ob" data-q="sias_2" data-v="1" data-k="b"><span class="bg">1B</span>集団伸展が可能</button><button class="ob" data-q="sias_2" data-v="1" data-k="a"><span class="bg">1A</span>わずかな動きがある。または集団屈曲可能</button><button class="ob" data-q="sias_2" data-v="0"><span class="bg">0</span>全く動かない</button></div></div><div class="qc" id="c-sias_3"><div class="qh"><span class="qn">3</span><span class="ql">下肢近位（股）（hip-flexion test）</span></div><div class="qi">座位にて股関節を90°より最大屈曲させる。3回行う。必要ならば座位保持のための介助をして構わない。</div><div class="os"><button class="ob" data-q="sias_3" data-v="5"><span class="bg">5</span>健側と変わらず、正常</button><button class="ob" data-q="sias_3" data-v="4"><span class="bg">4</span>課題可能。軽度のぎこちなさあり</button><button class="ob" data-q="sias_3" data-v="3"><span class="bg">3</span>課題可能。中等度のあるいは著明なぎこちなさあり</button><button class="ob" data-q="sias_3" data-v="2"><span class="bg">2</span>股関節の屈曲運動あり、足部は床より離れるが十分ではない</button><button class="ob" data-q="sias_3" data-v="1"><span class="bg">1</span>大腿にわずかな動きがあるが足部は床から離れない</button><button class="ob" data-q="sias_3" data-v="0"><span class="bg">0</span>全く動かない</button></div></div><div class="qc" id="c-sias_4"><div class="qh"><span class="qn">4</span><span class="ql">下肢近位（膝）（knee-extension test）</span></div><div class="qi">座位にて膝関節を90°屈曲位から十分伸展（−10°程度まで）させる。3回行う。必要ならば座位保持のための介助をして構わない。</div><div class="os"><button class="ob" data-q="sias_4" data-v="5"><span class="bg">5</span>健側と変わらず、正常</button><button class="ob" data-q="sias_4" data-v="4"><span class="bg">4</span>課題可能。軽度のぎこちなさあり</button><button class="ob" data-q="sias_4" data-v="3"><span class="bg">3</span>課題可能。中等度のあるいは著明なぎこちなさあり</button><button class="ob" data-q="sias_4" data-v="2"><span class="bg">2</span>膝関節の伸展運動あり、足部は床より離れるが十分ではない</button><button class="ob" data-q="sias_4" data-v="1"><span class="bg">1</span>下腿にわずかな動きがあるが足部は床から離れない</button><button class="ob" data-q="sias_4" data-v="0"><span class="bg">0</span>全く動かない</button></div></div><div class="qc" id="c-sias_5"><div class="qh"><span class="qn">5</span><span class="ql">下肢遠位（foot-pat test）</span></div><div class="qi">座位または臥位（座位は介助しても可）。踵部を床につけたまま、足部の背屈運動を協調しながら背屈・底屈を3回繰り返し、その後なるべく早く背屈を繰り返す。</div><div class="os"><button class="ob" data-q="sias_5" data-v="5"><span class="bg">5</span>健側と変わらず、正常</button><button class="ob" data-q="sias_5" data-v="4"><span class="bg">4</span>課題可能。軽度のぎこちなさあり</button><button class="ob" data-q="sias_5" data-v="3"><span class="bg">3</span>課題可能。中等度のあるいは著明なぎこちなさあり</button><button class="ob" data-q="sias_5" data-v="2"><span class="bg">2</span>背屈運動あり、足部は床より離れるが十分ではない</button><button class="ob" data-q="sias_5" data-v="1"><span class="bg">1</span>わずかな背屈運動があるが前足部は床から離れない</button><button class="ob" data-q="sias_5" data-v="0"><span class="bg">0</span>全く動かない</button></div></div><div class="sec-h">筋緊張（各0〜3点）</div><div class="qc" id="c-sias_6"><div class="qh"><span class="qn">6</span><span class="ql">上肢筋緊張（U/E muscle tone）</span></div><div class="qi">肘関節を他動的に伸展屈曲させる</div><div class="os"><button class="ob" data-q="sias_6" data-v="3"><span class="bg">3</span>正常、健側と対称的</button><button class="ob" data-q="sias_6" data-v="2"><span class="bg">2</span>上肢の筋緊張が軽度（わずかに）亢進している</button><button class="ob" data-q="sias_6" data-v="1" data-k="a"><span class="bg">1</span>上肢の筋緊張が中等度（はっきりと）亢進</button><button class="ob" data-q="sias_6" data-v="1" data-k="b"><span class="bg">1</span>他動的筋緊張の低下</button><button class="ob" data-q="sias_6" data-v="0"><span class="bg">0</span>上肢の筋緊張が著明に亢進している</button></div></div><div class="qc" id="c-sias_7"><div class="qh"><span class="qn">7</span><span class="ql">下肢筋緊張（L/E muscle tone）</span></div><div class="qi">膝関節を他動的に伸展屈曲させる</div><div class="os"><button class="ob" data-q="sias_7" data-v="3"><span class="bg">3</span>正常、健側と対称的</button><button class="ob" data-q="sias_7" data-v="2"><span class="bg">2</span>下肢の筋緊張が軽度（わずかに）亢進している</button><button class="ob" data-q="sias_7" data-v="1" data-k="a"><span class="bg">1</span>下肢の筋緊張が中等度（はっきりと）亢進</button><button class="ob" data-q="sias_7" data-v="1" data-k="b"><span class="bg">1</span>他動的筋緊張の低下</button><button class="ob" data-q="sias_7" data-v="0"><span class="bg">0</span>下肢の筋緊張が著明に亢進している</button></div></div><div class="qc" id="c-sias_8"><div class="qh"><span class="qn">8</span><span class="ql">上肢腱反射（U/E DTR：biceps or triceps）</span></div><div class="os"><button class="ob" data-q="sias_8" data-v="3"><span class="bg">3</span>biceps・triceps反射とも正常。健側と対称的</button><button class="ob" data-q="sias_8" data-v="2"><span class="bg">2</span>biceps あるいは triceps 反射が軽度（わずかに）亢進</button><button class="ob" data-q="sias_8" data-v="1" data-k="a"><span class="bg">1</span>biceps あるいは triceps 反射が中等度（はっきりと）に亢進</button><button class="ob" data-q="sias_8" data-v="1" data-k="b"><span class="bg">1</span>biceps あるいは triceps 反射がほぼ消失</button><button class="ob" data-q="sias_8" data-v="0"><span class="bg">0</span>著明に亢進している。あるいは容易にclonus（肘、手関節）を誘発</button></div></div><div class="qc" id="c-sias_9"><div class="qh"><span class="qn">9</span><span class="ql">下肢腱反射（L/E DTR：PTR or ATR）</span></div><div class="os"><button class="ob" data-q="sias_9" data-v="3"><span class="bg">3</span>PTR・ATR反射とも正常。健側と対称的</button><button class="ob" data-q="sias_9" data-v="2"><span class="bg">2</span>PTR or ATR 反射が軽度（わずかに）亢進</button><button class="ob" data-q="sias_9" data-v="1" data-k="a"><span class="bg">1</span>PTR or ATR 反射が中等度（はっきりと）に亢進</button><button class="ob" data-q="sias_9" data-v="1" data-k="b"><span class="bg">1</span>PTR or ATR 反射がほぼ消失</button><button class="ob" data-q="sias_9" data-v="0"><span class="bg">0</span>著明に亢進している。あるいは容易にclonus（膝、足関節）を誘発</button></div></div><div class="sec-h">感覚（各0〜3点）</div><div class="qc" id="c-sias_10"><div class="qh"><span class="qn">10</span><span class="ql">上肢触覚（U/E light touch：手掌）</span></div><div class="os"><button class="ob" data-q="sias_10" data-v="3"><span class="bg">3</span>正常</button><button class="ob" data-q="sias_10" data-v="2"><span class="bg">2</span>軽度低下、あるいは主観的低下、または異常感覚あり</button><button class="ob" data-q="sias_10" data-v="1"><span class="bg">1</span>重度あるいは中等度低下</button><button class="ob" data-q="sias_10" data-v="0"><span class="bg">0</span>強い皮膚刺激もわからない</button></div></div><div class="qc" id="c-sias_11"><div class="qh"><span class="qn">11</span><span class="ql">下肢触覚（L/E light touch：足底）</span></div><div class="os"><button class="ob" data-q="sias_11" data-v="3"><span class="bg">3</span>正常</button><button class="ob" data-q="sias_11" data-v="2"><span class="bg">2</span>軽度低下、あるいは主観的低下、または異常感覚あり</button><button class="ob" data-q="sias_11" data-v="1"><span class="bg">1</span>重度あるいは中等度低下</button><button class="ob" data-q="sias_11" data-v="0"><span class="bg">0</span>強い皮膚刺激もわからない</button></div></div><div class="qc" id="c-sias_12"><div class="qh"><span class="qn">12</span><span class="ql">上肢位置覚（U/E position：母指or示指）</span></div><div class="qi">指を他動的に運動させる</div><div class="os"><button class="ob" data-q="sias_12" data-v="3"><span class="bg">3</span>ROMの1割未満の動きでも方向がわかる</button><button class="ob" data-q="sias_12" data-v="2"><span class="bg">2</span>ROMの1割以上の動きなら方向がわかる</button><button class="ob" data-q="sias_12" data-v="1"><span class="bg">1</span>全可動域の運動なら方向がわかる</button><button class="ob" data-q="sias_12" data-v="0"><span class="bg">0</span>全可動域の動きもわからない</button></div></div><div class="qc" id="c-sias_13"><div class="qh"><span class="qn">13</span><span class="ql">下肢位置覚（L/E position：母趾）</span></div><div class="qi">趾を他動的に運動させる</div><div class="os"><button class="ob" data-q="sias_13" data-v="3"><span class="bg">3</span>ROMの5割未満の動きでも方向がわかる</button><button class="ob" data-q="sias_13" data-v="2"><span class="bg">2</span>ROMの5割以上の動きなら方向がわかる</button><button class="ob" data-q="sias_13" data-v="1"><span class="bg">1</span>全可動域の運動なら方向がわかる</button><button class="ob" data-q="sias_13" data-v="0"><span class="bg">0</span>全可動域の動きもわからない</button></div></div><div class="sec-h">関節可動域・疼痛（各0〜3点）</div><div class="qc" id="c-sias_14"><div class="qh"><span class="qn">14</span><span class="ql">上肢関節可動域（U/E）</span></div><div class="qi">他動的肩関節外転を行う</div><div class="os"><button class="ob" data-q="sias_14" data-v="3"><span class="bg">3</span>150°以上</button><button class="ob" data-q="sias_14" data-v="2"><span class="bg">2</span>150°以下</button><button class="ob" data-q="sias_14" data-v="1"><span class="bg">1</span>90°以下</button><button class="ob" data-q="sias_14" data-v="0"><span class="bg">0</span>60°以下</button></div></div><div class="qc" id="c-sias_15"><div class="qh"><span class="qn">15</span><span class="ql">下肢関節可動域（L/E）</span></div><div class="qi">膝伸展位にて他動的足関節背屈を行う</div><div class="os"><button class="ob" data-q="sias_15" data-v="3"><span class="bg">3</span>10°以上</button><button class="ob" data-q="sias_15" data-v="2"><span class="bg">2</span>10°以下</button><button class="ob" data-q="sias_15" data-v="1"><span class="bg">1</span>0°以下</button><button class="ob" data-q="sias_15" data-v="0"><span class="bg">0</span>−10°以下</button></div></div><div class="qc" id="c-sias_16"><div class="qh"><span class="qn">16</span><span class="ql">疼痛</span></div><div class="qi">脳卒中に由来する疼痛を評価する。既往としての整形外科的（腰痛など）・内科的（胆石など）疼痛は含めない。また過度でない拘縮伸長時のみの痛みも含めない。</div><div class="os"><button class="ob" data-q="sias_16" data-v="3"><span class="bg">3</span>疼痛の問題がない</button><button class="ob" data-q="sias_16" data-v="2"><span class="bg">2</span>加療を要しない程度の軽度の疼痛</button><button class="ob" data-q="sias_16" data-v="1"><span class="bg">1</span>中等度の疼痛</button><button class="ob" data-q="sias_16" data-v="0"><span class="bg">0</span>睡眠を妨げるほどの著しい疼痛</button></div></div><div class="sec-h">体幹機能（各0〜3点）</div><div class="qc" id="c-sias_17"><div class="qh"><span class="qn">17</span><span class="ql">垂直性</span></div><div class="qi">静的座位における体幹の垂直性（側方への傾き）を評価する</div><div class="os"><button class="ob" data-q="sias_17" data-v="3"><span class="bg">3</span>静的座位は正常</button><button class="ob" data-q="sias_17" data-v="2"><span class="bg">2</span>静的座位にて側方性の姿勢異常（傾き15°以上）があるが、指示にてほぼ垂直位に修正・維持可</button><button class="ob" data-q="sias_17" data-v="1"><span class="bg">1</span>静的座位にて側方性の姿勢異常があり、指摘・指示にても修正されず、介助を要する</button><button class="ob" data-q="sias_17" data-v="0"><span class="bg">0</span>座位がとれない</button></div></div><div class="qc" id="c-sias_18"><div class="qh"><span class="qn">18</span><span class="ql">腹筋</span></div><div class="qi">車椅子または椅子に座り、臀部を前にずらし、体幹を45度後方へ傾け、背もたれによりかかる。大腿部が水平になるように検者が押さえ、体幹を垂直位まで起き上がらせる。検者が抵抗を加える場合には、胸骨上部を押さえること。</div><div class="os"><button class="ob" data-q="sias_18" data-v="3"><span class="bg">3</span>強い抵抗に抗して起き上がれる</button><button class="ob" data-q="sias_18" data-v="2"><span class="bg">2</span>軽度の抵抗に抗して起き上がれる</button><button class="ob" data-q="sias_18" data-v="1"><span class="bg">1</span>抵抗を加えなければ起き上がれる</button><button class="ob" data-q="sias_18" data-v="0"><span class="bg">0</span>垂直位まで起き上がれない</button></div></div><div class="sec-h">高次脳機能障害（各0〜3点）</div><div class="qc" id="c-sias_19"><div class="qh"><span class="qn">19</span><span class="ql">視空間認知</span></div><div class="qi">50cmのテープを眼前約50cmに提示し、中央を健側指で示させる。2回行い、中央よりのずれの大きい値を採用する。</div><div class="os"><button class="ob" data-q="sias_19" data-v="3"><span class="bg">3</span>3cm未満</button><button class="ob" data-q="sias_19" data-v="2"><span class="bg">2</span>3cm以上</button><button class="ob" data-q="sias_19" data-v="1"><span class="bg">1</span>5cm以上</button><button class="ob" data-q="sias_19" data-v="0"><span class="bg">0</span>15cm以上</button></div></div><div class="qc" id="c-sias_20"><div class="qh"><span class="qn">20</span><span class="ql">言語（失語）</span></div><div class="qi">失語症に関して評価する。構音障害はこの項目には含めない。</div><div class="os"><button class="ob" data-q="sias_20" data-v="3"><span class="bg">3</span>失語症なし</button><button class="ob" data-q="sias_20" data-v="2"><span class="bg">2</span>軽度失語症</button><button class="ob" data-q="sias_20" data-v="1" data-k="a"><span class="bg">1</span>重度感覚性失語症</button><button class="ob" data-q="sias_20" data-v="1" data-k="b"><span class="bg">1</span>重度運動性失語症</button><button class="ob" data-q="sias_20" data-v="0"><span class="bg">0</span>全失語症。まったくコミュニケーションがとれない</button></div></div><div class="sec-h">非麻痺側機能（各0〜3点）</div><div class="qc" id="c-sias_21"><div class="qh"><span class="qn">21</span><span class="ql">握力（非麻痺側）</span></div><div class="qi">座位で握力計の握り幅を約5cmにして計測する。実測kg数も下欄に記録する（QRに併記されます）。</div><div class="os"><button class="ob" data-q="sias_21" data-v="3"><span class="bg">3</span>25kg以上</button><button class="ob" data-q="sias_21" data-v="2"><span class="bg">2</span>10〜25kg</button><button class="ob" data-q="sias_21" data-v="1"><span class="bg">1</span>10kg以下</button><button class="ob" data-q="sias_21" data-v="0"><span class="bg">0</span>0kg</button></div><div class="sr"><label>握力（実測）：</label><input type="text" inputmode="decimal" class="sui" data-si="sias_kg" placeholder="例: 28" value=""><span style="font-size:.78rem;color:var(--tx2)">kg</span></div></div><div class="qc" id="c-sias_22"><div class="qh"><span class="qn">22</span><span class="ql">非麻痺側大腿四頭筋力</span></div><div class="qi">座位における非麻痺側の膝伸展筋力を評価</div><div class="os"><button class="ob" data-q="sias_22" data-v="3"><span class="bg">3</span>正常</button><button class="ob" data-q="sias_22" data-v="2"><span class="bg">2</span>わずかな筋力低下</button><button class="ob" data-q="sias_22" data-v="1"><span class="bg">1</span>中等度に筋力低下</button><button class="ob" data-q="sias_22" data-v="0"><span class="bg">0</span>重力に抗しない</button></div></div><div class="sp res" id="p-sias"><div class="sh"><span class="st">SIAS 合計</span><span class="sv" id="v-sias">—<span class="mx"> / 76点</span></span></div><div class="pbar"><div class="pfill" id="f-sias" style="width:0;background:var(--bd)"></div></div><div id="j-sias"></div><div class="ua" id="u-sias"></div><div class="sgs"><div class="sg"><div class="gl">運動機能</div><div class="gv" id="g-sias-運動機能">—/25</div></div><div class="sg"><div class="gl">下肢運動</div><div class="gv" id="g-sias-下肢運動">—/15</div></div><div class="sg"><div class="gl">筋緊張</div><div class="gv" id="g-sias-筋緊張">—/12</div></div><div class="sg"><div class="gl">感覚</div><div class="gv" id="g-sias-感覚">—/12</div></div><div class="sg"><div class="gl">可動域</div><div class="gv" id="g-sias-可動域">—/6</div></div><div class="sg"><div class="gl">体幹</div><div class="gv" id="g-sias-体幹">—/6</div></div><div class="sg"><div class="gl">非麻痺側</div><div class="gv" id="g-sias-非麻痺側">—/6</div></div></div><div class="cutn">歩行自立予測のカットオフ（初期評価時）：総点 59点／下肢運動（SIAS-L/E）9点／体幹（SIAS-Trunk）3点／感覚（SIAS-S）9点</div></div><div class="rm"><label>備考</label><textarea class="rmi" data-s="sias" placeholder="フリーテキスト入力"></textarea></div><div class="acts"><button class="btn b1" onclick="genQR('sias')">QRコードを生成</button><button class="btn b3" onclick="cpTxt('sias')">テキストコピー</button><button class="btn b2" onclick="doReset('sias')">この検査だけやり直す</button></div><div class="qa" id="qr-sias"></div></div>
 <noscript><div style="padding:20px;text-align:center;color:#dc2626;font-weight:bold">
 JavaScriptが無効です。Safariで直接開いてください。<br>
 Gmailアプリ内では正常に動作しない場合があります。
 </div></noscript>
+<div class="foot">
+<h4>この端末に残るもの</h4>
+① <b>入力中の下書き</b>（氏名・評価日・回答）…… カルテ転記が終わったら、QR生成後に出る「この端末から入力を消す」、または画面右上の「この患者を終わる」で消してください。<br>
+② <b>前回との比較用の記録</b>（評価日・点数のみ。<b>氏名は保存していません</b>）…… 「前回：〇点 → 今回：〇点」の表示に使います。下のボタンでいつでも消せます。<br>
+<span style="color:var(--tx3)">※ どちらもこの端末の中だけに保存され、外部へは送信されません。QRコードにも氏名は入りません。</span>
+<button class="btn b3" onclick="clearHistory()">比較用の記録をすべて消す</button>
+</div>
 <div class="tst" id="tst"></div>
 <script>
 //---------------------------------------------------------------------
@@ -2665,22 +2706,25 @@ var SCALES = {
     qrTpl: function(a){
       var h=a.hdsr, m=a.mmse;
       function d(v){return v!==null?v:'—'}
-      var t='＜認知機能検査＞\r\n◆HDS-R\r\n';
-      t+='合計得点：'+(h.answered>0?h.partial:'—')+'点/30点\r\n';
-      t+='見当識：'+d(h.groups['見当識'])+'/7\r\n';
-      t+='記憶：'+d(h.groups['記憶'])+'/14\r\n';
-      t+='注意：'+d(h.groups['注意'])+'/4\r\n';
-      t+='言語：'+d(h.groups['言語'])+'/5\r\n';
-      t+='\r\n◆MMSE\r\n';
-      t+='合計得点：'+(m.answered>0?m.partial:'—')+'点/30点\r\n';
-      t+='見当識：'+d(m.groups['見当識'])+'/10\r\n';
-      t+='記憶：'+d(m.groups['記憶'])+'/6\r\n';
-      t+='注意：'+d(m.groups['注意'])+'/5\r\n';
-      t+='言語：'+d(m.groups['言語'])+'/8\r\n';
-      t+='構成：'+d(m.groups['構成'])+'/1\r\n';
+      /* 実施していない尺度は見出しごと省く。
+         以前はHDS-Rだけ実施した日でもMMSEの「—」6行がカルテに貼り付き、
+         「実施したが測れなかった」のか「そもそもやっていない」のか読む側が判別できなかった。
+         また未回答があるときは必ず※行を残す。合計点だけが確定点として読まれるのを防ぐため */
+      function block(title,x,rows,extra){
+        if(x.answered===0)return '';
+        var t='◆'+title+'\r\n';
+        t+='合計得点：'+x.partial+'点/30点'+(x.unanswered>0?'（途中経過）':'')+'\r\n';
+        for(var i=0;i<rows.length;i++)t+=rows[i][0]+'：'+d(x.groups[rows[i][0]])+'/'+rows[i][1]+'\r\n';
+        if(extra)t+=extra;
+        if(x.unanswered>0)t+='※未回答 '+x.unanswered+'件（0点として計算していません）\r\n';
+        return t;
+      }
       var kw=m.kotoba;
-      if(kw&&(kw[0]||kw[1]||kw[2]))t+='※選択した3つの単語：'+kw.join('・')+'\r\n';
-      return t;
+      var mExtra=(kw&&(kw[0]||kw[1]||kw[2]))?('※選択した3つの単語：'+kw.join('・')+'\r\n'):'';
+      var bh=block('HDS-R',h,[['見当識',7],['記憶',14],['注意',4],['言語',5]],'');
+      var bm=block('MMSE',m,[['見当識',10],['記憶',6],['注意',5],['言語',8],['構成',1]],mExtra);
+      var body=[bh,bm].filter(function(x){return x!==''}).join('\r\n');
+      return '＜認知機能検査＞\r\n'+(body||'（未実施）\r\n');
     }
   },
   fbs: {
@@ -2688,7 +2732,7 @@ var SCALES = {
     judge: function(s){if(s===null)return{l:'—',c:''};
       return s>=45?{l:'転倒リスク低',c:'j-lo'}:{l:'転倒リスクあり',c:'j-hi'};},
     qrTpl: function(sc){
-      var t='◆FBS  合計：'+(sc.answered>0?sc.partial:'—')+'/56点（cut off45点）\r\n';
+      var t='◆FBS  合計：'+(sc.answered>0?sc.partial:'—')+'/56点（cut off45点）'+(sc.unanswered>0?'（途中経過）':'')+'\r\n';
       for(var i=0;i<FBS_Q.length;i++){
         var q=FBS_Q[i];
         var v=sc.answers[q.id]!==undefined?sc.answers[q.id]:'—';
@@ -2712,7 +2756,7 @@ var SCALES = {
     qrTpl: function(sc){
       function d(v){return (v!==null&&v!==undefined)?v:'—'}
       var g=sc.groups,a=sc.answers;
-      var t='◆SIAS  合計：'+(sc.answered>0?sc.partial:'—')+'/76点\r\n';
+      var t='◆SIAS  合計：'+(sc.answered>0?sc.partial:'—')+'/76点'+(sc.unanswered>0?'（途中経過）':'')+'\r\n';
       t+='運動機能：'+d(g['運動機能'])+'\r\n';
       t+='筋緊張：'+d(g['筋緊張'])+'\r\n';
       t+='感覚：'+d(g['感覚'])+'\r\n';
@@ -2733,6 +2777,7 @@ var SCALES = {
 
 // ========== STATE ==========
 var A={},SP={},SER=null,KW=['','',''],RM={},NM='';
+var DT='';   // 評価日（YYYY-MM-DD）。QRテキストの1行目に入れる
 // 同じ点数の選択肢（SIASの1A/1B/1C等）を区別するためのキー。採点には影響しない。
 var KVS={};
 
@@ -2752,8 +2797,22 @@ function readSlot(slot){
     return d;
   }catch(e){return null}
 }
+/* 下書きが「中身あり」かどうかの判定。
+   以前は回答(a)と氏名(n)しか見ていなかったため、SPPBだけ実施して氏名を入れていない下書きが
+   「空きスロット」と見なされ、次のセッションに上書きされて消えていた。
+   保存している項目（補足入力・備考・MMSEの3単語・SPPB）をすべて見る */
+var EMPTY_SPPB=JSON.stringify({bal1:null,bal2:null,bal3:null,tm_bal1:null,tm_bal2:null,tm_bal3:null,gait_na:false,tm_gait1:null,tm_gait2:null,tm_gait:null,chair:null,tm_chair:null});
 function slotHasData(d){
-  return !!d && (Object.keys(d.a||{}).length>0 || !!(d.n&&d.n!==''));
+  if(!d)return false;
+  if(d.n&&d.n!=='')return true;
+  if(d.d&&d.d!=='')return true;
+  if(Object.keys(d.a||{}).length>0)return true;
+  if(Object.keys(d.sp||{}).length>0)return true;
+  if(Object.keys(d.rm||{}).length>0)return true;
+  if(d.ser!==null&&d.ser!==undefined)return true;
+  var kw=d.kw||[];for(var i=0;i<kw.length;i++){if(kw[i])return true}
+  if(d.sppb&&JSON.stringify(d.sppb)!==EMPTY_SPPB)return true;
+  return false;
 }
 function writeSlot(slot,data){
   try{localStorage.setItem(SLOT_KEYS[slot],JSON.stringify(data))}catch(e){}
@@ -2769,24 +2828,43 @@ function fmtTime(t){
 // 実際の保存（デバウンス後に呼ばれる）。SCALES内の全尺度分の回答をまとめて1つのオブジェクトに保存する。
 function saveStateImmediate(){
   if(!mySlot)return;
-  writeSlot(mySlot,{a:A,sp:SP,ser:SER,kw:KW,rm:RM,sppb:SPPB,kv:KVS,n:NM,t:Date.now()});
+  writeSlot(mySlot,{a:A,sp:SP,ser:SER,kw:KW,rm:RM,sppb:SPPB,kv:KVS,n:NM,d:DT,t:Date.now()});
 }
 // 入力変更のたびに呼び出す保存関数（300〜500msデバウンス）
 function saveState(){
-  if(!mySlot)return;
+  // 保存できない状態のまま入力が進んでいることを、入力のたびに検査者へ知らせる
+  if(!mySlot){ showSaveWarning(true); return; }
+  showSaveWarning(false);
   clearTimeout(saveTimer);
   saveTimer=setTimeout(saveStateImmediate,400);
 }
-// QRコード生成後に表示される「入力データを消去する」ボタンから呼ばれる。
+// QRコード生成後に表示される「この端末から入力を消す」ボタンから呼ばれる。
 // 仕様7-4：QRコード生成だけでは下書きを自動消去しない。検査者が明示的にこのボタンを押し、
 // 確認ダイアログで同意した場合のみ、そのタブが使用しているスロットの下書きを消去する。
 function requestClearDraft(scaleId){
   if(!confirm('この端末に一時保存されている入力データ（下書き）を消去しますか？\n※表示済みのQRコード・テキストはそのまま確認できます。'))return;
   clearTimeout(saveTimer);
   if(mySlot)clearSlot(mySlot);
+  // 消去したあとに選択肢を押すと saveState() が走り、同じスロットへ書き戻されてしまう。
+  // 共用端末で前の患者の入力が残る原因になるため、消去したらこのページでは以後保存しない
+  mySlot=null; draftCleared=true;
+  showSaveWarning(true);
   var btn=E('clr-'+scaleId);
-  if(btn){btn.disabled=true;btn.textContent='消去しました';}
+  if(btn){btn.disabled=true;btn.textContent='消しました';}
   toast('入力データを消去しました');
+}
+
+/* 下書きが保存されていない状態を画面下に固定して出す。
+   これが無いと、確認バナーを閉じないまま入力を続けて全部失う事故が起きる（両スロット使用中）。
+   消去ボタンを押した後も保存は止まっているので、そのことも同じ帯で知らせる */
+var draftCleared=false;
+function showSaveWarning(on){
+  var el=E('saveWarn');
+  if(!on){ if(el&&el.parentNode)el.parentNode.removeChild(el); return; }
+  if(!el){ el=document.createElement('div'); el.id='saveWarn'; el.className='savewarn'; document.body.appendChild(el); }
+  el.textContent = draftCleared
+    ? '⚠ 消去したため、いまの入力は保存されていません。［この患者を終わる］を押すと保存を再開します'
+    : '⚠ いまの入力は保存されていません。画面の一番上にある帯で「続きから再開」か「削除」を選んでください';
 }
 
 // ---- 起動時のスロット判定・確認バナー ----
@@ -2849,6 +2927,7 @@ function resumeSlot(slot){
   KVS=(d&&d.kv)?d.kv:{};
   SPPB=(d&&d.sppb)?d.sppb:{bal1:null,bal2:null,bal3:null,tm_bal1:null,tm_bal2:null,tm_bal3:null,gait_na:false,tm_gait1:null,tm_gait2:null,tm_gait:null,chair:null,tm_chair:null};
   NM=(d&&d.n)?d.n:'';
+  DT=(d&&d.d)?d.d:todayStr();
   hideDraftBanner();
   restoreUI();
   updAll();
@@ -2868,6 +2947,8 @@ function discardBoth(){
   if(!confirm('保存されている入力（下書き）を両方とも削除して、新規入力を開始しますか？\nこの操作は取り消せません。'))return;
   clearSlot('A');clearSlot('B');
   mySlot='A';
+  draftCleared=false; showSaveWarning(false);
+  DT=todayStr();
   A={};SP={};SER=null;KW=['','',''];RM={};KVS={};
   SPPB={bal1:null,bal2:null,bal3:null,tm_bal1:null,tm_bal2:null,tm_bal3:null,gait_na:false,tm_gait1:null,tm_gait2:null,tm_gait:null,chair:null,tm_chair:null};
   NM='';
@@ -2879,6 +2960,7 @@ function discardBoth(){
 // 保存済み状態をUI（静的HTML）へ反映する
 function restoreUI(){
   var pns=Q('.pn');for(var i=0;i<pns.length;i++)pns[i].value=NM;
+  var pds=Q('.pd');for(var i=0;i<pds.length;i++)pds[i].value=DT;
   var obs=Q('.ob');
   for(var i=0;i<obs.length;i++){
     var qid=obs[i].getAttribute('data-q'),v=parseInt(obs[i].getAttribute('data-v'));
@@ -2934,10 +3016,15 @@ function restoreSppbUI(){
   }
   if(typeof sppbCalc==='function')sppbCalc();
 }
-// 「新規患者」ボタン：全スケールの回答・氏名・下書きスロットを消去する
+// 「この患者を終わる」ボタン：全スケールの回答・氏名・下書きスロットを消去する
 function resetAll(){
-  if(!confirm('全スケールの回答・氏名・保存データをリセットしますか？\n（新しい患者用に初期化します）'))return;
+  if(!confirm('この患者の入力をすべて消します。\n（全検査の回答・氏名・評価日と、この端末に保存された下書き）\n次の患者の入力を始められます。よろしいですか？'))return;
   A={};SP={};SER=null;KW=['','',''];RM={};KVS={};
+  // 消去ボタンで保存を止めていた場合は、新しい患者の入力がまた保存されるよう戻す
+  draftCleared=false; showSaveWarning(false);
+  DT=todayStr();
+  var pds0=Q('.pd');for(var i=0;i<pds0.length;i++)pds0[i].value=DT;
+  if(!mySlot){ var _st=computeDraftState(); mySlot = _st.hasA ? (_st.hasB?null:'B') : 'A'; }
   SPPB={bal1:null,bal2:null,bal3:null,tm_bal1:null,tm_bal2:null,tm_bal3:null,gait_na:false,tm_gait1:null,tm_gait2:null,tm_gait:null,chair:null,tm_chair:null};
   NM='';
   clearTimeout(saveTimer);
@@ -2982,13 +3069,21 @@ function init(){
   var g=E('guide');if(g)g.style.display='none';
   showTab('cognitive');
   bind();
+  initStopwatch();
   initPersistence();
+  // 評価日は当日を初期値にする（下書きから復元した場合は resumeSlot 側の値が優先される）
+  if(!DT)DT=todayStr();
+  var pds=Q('.pd');for(var i=0;i<pds.length;i++)pds[i].value=DT;
   updAll();
 }
 
 function showTab(id){
   var tabs=Q('.tab');for(var i=0;i<tabs.length;i++)tabs[i].className=tabs[i].getAttribute('data-t')===id?'tab on':'tab';
   var tcs=Q('.tc');for(var i=0;i<tcs.length;i++)tcs[i].className=tcs[i].id==='t-'+id?'tc on':'tc';
+  // 選択中のタブが横スクロールの外に隠れないよう中央へ寄せる（ベース仕様書 2-4）。
+  // block:'nearest' でページの縦位置は動かさない
+  var act=document.querySelector('.tab.on');
+  if(act&&act.scrollIntoView){try{act.scrollIntoView({block:'nearest',inline:'center'})}catch(e){}}
 }
 function showSub(pid,sid){
   var p=E('t-'+pid);if(!p)return;
@@ -3000,12 +3095,22 @@ function showSub(pid,sid){
 function bind(){
   var obs=Q('.ob');for(var i=0;i<obs.length;i++)obs[i].addEventListener('click',function(){
     var qid=this.getAttribute('data-q'),v=parseInt(this.getAttribute('data-v'));
-    A[qid]=v;
     var dk=this.getAttribute('data-k');
-    if(dk)KVS[qid]=dk;else if(KVS[qid]!==undefined)delete KVS[qid];
+    // 同じ選択肢をもう一度押したら未回答に戻す（誤タップの取り消し）。
+    // MDS-UPDRS・RCPM・トークンテストでは既にこの動作なので、そちらに揃える
+    var same = (A[qid]===v) && ((KVS[qid]||null)===(dk||null));
     var s=this.parentNode.querySelectorAll('.ob');for(var j=0;j<s.length;j++)s[j].className='ob';
-    this.className='ob on';
-    var c=E('c-'+qid);if(c)c.className='qc done';
+    var c=E('c-'+qid);
+    if(same){
+      delete A[qid]; delete KVS[qid];
+      if(c)c.className='qc';
+      toast('未回答に戻しました');
+    }else{
+      A[qid]=v;
+      if(dk)KVS[qid]=dk;else if(KVS[qid]!==undefined)delete KVS[qid];
+      this.className='ob on';
+      if(c)c.className='qc done';
+    }
     updAll();
     saveState();
   });
@@ -3016,6 +3121,13 @@ function bind(){
   });
   var pns=Q('.pn');for(var i=0;i<pns.length;i++)pns[i].addEventListener('input',function(){
     NM=this.value;var all=Q('.pn');for(var j=0;j<all.length;j++){if(all[j]!==this)all[j].value=this.value}
+    updAll();          // 氏名が変わると「前回との比較」の対象も変わる
+    saveState();
+  });
+  // 評価日。全タブ共通の項目なので、どこで直しても全タブに反映する
+  var pds=Q('.pd');for(var i=0;i<pds.length;i++)pds[i].addEventListener('input',function(){
+    DT=this.value;var all=Q('.pd');for(var j=0;j<all.length;j++){if(all[j]!==this)all[j].value=this.value}
+    updAll();
     saveState();
   });
   var suis=Q('.sui');for(var i=0;i<suis.length;i++)suis[i].addEventListener('input',function(){SP[this.getAttribute('data-si')]=this.value;saveState();});
@@ -3036,29 +3148,90 @@ function updUI(id,def){
   var jd=E('j-'+id);
   if(jd){if(sc.unanswered===0&&sc.answered>0){var j=def.judge(sc.total);jd.innerHTML='<span class="jl '+j.c+'">'+j.l+'</span>';pf.style.background=j.c.indexOf('ok')>=0||j.c.indexOf('lo')>=0?'var(--gn)':j.c.indexOf('mid')>=0?'var(--yw)':'var(--or)'}else{jd.innerHTML='';pf.style.background=sc.answered>0?'var(--pr)':'var(--bd)'}}
   var ua=E('u-'+id);if(ua)ua.textContent=(sc.unanswered>0&&sc.answered>0)?'未回答：'+sc.unanswered+'項目':'';
+  histRender(id,'u-'+id,sc.unanswered===0&&sc.answered>0?sc.total:null);
   if(def.groups){var gk=Object.keys(def.groups);for(var g=0;g<gk.length;g++){var gn=gk[g],gd=def.groups[gn],el=E('g-'+id+'-'+gn);if(el){var gv=sc.groups[gn];el.textContent=(gv!==null?gv:'—')+'/'+gd.mx}}}
 }
 
 // ========== QR ==========
+// QRコード1枚あたりの目安文字数。これを超えるテキストは複数枚に分割する。
+// 1枚に詰め込むとモジュール数が増え、画面幅に収めるために縮小された結果、
+// 升目が細かくなってカルテ端末のカメラで読み取れなくなるため。
+var QR_MAX_CHARS=120;
+
+// テキストを行単位で複数のQRコード用に分割する。
+// 1行目（◆尺度名 合計…）は各枚に付け直し、どの枚も単独で何の評価か分かるようにする。
+function splitTextForQR(txt){
+  if(txt.length<=QR_MAX_CHARS)return[txt];
+  var lines=txt.split('\r\n');
+  var head=lines[0];
+  var rest=lines.slice(1);
+  var parts=[],cur=[],curLen=0;
+  var headRoom=head.length+8;               // ヘッダと「（1/3）」の分を差し引く
+  // 備考のように1行が長すぎると、その行だけで1枚を占めて升目が細かくなってしまう。
+  // 収まらない行は、その行の中で折ってから枚数を決める
+  var budget=QR_MAX_CHARS-headRoom;
+  if(budget<20)budget=20;
+  var wrapped=[];
+  for(var w=0;w<rest.length;w++){
+    var RL=rest[w];
+    if(RL.length<=budget){wrapped.push(RL);continue}
+    for(var k=0;k<RL.length;k+=budget)wrapped.push(RL.substr(k,budget));
+  }
+  rest=wrapped;
+  for(var i=0;i<rest.length;i++){
+    var L=rest[i];
+    if(cur.length&&curLen+L.length+2+headRoom>QR_MAX_CHARS){parts.push(cur);cur=[];curLen=0}
+    cur.push(L);curLen+=L.length+2;
+  }
+  if(cur.length)parts.push(cur);
+  if(parts.length<=1)return[txt];
+  var out=[];
+  for(var p=0;p<parts.length;p++){
+    out.push(head+'（'+(p+1)+'/'+parts.length+'）\r\n'+parts[p].join('\r\n'));
+  }
+  return out;
+}
+
 function genQR(scaleId){
   var scale=SCALES[scaleId],area=E('qr-'+scaleId),txt='',un=0;
   if(scale.comp){var a={};for(var i=0;i<scale.subs.length;i++){var sid=scale.subs[i];a[sid]=calc(sid);un+=a[sid].unanswered}txt=scale.qrTpl(a)}
   else if(scale.custom){txt=scale.qrTpl();var _b=sppbScoreBal(),_g=sppbScoreGait(),_c=sppbScoreChair();un=(_b===null?1:0)+(_g===null?1:0)+(_c===null?1:0)}else{var sc=calc(scaleId);un=sc.unanswered;txt=scale.qrTpl(sc)}
+  // 未回答があることをQRテキスト自体にも残す。画面の警告だけでは、カルテに貼られた時点で
+  // 「途中経過」なのか「確定した点数」なのか区別がつかないため。
+  // 認知機能検査は尺度ごとに件数を出す必要があるので、qrTpl の中で処理している
+  if(un>0&&!scale.comp)txt+='※未回答 '+un+'件（0点として計算していません。途中経過です）\r\n';
+  // 評価日をテキストの先頭に置く。転記後に日付を打ち足す手間と、打ち忘れを防ぐため（氏名は入れない）
+  if(DT)txt='【評価日 '+DT+'】\r\n'+txt;
+  // QRを作った時点＝その評価が確定した時点とみなして、前回比較用に記録する
+  histSaveForScale(scaleId,scale);
+  var parts=splitTextForQR(txt);
   var h='';
   if(un>0)h+='<div class="qwn">⚠ 未回答の項目が'+un+'件あります。未回答項目は「—」で表示されます。</div>';
-  h+='<div class="qw"><canvas id="cv-'+scaleId+'"></canvas></div>';
+  // QRが出たあと何をすればよいか分からず手が止まる、という声が現場から複数あったため手順を出す
+  h+='<div class="qsteps"><b>このあとの手順</b><br>'
+    +'① カルテ端末のカメラで下のQRコードを読み取る'+(parts.length>1?'（<b>'+parts.length+'枚すべて</b>）':'')+'<br>'
+    +'② カルテに貼り付いた内容を目で確かめる<br>'
+    +'③ 確認できたら［この端末から入力を消す］を押す</div>';
+  if(parts.length>1)h+='<div class="qmulti">項目数が多いため、QRコードを<b>'+parts.length+'枚</b>に分けています。<b>1枚目から順に</b>読み取ってください。</div>';
+  for(var p=0;p<parts.length;p++){
+    h+='<div class="qwrap"><div class="qw">';
+    if(parts.length>1)h+='<div class="qnum">'+(p+1)+' / '+parts.length+' 枚目</div>';
+    h+='<canvas id="cv-'+scaleId+'-'+p+'"></canvas></div></div>';
+  }
   h+='<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">';
   h+='<button class="btn b3" onclick="cpTxt(\''+scaleId+'\')">テキストをコピー</button>';
-  h+='<button class="btn b2" id="clr-'+scaleId+'" onclick="requestClearDraft(\''+scaleId+'\')">入力データを消去する</button>';
+  h+='<button class="btn b2" id="clr-'+scaleId+'" onclick="requestClearDraft(\''+scaleId+'\')">この端末から入力を消す</button>';
   h+='</div>';
   h+='<div class="qt" id="qt-'+scaleId+'">'+esc(txt)+'</div>';
   area.innerHTML=h;
   try{
-    var qr=qrcode(0,'M');qr.addData(txt);qr.make();
-    var mc=qr.getModuleCount(),cs=Math.max(4,Math.min(8,Math.floor(280/mc))),mg=cs*4,sz=mc*cs+mg*2;
-    var cv=E('cv-'+scaleId);cv.width=sz;cv.height=sz;
-    var ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,sz,sz);ctx.fillStyle='#000';
-    for(var r=0;r<mc;r++)for(var c=0;c<mc;c++){if(qr.isDark(r,c))ctx.fillRect(mg+c*cs,mg+r*cs,cs,cs)}
+    for(var p2=0;p2<parts.length;p2++){
+      var qr=qrcode(0,'M');qr.addData(parts[p2]);qr.make();
+      var mc=qr.getModuleCount(),cs=Math.max(4,Math.min(8,Math.floor(280/mc))),mg=cs*4,sz=mc*cs+mg*2;
+      var cv=E('cv-'+scaleId+'-'+p2);cv.width=sz;cv.height=sz;
+      var ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,sz,sz);ctx.fillStyle='#000';
+      for(var r=0;r<mc;r++)for(var c=0;c<mc;c++){if(qr.isDark(r,c))ctx.fillRect(mg+c*cs,mg+r*cs,cs,cs)}
+    }
   }catch(e){area.innerHTML+='<div style="color:var(--rd);margin-top:8px;font-size:.82rem">QRコード生成エラー: '+esc(e.message||String(e))+'</div>'}
 }
 function cpTxt(scaleId){var el=E('qt-'+scaleId);if(!el)return;var txt=el.textContent;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){toast('コピーしました')},function(){fbCp(txt)})}else fbCp(txt)}
@@ -3066,23 +3239,195 @@ function fbCp(txt){var ta=document.createElement('textarea');ta.value=txt;ta.sty
 
 // ========== RESET ==========
 function doReset(scaleId){
-  var sc=SCALES[scaleId];if(!confirm(sc.name+'の全回答・QR・氏名をリセットしますか？'))return;
+  var sc=SCALES[scaleId];
+  // 氏名は全タブ共通なので、個別リセットでは消さない（消すのは画面右上の［この患者を終わる］）
+  if(!confirm(sc.name+'の回答とQRを消します。\n氏名と、他の検査の入力は残ります。よろしいですか？'))return;
   if(sc.comp){for(var i=0;i<sc.subs.length;i++){var qs=SUB_SCALES[sc.subs[i]].qs;for(var j=0;j<qs.length;j++){delete A[qs[j].id];delete KVS[qs[j].id];if(qs[j].su)delete SP[qs[j].su.id]}}SER=null;KW=['','','']}
   else if(sc.custom&&scaleId==='sppb'){sppbReset();return}else{var qs=sc.qs;for(var j=0;j<qs.length;j++){delete A[qs[j].id];delete KVS[qs[j].id];if(qs[j].su)delete SP[qs[j].su.id]}delete RM[scaleId]}
-  NM='';
-  // Clear UI selections
-  var obs=Q('.ob');for(var i=0;i<obs.length;i++)obs[i].className='ob';
-  var cards=Q('.qc');for(var i=0;i<cards.length;i++)cards[i].className='qc';
-  var sbtns=Q('.sbtn');for(var i=0;i<sbtns.length;i++)sbtns[i].className='sbtn';
-  var pns=Q('.pn');for(var i=0;i<pns.length;i++)pns[i].value='';
-  var kwis=Q('.kwi');for(var i=0;i<kwis.length;i++)kwis[i].value='';
-  var suis=Q('.sui');for(var i=0;i<suis.length;i++)suis[i].value='';
-  var rmis=Q('.rmi');for(var i=0;i<rmis.length;i++)rmis[i].value='';
+  // 画面のクリアは、その尺度のタブの中だけに限定する。
+  // 以前は文書全体（Q('.ob') など）を対象にしていたため、他の尺度の選択ハイライト・補足入力・
+  // 備考の表示だけが消え、データ側には残るという食い違いが起きていた
+  // （消したつもりの握力値が、あとでSIASのQRに出てくる等）
+  var tab=E('t-'+scaleId);
+  if(tab){
+    var obs=Q('.ob',tab);for(var i=0;i<obs.length;i++)obs[i].className='ob';
+    var cards=Q('.qc',tab);for(var i=0;i<cards.length;i++)cards[i].className='qc';
+    var sbtns=Q('.sbtn',tab);for(var i=0;i<sbtns.length;i++)sbtns[i].className='sbtn';
+    var kwis=Q('.kwi',tab);for(var i=0;i<kwis.length;i++)kwis[i].value='';
+    var suis=Q('.sui',tab);for(var i=0;i<suis.length;i++)suis[i].value='';
+    var rmis=Q('.rmi',tab);for(var i=0;i<rmis.length;i++)rmis[i].value='';
+  }
   var qra=E('qr-'+scaleId);if(qra)qra.innerHTML='';
   updAll();
   showTab(scaleId);
   if(sc.comp)showSub(scaleId,sc.subs[0]);
   saveState();
+}
+
+// ========== 評価履歴（前回との比較） ==========
+/* 「前回のFBSは何点だったか」をカルテから探さずに済むようにする。
+   QRを生成した時点＝その評価が確定した時点とみなして記録する。
+
+   患者氏名はそのまま保存しない。氏名から作った短い識別子だけを持ち、
+   画面には「いま入力中の氏名に一致する記録」しか出さない。
+   共用端末で履歴一覧から他患者の氏名が読めてしまうことを避けるため。
+   記録にも氏名は入らないので、QRコードの内容にも当然含まれない（6-2）。 */
+var HIST_KEY='evalBatteryHistory';
+var HIST_MAX=60;
+
+/* 氏名を短い識別子に変換する。暗号ではなく、あくまで画面から氏名が読めないようにするためのもの */
+function histKey(name){
+  var t=String(name||'').replace(/\s+/g,'');
+  if(!t)return '';
+  var h1=5381,h2=52711;
+  for(var i=0;i<t.length;i++){var c=t.charCodeAt(i);h1=((h1*33)^c)>>>0;h2=((h2*39)^c)>>>0}
+  return h1.toString(36)+'-'+h2.toString(36);
+}
+
+function histRead(){
+  try{var r=localStorage.getItem(HIST_KEY);var a=r?JSON.parse(r):[];return Array.isArray(a)?a:[]}catch(e){return []}
+}
+function histWrite(a){ try{localStorage.setItem(HIST_KEY,JSON.stringify(a))}catch(e){} }
+
+/* QR生成時に呼ぶ。同じ患者・同じ尺度・同じ日の記録は上書きする（測り直しに対応） */
+function histSave(scaleId,total,max){
+  var k=histKey(NM);
+  if(!k||total===null||total===undefined)return;      // 氏名が無い／未採点なら記録しない
+  var d=DT||todayStr();
+  var a=histRead();
+  a=a.filter(function(r){return !(r.k===k&&r.s===scaleId&&r.d===d)});
+  a.push({k:k,s:scaleId,d:d,v:total,m:max});
+  a.sort(function(x,y){return x.d<y.d?-1:1});
+  if(a.length>HIST_MAX)a=a.slice(a.length-HIST_MAX);
+  histWrite(a);
+}
+
+/* いまの患者・尺度について、今回より前の日付でいちばん新しい記録を返す */
+function histPrev(scaleId){
+  var k=histKey(NM);
+  if(!k)return null;
+  var d=DT||todayStr();
+  var a=histRead().filter(function(r){return r.k===k&&r.s===scaleId&&r.d<d});
+  return a.length?a[a.length-1]:null;
+}
+
+function fmtDate(iso){
+  var m=String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m?(Number(m[2])+'/'+Number(m[3])):iso;
+}
+function todayStr(){
+  var d=new Date(),p=function(n){return (n<10?'0':'')+n};
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
+}
+
+/* スコア表示エリアに出す「前回 → 今回」の1行 */
+function histLineHTML(scaleId,total){
+  if(!histKey(NM))return '';                          // 氏名が無いと誰の記録か特定できないので出さない
+  var p=histPrev(scaleId);
+  if(!p)return '';
+  if(total===null||total===undefined)
+    return '<div class="cmpline">前回（'+fmtDate(p.d)+'）：<b>'+p.v+'点</b>／'+p.m+'点</div>';
+  var diff=total-p.v;
+  var cls=diff>0?'up':(diff<0?'dn':'same');
+  var sign=diff>0?'+':'';
+  return '<div class="cmpline">前回（'+fmtDate(p.d)+'）：<b>'+p.v+'点</b> → 今回：<b>'+total+'点</b>'+
+         ' <span class="'+cls+'">（'+sign+diff+'）</span></div>';
+}
+
+/* スコア表示エリアへ比較行を差し込む（無ければ作る） */
+function histRender(scaleId,anchorId,total){
+  var host=E(anchorId);
+  if(!host)return;
+  var el=E('cmp-'+scaleId);
+  if(!el){
+    el=document.createElement('div'); el.id='cmp-'+scaleId;
+    host.parentNode.insertBefore(el,host.nextSibling);
+  }
+  el.innerHTML=histLineHTML(scaleId,total);
+}
+
+/* 履歴の全消去。共用端末なので、いつでも消せる手段を必ず用意する */
+function clearHistory(){
+  if(!confirm('この端末に残っている「前回との比較」用の記録をすべて消します。\n（評価日・点数のみ。氏名は保存されていません）\nよろしいですか？'))return;
+  try{localStorage.removeItem(HIST_KEY)}catch(e){}
+  updAll();
+  toast('比較用の記録を消しました');
+}
+
+/* QR生成時に、その尺度の確定点を履歴へ記録する。
+   未回答が残っている（＝途中経過）ときは記録しない。前回比較が途中の点数と比べられてしまうため */
+function histSaveForScale(scaleId,scale){
+  if(scale.comp){
+    for(var i=0;i<scale.subs.length;i++){
+      var sid=scale.subs[i], c=calc(sid);
+      if(c.answered>0&&c.unanswered===0)histSave(sid,c.total,SUB_SCALES[sid].mx);
+    }
+  }else if(scale.custom&&scaleId==='sppb'){
+    var b=sppbScoreBal(),g=sppbScoreGait(),ch=sppbScoreChair();
+    if(b!==null&&g!==null&&ch!==null)histSave('sppb',b+g+ch,12);
+  }else{
+    var sc=calc(scaleId);
+    if(sc.answered>0&&sc.unanswered===0)histSave(scaleId,sc.total,scale.mx);
+  }
+}
+
+// ========== ストップウォッチ ==========
+/* 秒数を測りながら入力する場面（SPPBの歩行・椅子立ち上がり、FBSの保持時間）で、
+   iPadとストップウォッチを持ち替えずに済むようにする。
+   同時に動かせるのは1つだけ。別の欄で開始したら、動いていた方は自動で止めて記録する。 */
+var SW={id:null,t0:0,timer:null};
+
+function swElapsed(){ return SW.id? (Date.now()-SW.t0)/1000 : 0; }
+
+function swToggle(fieldId){
+  if(SW.id===fieldId){ swStop(); return; }
+  if(SW.id) swStop();                     // 別の欄が計測中なら、そちらを確定させてから始める
+  SW.id=fieldId; SW.t0=Date.now();
+  SW.timer=setInterval(swRender,100);
+  swRender();
+}
+
+/* 計測を止めて、その秒数を入力欄へ書き込む。
+   もう一度「計測」を押せば測り直しになる（値は上書きされる） */
+function swStop(){
+  if(!SW.id)return;
+  var id=SW.id, sec=swElapsed();
+  clearInterval(SW.timer); SW.timer=null; SW.id=null;
+  var el=E(id);
+  if(el&&!el.disabled){
+    // 4m歩行は0.01秒単位、それ以外は0.1秒単位（既存のstep属性に合わせる）
+    var step=el.getAttribute('step')==='0.01'?2:1;
+    el.value=sec.toFixed(step);
+  }
+  swRender();
+  if(typeof sppbReadTimes==='function')sppbReadTimes();
+  sppbCalc(); saveState();
+  toast(sec.toFixed(1)+'秒を記録しました');
+}
+
+function swRender(){
+  var btns=Q('.swbtn');
+  for(var i=0;i<btns.length;i++){
+    var b=btns[i], f=b.getAttribute('data-f'), inp=E(f);
+    b.disabled = !!(inp&&inp.disabled);
+    if(SW.id===f){ b.className='swbtn run'; b.textContent='■ 停止 '+swElapsed().toFixed(1)+'秒'; }
+    else{ b.className='swbtn'; b.textContent=(inp&&inp.value!=='')?'▶ 測り直す':'▶ 計測'; }
+  }
+}
+
+/* 秒数の入力欄の隣に計測ボタンを差し込む。
+   HTML側を6か所書き換えずに済むよう、起動時にまとめて作る */
+function initStopwatch(){
+  var ins=Q('.sppb-time');
+  for(var i=0;i<ins.length;i++){
+    var inp=ins[i];
+    if(!inp.id)continue;
+    var b=document.createElement('button');
+    b.type='button'; b.className='swbtn'; b.setAttribute('data-f',inp.id);
+    b.onclick=(function(id){return function(){swToggle(id)}})(inp.id);
+    inp.parentNode.insertBefore(b,inp.nextSibling);
+  }
+  swRender();
 }
 
 // ========== SPPB ==========
@@ -3137,6 +3482,8 @@ function sppbGaitNA(){
     if(gr1)gr1.classList.remove('sppb-grey');if(gr2)gr2.classList.remove('sppb-grey');if(grb)grb.classList.remove('sppb-grey');
     E('tm-gait1').disabled=false;E('tm-gait2').disabled=false;
   }
+  if(SW.id&&E(SW.id)&&E(SW.id).disabled)swStop();   // 計測中の欄が使えなくなったら止める
+  swRender();
   sppbCalc();
   saveState();
 }
@@ -3202,6 +3549,7 @@ function sppbCalc(){
   var bal=sppbScoreBal(),gait=sppbScoreGait(),chair=sppbScoreChair();
   var total=null;
   if(bal!==null&&gait!==null&&chair!==null){total=bal+gait+chair}
+  histRender('sppb','sg-sppb',total);   // 下位項目の一覧の下に前回比較を出す
   E('sg-bal').textContent=bal!==null?bal+'/4':'—';
   E('sg-gait').textContent=gait!==null?gait+'/4':'—';
   E('sg-chair').textContent=chair!==null?chair+'/4':'—';

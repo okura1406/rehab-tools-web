@@ -33,8 +33,10 @@ html{font-size:15px;-webkit-text-size-adjust:100%}
 body{font-family:var(--f);color:var(--tx);background:var(--bg);line-height:1.6;min-height:100vh;-webkit-tap-highlight-color:transparent}
 button{-webkit-appearance:none;appearance:none;font-family:var(--f)}
 input,textarea{font-family:var(--f)}
-.hd{background:var(--sf);border-bottom:1px solid var(--bd);padding:14px 16px;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-.hd h1{font-size:1.05rem;font-weight:700;text-align:center;letter-spacing:.02em}
+/* 題名とボタンを横並びにする。以前はボタンを絶対配置にしていたため、
+   画面が狭いと題名の文字がボタンの下に潜り込んで読めなくなっていた */
+.hd{background:var(--sf);border-bottom:1px solid var(--bd);padding:11px 14px;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.04);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hd h1{font-size:1.02rem;font-weight:700;text-align:left;letter-spacing:.02em;flex:1;min-width:0;line-height:1.35}
 /* タブ帯はヘッダーのすぐ下に固定する。top は実際のヘッダーの高さ（--hdH）に合わせる。
    固定値にすると、画面が狭くてヘッダーの文字が折り返したときにタブが隠れてしまうため */
 .tabs{display:flex;background:var(--sf);border-bottom:2px solid var(--bd);padding:0 8px;position:sticky;top:var(--hdH,49px);z-index:99;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
@@ -90,13 +92,47 @@ input,textarea{font-family:var(--f)}
 .b2{background:var(--rd2);color:var(--rd)}.b2:hover{background:#fecaca}
 .b3{background:var(--sf2);color:var(--tx);border:1px solid var(--bd)}.b3:hover{background:var(--bd2)}
 .qa{margin-top:24px;text-align:center}
-.qw{display:inline-block;padding:20px;background:#fff;border-radius:var(--r);border:1px solid var(--bd);box-shadow:var(--sh)}
+.qw{display:inline-block;max-width:100%;padding:20px;background:#fff;border-radius:var(--r);border:1px solid var(--bd);box-shadow:var(--sh)}
+/* QRが画面幅を超えると右端の位置検出パターンが切れて読み取れなくなるため、必ず画面内に収める */
+.qw canvas{max-width:100%;height:auto;image-rendering:pixelated}
 .qwrap{margin-bottom:14px}
 .qnum{font-size:.8rem;color:var(--pr3);font-weight:700;margin-bottom:10px;letter-spacing:.02em}
 .qmulti{background:var(--pr2);color:var(--pr3);padding:10px 14px;border-radius:8px;font-size:.82rem;margin-bottom:14px;text-align:left;border:1px solid #bfdbfe;line-height:1.6}
 .qt{margin-top:14px;text-align:left;background:var(--sf2);border:1px solid var(--bd);border-radius:var(--r);padding:14px;font-size:.8rem;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;line-height:1.6;color:var(--tx2)}
 .qwn{background:var(--yw2);color:#92400e;padding:10px 14px;border-radius:8px;font-size:.82rem;margin-bottom:14px;text-align:left;border:1px solid #fde68a}
 .tst{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;padding:10px 24px;border-radius:24px;font-size:.85rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:200}
+/* ===== 患者さん記入モード =====
+   質問紙をご本人に記入していただくときに使う。点数・判定・プログレスバーを隠し、
+   タブと消去系のボタンを無効にして、文字とボタンを大きくする */
+.pmbar{background:var(--gn2);border-bottom:2px solid var(--gn);padding:10px 16px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;font-size:.85rem;color:#14532d;font-weight:600}
+.pmbar .btn{padding:9px 18px;font-size:.84rem}
+body.pm .sp.res{display:none!important}          /* 合計点・判定・プログレスバーを隠す */
+body.pm .tabs{display:none!important}            /* 他の尺度へ移動できないようにする */
+body.pm .hbtn{display:none!important}            /* 誤って全消去されないようにする */
+body.pm .acts{display:none!important}            /* QR生成・やり直しも隠す */
+body.pm .pb{display:none!important}              /* 氏名・評価日も隠す */
+body.pm .foot{display:none!important}
+body.pm #draftBanner{display:none!important}
+body.pm .qa{display:none!important}
+body.pm .ql{font-size:1.16rem;line-height:1.6}
+body.pm .qi{font-size:1rem}
+body.pm .ob{font-size:1.05rem;padding:15px 16px;min-height:56px}
+body.pm .nrs-btn{width:56px;height:56px;font-size:1.05rem}
+body.pm .binary-btn{font-size:1.05rem;padding:14px 18px;min-height:52px}
+body.pm .qc{padding:18px 16px}
+body.pm .sec-h{font-size:1.05rem}
+/* 評価日 */
+.pb input.pd{max-width:170px;flex:0 0 auto}
+/* 前回との比較 */
+.cmpline{margin-top:8px;padding:8px 10px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;font-size:.8rem;color:var(--tx2);line-height:1.6}
+.cmpline b{color:var(--tx)}
+.cmpline .up{color:var(--rd);font-weight:700}   /* 疼痛尺度は点数が上がる＝悪化 */
+.cmpline .dn{color:var(--gn);font-weight:700}
+.cmpline .same{color:var(--tx2);font-weight:700}
+/* 画面末尾の説明 */
+.foot{max-width:780px;margin:24px auto 40px;padding:14px 16px;background:var(--sf2);border:1px solid var(--bd);border-radius:var(--r);font-size:.78rem;color:var(--tx2);line-height:1.7}
+.foot h4{font-size:.82rem;color:var(--tx);margin-bottom:6px}
+.foot .btn{margin-top:10px;padding:9px 16px;font-size:.8rem}
 .tst.on{opacity:1}
 .scale-desc{font-size:.78rem;color:var(--tx2);margin-bottom:12px;padding:8px 12px;background:var(--sf2);border-radius:8px;line-height:1.6}
 .binary-row{display:flex;gap:8px}
@@ -120,18 +156,29 @@ input,textarea{font-family:var(--f)}
   .sgs{grid-template-columns:repeat(2,1fr)}
   .nrs-btn{width:34px;height:34px;font-size:.82rem}
 }
-.hbtn{position:absolute;right:12px;top:50%;transform:translateY(-50%);padding:6px 12px;font-size:.78rem;font-weight:600;color:var(--rd);background:var(--rd2);border:none;border-radius:8px;cursor:pointer}
-.hbtn:active{transform:translateY(-50%) scale(.96)}
+.hbtn{flex-shrink:0;padding:9px 13px;font-size:.78rem;font-weight:700;color:var(--rd);background:var(--rd2);border:1px solid #fca5a5;border-radius:8px;cursor:pointer;min-height:40px;font-family:var(--f)}
+.hbtn:active{transform:scale(.96)}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="疼痛評価">
 </head><body>
-<header class="hd"><h1>疼痛評価ツール</h1><button class="hbtn" onclick="resetAll()">新規患者</button></header>
+<header class="hd"><h1>疼痛評価ツール</h1><button class="hbtn" onclick="resetAll()">この患者を終わる</button></header>
+<div id="pmBar"></div>
 <div id="draftBanner"></div>
 <nav class="tabs" id="T"></nav>
 <main id="M"></main>
+<div class="foot">
+<h4>患者さんご本人に記入していただくとき</h4>
+下の「患者さん記入モードにする」を押すと、<b>点数・判定・タブ・消去ボタンを隠し、文字とボタンを大きく</b>します。ご本人に端末をお渡しする前に押してください。<br>
+<button class="btn b3" onclick="patientMode(true)">患者さん記入モードにする</button>
+<h4 style="margin-top:16px">この端末に残るもの</h4>
+① <b>入力中の下書き</b>（氏名・評価日・回答）…… カルテ転記が終わったら、QR生成後に出る「この端末から入力を消す」、または画面右上の「この患者を終わる」で消してください。<br>
+② <b>前回との比較用の記録</b>（評価日・点数のみ。<b>氏名は保存していません</b>）…… 「前回：〇点 → 今回：〇点」の表示に使います。下のボタンでいつでも消せます。<br>
+<span style="color:var(--tx3)">※ どちらもこの端末の中だけに保存され、外部へは送信されません。QRコードにも氏名は入りません。</span>
+<button class="btn b3" onclick="clearHistory()">比較用の記録をすべて消す</button>
+</div>
 <div class="tst" id="tst"></div>
 <script>
 //---------------------------------------------------------------------
@@ -2681,6 +2728,7 @@ var SCALE_ORDER=['pcs','sfmpq2','hads','pdas','startback','sseq'];
 // ========== STATE ==========
 var ANS={};
 var NM='';
+var DT='';   // 評価日（YYYY-MM-DD）。QRテキストの1行目に入れる
 
 // ========== PERSISTENCE (下書き自動保存・2スロット) ==========
 // 仕様：sessionStorage/Cookie/外部送信は使用しない。localStorageは下書き自動保存のみに限定。
@@ -2699,7 +2747,7 @@ function readSlot(slot){
   }catch(e){return null}
 }
 function slotHasData(d){
-  return !!d && (Object.keys(d.a||{}).length>0 || !!(d.n&&d.n!==''));
+  return !!d && (Object.keys(d.a||{}).length>0 || !!(d.n&&d.n!=='') || !!(d.d&&d.d!==''));
 }
 function writeSlot(slot,data){
   try{localStorage.setItem(SLOT_KEYS[slot],JSON.stringify(data))}catch(e){}
@@ -2715,7 +2763,7 @@ function fmtTime(t){
 // 実際の保存（デバウンス後に呼ばれる）
 function saveStateImmediate(){
   if(!mySlot)return;
-  writeSlot(mySlot,{a:ANS,n:NM,t:Date.now()});
+  writeSlot(mySlot,{a:ANS,n:NM,d:DT,t:Date.now()});
 }
 // 入力変更のたびに呼び出す保存関数（300〜500msデバウンス）
 function saveState(){
@@ -2723,16 +2771,30 @@ function saveState(){
   clearTimeout(saveTimer);
   saveTimer=setTimeout(saveStateImmediate,400);
 }
-// QRコード生成後に表示される「入力データを消去する」ボタンから呼ばれる。
+// QRコード生成後に表示される「この端末から入力を消す」ボタンから呼ばれる。
 // 仕様7-4：QRコード生成だけでは下書きを自動消去しない。検査者が明示的にこのボタンを押し、
 // 確認ダイアログで同意した場合のみ、そのタブが使用しているスロットの下書きを消去する。
 function requestClearDraft(scaleId){
   if(!confirm('この端末に一時保存されている入力データ（下書き）を消去しますか？\n※表示済みのQRコード・テキストはそのまま確認できます。'))return;
   clearTimeout(saveTimer);
   if(mySlot)clearSlot(mySlot);
+  // 消去したあとに画面のどこかを操作すると saveState() が走り、同じスロットへ書き戻されてしまう。
+  // 共用端末で前の患者の入力が残る原因になるため、消去したらこのページでは以後保存しない
+  mySlot=null;
+  showClearedNotice();
   var btn=E('clr-'+scaleId);
-  if(btn){btn.disabled=true;btn.textContent='消去しました';}
+  if(btn){btn.disabled=true;btn.textContent='消しました';}
   toast('入力データを消去しました');
+}
+
+/* 消去したことと、画面にはまだ表示が残っていることを画面上部に出しておく。
+   何も出さないと「消した＝画面も空になった」と誤解したまま端末を次の人へ渡してしまう */
+function showClearedNotice(){
+  var box=E('draftBanner');
+  if(!box)return;
+  box.innerHTML='<div class="draft-banner"><div class="db-row"><span class="db-msg">'+
+    '消去しました。この端末に保存されていた入力は残っていません。画面の表示は転記の確認用に残しています。'+
+    '次の患者に使う前に、画面右上の［この患者を終わる］を押してください。</span></div></div>';
 }
 
 // ---- 起動時のスロット判定・確認バナー ----
@@ -2789,6 +2851,7 @@ function resumeSlot(slot){
   mySlot=slot;
   ANS=(d&&d.a)?d.a:{};
   NM=(d&&d.n)?d.n:'';
+  DT=(d&&d.d)?d.d:todayStr();
   hideDraftBanner();
   restoreUI();
   updAll();
@@ -2817,6 +2880,8 @@ function discardBoth(){
 function restoreUI(){
   var pns=document.querySelectorAll('.pn');
   for(var i=0;i<pns.length;i++)pns[i].value=NM;
+  var pds=document.querySelectorAll('.pd');
+  for(var i=0;i<pds.length;i++)pds[i].value=DT;
   var btns=document.querySelectorAll('.ob,.nrs-btn,.binary-btn');
   for(var i=0;i<btns.length;i++){
     var qid=btns[i].getAttribute('data-q');
@@ -2832,8 +2897,8 @@ function restoreUI(){
   }
 }
 function resetAll(){
-  if(!confirm('全スケールの回答・氏名・保存データをリセットしますか？\n（新しい患者用に初期化します）'))return;
-  ANS={};NM='';
+  if(!confirm('この患者の入力をすべて消します。\n（全尺度の回答・氏名・評価日と、この端末に保存された下書き）\n次の患者の入力を始められます。よろしいですか？'))return;
+  ANS={};NM='';DT=todayStr();
   clearTimeout(saveTimer);
   if(mySlot)clearSlot(mySlot);
   buildAll();
@@ -2866,7 +2931,7 @@ function buildAll(){
 
 function buildScaleHTML(sc){
   var h='';
-  h+='<div class="pb"><label>氏名</label><input type="text" class="pn" placeholder="患者氏名を入力" value=""><span class="nt">※ QRコードには含まれません。この端末に一時保存されます。検査終了（QR生成）またはリセット時に自動的に消去されます。</span></div>';
+  h+='<div class="pb"><label>氏名</label><input type="text" class="pn" placeholder="患者氏名を入力" value=""><label>評価日</label><input type="date" class="pd" value=""><span class="nt">※ 氏名はQRコードには含まれません（評価日は入ります）。入力内容はこの端末に一時保存されています。カルテ転記が完了したら、QR生成後に表示される「この端末から入力を消す」ボタン、または「この患者を終わる（全部消す）」で消去してください。</span></div>';
   // スコアパネル（p）は全項目の下に置く。最後まで回答してから結果を見る流れにするため。
   var p='';
   p+='<div class="sp res" id="p-'+sc.id+'">';
@@ -2906,7 +2971,7 @@ function buildScaleHTML(sc){
   h+='<div class="acts">';
   h+='<button class="btn b1" onclick="genQR(\''+sc.id+'\')">QRコードを生成</button>';
   h+='<button class="btn b3" onclick="cpTxt(\''+sc.id+'\')">テキストをコピー</button>';
-  h+='<button class="btn b2" onclick="doReset(\''+sc.id+'\')">リセット</button>';
+  h+='<button class="btn b2" onclick="doReset(\''+sc.id+'\')">この検査だけやり直す</button>';
   h+='</div>';
   h+='<div class="qa" id="qr-'+sc.id+'"></div>';
   return h;
@@ -3006,9 +3071,134 @@ function syncName(){
       NM=this.value;
       var all=Q('.pn');
       for(var j=0;j<all.length;j++){if(all[j]!==this)all[j].value=this.value}
+      updAll();          // 氏名が変わると「前回との比較」の対象も変わる
       saveState();
     });
   }
+  // 評価日。全タブ共通の項目なので、どこで直しても全タブに反映する
+  if(!DT)DT=todayStr();
+  var pds=Q('.pd');
+  for(var i=0;i<pds.length;i++){
+    pds[i].value=DT;
+    pds[i].addEventListener('input',function(){
+      DT=this.value;
+      var all=Q('.pd');
+      for(var j=0;j<all.length;j++){if(all[j]!==this)all[j].value=this.value}
+      updAll();
+      saveState();
+    });
+  }
+}
+
+// ========== 患者さん記入モード ==========
+/* PCS・SF-MPQ-2・HADS などは本来ご本人に記入していただく質問紙。
+   そのまま端末を渡すと「カットオフ超（30点以上）」「不安：中等度」といった判定が
+   ご本人の目に入ってしまう。破局的思考の高い患者に見せるのは臨床的に望ましくない。
+   また、上部のタブや「この患者を終わる」を押されると入力が消える。
+   このモードでは、点数・判定・タブ・消去系のボタンを隠し、文字とボタンを大きくする。 */
+var patientModeOn=false;
+
+function patientMode(on){
+  if(on){
+    if(!confirm('患者さん記入モードにします。\n\n・点数と判定を隠します\n・他の検査へ移動できなくなります\n・文字とボタンが大きくなります\n\nこのまま端末を患者さんにお渡しください。\nよろしいですか？'))return;
+  }
+  patientModeOn=!!on;
+  document.body.className=patientModeOn?'pm':'';
+  renderPatientModeBar();
+  window.scrollTo(0,0);
+}
+
+/* 解除はスタッフが行う。患者さんが誤って戻してしまわないよう確認をはさむ */
+function exitPatientMode(){
+  if(!confirm('スタッフの操作に戻します。\n点数と判定が再び表示されます。よろしいですか？'))return;
+  patientMode(false);
+  toast('スタッフ画面に戻りました');
+}
+
+function renderPatientModeBar(){
+  var bar=E('pmBar');
+  if(!bar)return;
+  bar.innerHTML=patientModeOn
+    ? '<div class="pmbar"><span>患者さん記入モードです。上から順に、当てはまるものを選んでください。</span>'
+      +'<button class="btn b3" onclick="exitPatientMode()">スタッフに戻す</button></div>'
+    : '';
+}
+
+// ========== 評価履歴（前回との比較） ==========
+/* 患者氏名はそのまま保存せず、氏名から作った短い識別子だけを持つ。
+   共用端末で履歴から他患者の氏名が読めてしまうことを避けるため。
+   画面には「いま入力中の氏名に一致する記録」しか出さない。 */
+var HIST_KEY='painToolHistory';
+var HIST_MAX=60;
+
+function histKey(name){
+  var t=String(name||'').replace(/\s+/g,'');
+  if(!t)return '';
+  var h1=5381,h2=52711;
+  for(var i=0;i<t.length;i++){var c=t.charCodeAt(i);h1=((h1*33)^c)>>>0;h2=((h2*39)^c)>>>0}
+  return h1.toString(36)+'-'+h2.toString(36);
+}
+function histRead(){
+  try{var r=localStorage.getItem(HIST_KEY);var a=r?JSON.parse(r):[];return Array.isArray(a)?a:[]}catch(e){return []}
+}
+function histWrite(a){ try{localStorage.setItem(HIST_KEY,JSON.stringify(a))}catch(e){} }
+function todayStr(){
+  var d=new Date(),p=function(n){return (n<10?'0':'')+n};
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
+}
+function fmtDate(iso){
+  var m=String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m?(Number(m[2])+'/'+Number(m[3])):iso;
+}
+
+/* QRを作った時点＝その評価が確定した時点とみなして記録する。
+   未回答が残っているときは記録しない（途中の点数と比べられてしまうため） */
+function histSave(sid){
+  var k=histKey(NM);
+  if(!k)return;
+  var r=calcScore(sid);
+  if(!(r.answered>0&&r.unanswered===0))return;
+  var d=DT||todayStr();
+  var a=histRead().filter(function(x){return !(x.k===k&&x.s===sid&&x.d===d)});
+  a.push({k:k,s:sid,d:d,v:r.total,m:SCALES[sid].maxScore});
+  a.sort(function(x,y){return x.d<y.d?-1:1});
+  if(a.length>HIST_MAX)a=a.slice(a.length-HIST_MAX);
+  histWrite(a);
+}
+
+function histPrev(sid){
+  var k=histKey(NM);
+  if(!k)return null;
+  var d=DT||todayStr();
+  var a=histRead().filter(function(x){return x.k===k&&x.s===sid&&x.d<d});
+  return a.length?a[a.length-1]:null;
+}
+
+/* 疼痛尺度は点数が上がる＝悪化なので、増加を赤・減少を緑で出す */
+function histRender(sid,total){
+  var host=E('u-'+sid);
+  if(!host)return;
+  var el=E('cmp-'+sid);
+  if(!el){ el=document.createElement('div'); el.id='cmp-'+sid; host.parentNode.insertBefore(el,host.nextSibling); }
+  if(!histKey(NM)){ el.innerHTML=''; return; }
+  var p=histPrev(sid);
+  if(!p){ el.innerHTML=''; return; }
+  if(total===null||total===undefined){
+    el.innerHTML='<div class="cmpline">前回（'+fmtDate(p.d)+'）：<b>'+p.v+'点</b>／'+p.m+'点</div>';
+    return;
+  }
+  var diff=total-p.v;
+  var cls=diff>0?'up':(diff<0?'dn':'same');
+  var sign=diff>0?'+':'';
+  el.innerHTML='<div class="cmpline">前回（'+fmtDate(p.d)+'）：<b>'+p.v+'点</b> → 今回：<b>'+total+'点</b>'+
+    ' <span class="'+cls+'">（'+sign+diff+'）</span></div>';
+}
+
+function clearHistory(){
+  if(!confirm('この端末に残っている「前回との比較」用の記録をすべて消します。\n（評価日・点数のみ。氏名は保存されていません）\nよろしいですか？'))return;
+  try{localStorage.removeItem(HIST_KEY)}catch(e){}
+  updAll();
+  toast('比較用の記録を消しました');
 }
 
 // ========== SCORING ==========
@@ -3080,6 +3270,7 @@ function updUI(sid){
   var r=calcScore(sid);
   var ve=E('v-'+sid);
   if(!ve)return;
+  histRender(sid,(r.unanswered===0&&r.answered>0)?r.total:null);
   ve.innerHTML=r.answered>0?r.partial+'<span class="mx"> / '+sc.maxScore+'点</span>':'—<span class="mx"> / '+sc.maxScore+'点</span>';
   var pf=E('f-'+sid);
   if(pf){
@@ -3144,6 +3335,10 @@ function updUI(sid){
 function showTab(id){
   var tabs=Q('.tab');for(var i=0;i<tabs.length;i++)tabs[i].className=tabs[i].getAttribute('data-t')===id?'tab on':'tab';
   var tcs=Q('.tc');for(var i=0;i<tcs.length;i++)tcs[i].className=tcs[i].id==='t-'+id?'tc on':'tc';
+  // 選択中のタブが横スクロールの外に隠れないよう中央へ寄せる（ベース仕様書 2-4）。
+  // block:'nearest' でページの縦位置は動かさない
+  var act=document.querySelector('.tab.on');
+  if(act&&act.scrollIntoView){try{act.scrollIntoView({block:'nearest',inline:'center'})}catch(e){}}
 }
 
 // ========== QR ==========
@@ -3160,6 +3355,17 @@ function splitTextForQR(txt){
   var rest=lines.slice(1);
   var parts=[],cur=[],curLen=0;
   var headRoom=head.length+8;               // ヘッダと「（1/3）」の分を差し引く
+  // 備考のように1行が長すぎると、その行だけで1枚を占めて升目が細かくなってしまう。
+  // 収まらない行は、その行の中で折ってから枚数を決める
+  var budget=QR_MAX_CHARS-headRoom;
+  if(budget<20)budget=20;
+  var wrapped=[];
+  for(var w=0;w<rest.length;w++){
+    var RL=rest[w];
+    if(RL.length<=budget){wrapped.push(RL);continue}
+    for(var k=0;k<RL.length;k+=budget)wrapped.push(RL.substr(k,budget));
+  }
+  rest=wrapped;
   for(var i=0;i<rest.length;i++){
     var L=rest[i];
     if(cur.length&&curLen+L.length+2+headRoom>QR_MAX_CHARS){parts.push(cur);cur=[];curLen=0}
@@ -3198,6 +3404,13 @@ function genQR(scaleId){
     }
     txt=sc.qrTpl(rr3);
   }
+  // 未回答があることをQRテキスト自体に残す。画面の警告だけでは、カルテに貼られた時点で
+  // 「途中経過」なのか「確定した点数」なのか区別がつかないため
+  if(r.unanswered>0)txt+='※未回答 '+r.unanswered+'件（0点として計算していません。途中経過です）\r\n';
+  // 評価日をテキストの先頭に置く。転記後に日付を打ち足す手間と、打ち忘れを防ぐため（氏名は入れない）
+  if(DT)txt='【評価日 '+DT+'】\r\n'+txt;
+  // QRを作った時点＝その評価が確定した時点とみなして、前回比較用に記録する
+  histSave(scaleId);
   var parts=splitTextForQR(txt);
   var area=E('qr-'+scaleId);
   var h='';
@@ -3210,7 +3423,7 @@ function genQR(scaleId){
   }
   h+='<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">';
   h+='<button class="btn b3" onclick="cpTxt(\''+scaleId+'\')">テキストをコピー</button>';
-  h+='<button class="btn b2" id="clr-'+scaleId+'" onclick="requestClearDraft(\''+scaleId+'\')">入力データを消去する</button>';
+  h+='<button class="btn b2" id="clr-'+scaleId+'" onclick="requestClearDraft(\''+scaleId+'\')">この端末から入力を消す</button>';
   h+='</div>';
   h+='<div class="qt" id="qt-'+scaleId+'">'+esc(txt)+'</div>';
   area.innerHTML=h;
@@ -3262,7 +3475,8 @@ function fbCp(txt){var ta=document.createElement('textarea');ta.value=txt;ta.sty
 // ========== RESET ==========
 function doReset(scaleId){
   var sc=SCALES[scaleId];
-  if(!confirm(sc.name+'の全回答・QRをリセットしますか？'))return;
+  // 氏名は全タブ共通のため、個別リセットでは消さない（消すのは画面右上の［この患者を終わる］）
+  if(!confirm(sc.name+'の回答とQRを消します。氏名と他の尺度の入力は残ります。よろしいですか？'))return;
   var count=sc.type==='binary'?9:sc.items.length;
   for(var i=0;i<count;i++){delete ANS[scaleId+'_q'+i]}
   var tab=E('t-'+scaleId);
@@ -3291,6 +3505,7 @@ window.addEventListener('orientationchange',syncHeaderHeight);
 function init(){
   buildAll();
   syncName();
+  renderPatientModeBar();
   initPersistence();
   updAll();
   syncHeaderHeight();
