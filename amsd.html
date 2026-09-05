@@ -1675,7 +1675,10 @@ function resetOseoItem(k){
    - 既存の下書きは自動復元せず、確認バナーで検査者に選ばせる
    - 消去は「QR生成後の消去ボタン」または「全タブをリセット」のときだけ
    ============================================================ */
-var SLOT_KEYS={A:'amsdSave_slotA',B:'amsdSave_slotB'};
+var SLOT_KEYS={A:'amsdSave_slotA',B:'amsdSave_slotB',C:'amsdSave_slotC'};
+/* 下書きの保存枠。共用端末で複数の患者を並行して扱えるようにするためのもの。
+   枠を増減するときは、この配列と SLOT_KEYS を直すだけでよい（以下の処理は枠数に依存しない） */
+var SLOTS=['A','B','C'];
 var mySlot=null;          // このタブが書き込むスロット。決まるまでnull
 var saveTimer=null;
 var EMPTY_SNAPSHOT=JSON.stringify(STATE);   // 未入力状態の控え（空のまま保存しないため）
@@ -1722,16 +1725,25 @@ function fmtDraftTime(ts){
   return p(d.getMonth()+1)+'/'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());
 }
 
-function refreshDraftBanner(){
-  var dA=readSlot('A'), dB=readSlot('B');
-  if(!dA&&!dB){ hideDraftBanner(); if(!mySlot)mySlot='A'; return; }
-  if(dA&&dB){ mySlot=null; showDraftBanner(dA,dB); return; }   // 空きなし：選ぶまで保存を保留
-  mySlot=dA?'B':'A';                                            // 空いている方を暫定的に使う
-  showDraftBanner(dA,dB);
+/* いま各枠に何が入っているかを調べる。used＝中身のある枠、free＝空いている枠 */
+function computeDraftState(){
+  var used=[],free=[];
+  for(var i=0;i<SLOTS.length;i++){
+    var s=SLOTS[i],d=readSlot(s);
+    if(d)used.push({slot:s,d:d});else free.push(s);
+  }
+  return {used:used,free:free};
 }
-function draftRow(slot,d){
+function refreshDraftBanner(){
+  var st=computeDraftState();
+  if(st.used.length===0){ hideDraftBanner(); if(!mySlot)mySlot=st.free.length?st.free[0]:null; return; }
+  // 空きがあれば暫定的に割り当てる。空きが無ければ、検査者が選ぶまで保存を保留する
+  mySlot=st.free.length?st.free[0]:null;
+  showDraftBanner(st);
+}
+function draftRow(slot,d,no){
   var row=el('div','db-row');
-  row.appendChild(el('span','db-msg','保存されている入力があります（氏名：'+(d.n||'（未入力）')+'　最終更新：'+fmtDraftTime(d.t)+'）'));
+  row.appendChild(el('span','db-msg',(no?no+'件目：':'')+'氏名 '+(d.n||'（未入力）')+'　最終更新 '+fmtDraftTime(d.t)));
   var go=el('button','btn btn-primary','続きから再開');
   go.onclick=function(){ resumeSlot(slot); };
   row.appendChild(go);
@@ -1743,27 +1755,31 @@ function draftRow(slot,d){
   row.appendChild(del);
   return row;
 }
-function showDraftBanner(dA,dB){
+function showDraftBanner(st){
   var box=document.getElementById('draftBanner');
   if(!box)return;
   box.innerHTML='';
   var wrap=el('div','draft-banner');
-  wrap.appendChild(el('div','db-msg','自動では復元しません。続きから再開するか、削除するかを選んでください。'));
-  if(dA)wrap.appendChild(draftRow('A',dA));
-  if(dB)wrap.appendChild(draftRow('B',dB));
+  wrap.appendChild(el('div','db-msg',
+    '保存されている入力が'+st.used.length+'件あります。自動では復元しません。'
+    +(st.free.length
+      ? '（空きはあと'+st.free.length+'件。このまま新しい患者の入力を始められます）'
+      : '空きがないため、いまのままでは入力が保存されません。下のいずれかを選んでください。')));
+  for(var i=0;i<st.used.length;i++)wrap.appendChild(draftRow(st.used[i].slot,st.used[i].d,i+1));
   var foot=el('div','db-row');
-  if(mySlot){
+  if(st.free.length){
     // 空きスロットがある場合のみ（仕様書 7-3）。既存の下書きには触れずにバナーを閉じる
-    foot.appendChild(el('span','db-msg','この下書きを残したまま、別の患者の入力を始める場合：'));
+    foot.appendChild(el('span','db-msg','これらを残したまま、別の患者の入力を始める場合：'));
     var keep=el('button','btn btn-reset','下書きは残して新規入力');
     keep.onclick=function(){ hideDraftBanner(); };
     foot.appendChild(keep);
   }
-  if(dA&&dB){
-    var both=el('button','btn btn-reset','両方とも破棄して新規入力');
+  if(st.used.length>1){
+    var both=el('button','btn btn-reset','すべて破棄して新規入力');
     both.onclick=function(){
-      if(!confirm('両方の下書きを破棄して新規入力にします。よろしいですか？'))return;
-      clearSlot('A'); clearSlot('B'); mySlot=null; refreshDraftBanner();
+      if(!confirm('保存されている下書きをすべて破棄して新規入力にします。よろしいですか？'))return;
+      for(var j=0;j<SLOTS.length;j++)clearSlot(SLOTS[j]);
+      mySlot=null; refreshDraftBanner();
     };
     foot.appendChild(both);
   }
