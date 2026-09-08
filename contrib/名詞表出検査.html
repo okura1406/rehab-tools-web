@@ -99,12 +99,27 @@ h2{font-size:15px;margin:0 0 8px;padding:8px 10px;background:#1f2937;color:#fff;
   border-radius:4px;color:#92400e;font-size:13px;display:none}
 .warn-box.show{display:block}
 
+.draft-banner{background:#fff7ed;border:1px solid var(--warn);border-radius:6px;padding:10px 12px;margin-bottom:10px;display:none}
+.draft-banner.show{display:block}
+.draft-banner .title{font-weight:bold;margin-bottom:6px;color:#92400e}
+.draft-banner .row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 0;border-bottom:1px dashed var(--border)}
+.draft-banner .row:last-of-type{border-bottom:none}
+.draft-banner .info{font-size:13px}
+.draft-banner .acts{display:flex;gap:6px;flex-wrap:wrap}
+.mini{padding:5px 10px;border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:13px;font-weight:bold;background:#fff}
+.mini.resume{background:var(--accent);color:#fff;border-color:var(--accent)}
+.mini.del{color:var(--danger);border-color:var(--danger)}
+.draft-banner .foot{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
+.save-note{font-size:12px;color:var(--muted);background:#f3f4f6;border-radius:4px;padding:6px 8px;margin-bottom:10px}
+
 .footer-note{font-size:11px;color:var(--muted);margin-top:16px;text-align:center;padding-bottom:24px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>失語症語彙検査　名詞表出検査（発話・書字）</h1>
+
+  <div class="draft-banner" id="draftBanner"></div>
 
   <div class="patient-bar">
     <label>氏名：</label>
@@ -126,6 +141,11 @@ h2{font-size:15px;margin:0 0 8px;padding:8px 10px;background:#1f2937;color:#fff;
   <div class="example-box">
     <div class="ex-title">教示・例題</div>
     <div class="ex-instr">発話「これは何ですか。」／書字「これは何ですか。書いてください。」　例）パン</div>
+  </div>
+
+  <div class="save-note">
+    ※ 入力内容（得点・反応・反応時間）はこの端末に一時保存されます（下書き）。QRコードに氏名は含まれません。<br>
+    　 カルテ転記が終わったら、QR生成後の「入力データを消去」ボタン、または下部の「リセット」で消去してください。
   </div>
 
   <div class="sticky-bar">
@@ -154,6 +174,10 @@ h2{font-size:15px;margin:0 0 8px;padding:8px 10px;background:#1f2937;color:#fff;
       <pre class="qr-text" id="qrText"></pre>
       <button class="btn btn-copy" id="qrCopyBtn">テキストをコピー</button>
       <div class="tag" style="margin-top:6px">※ QRは点数＋反応（自由記載）を含みます。反応時間は「詳細をコピー」に含まれます。氏名はQRに含まれません。長い場合は複数QRに分かれます（番号順に読み取り）。</div>
+      <div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--border)">
+        <button class="btn btn-reset" id="qrClearBtn" style="background:#fde2e2;color:#991b1b">入力データを消去（カルテ転記が済んだら）</button>
+        <div class="tag" style="margin-top:4px">※ 押すまで下書きは消えません。誤操作でのデータ消失を防ぐためです。</div>
+      </div>
     </div>
     <div id="detailArea" style="display:none;margin-top:10px">
       <pre class="qr-text" id="detailText"></pre>
@@ -162,12 +186,11 @@ h2{font-size:15px;margin:0 0 8px;padding:8px 10px;background:#1f2937;color:#fff;
   </div>
 
   <div class="btn-row">
-    <button class="btn btn-reset" id="resetBtn">回答をすべてクリア</button>
+    <button class="btn btn-reset" id="resetBtn">リセット（氏名・得点・反応・反応時間・下書きを消去）</button>
   </div>
 
   <div class="footer-note">
-    ※ オフラインで動作します。<br>
-    ※ 段階1（採点＋自由記載）です。タイマー・QR・下書き保存は次の段階で追加します。
+    ※ オフラインで動作します。氏名はQRコードに含まれません。
   </div>
 </div>
 
@@ -332,6 +355,7 @@ function pickScore(no, val){
   sc[no] = (sc[no]===val) ? undefined : val;
   updateScoreButtons(no);
   updateSummary();
+  scheduleSave();
 }
 
 /* ============================================================
@@ -380,6 +404,7 @@ function stopTimer(){
   const btn = document.getElementById('tm-'+no);
   if(btn){ btn.textContent='▶ 開始'; btn.classList.remove('running'); }
   updateRtField(no);
+  scheduleSave();
 }
 
 function toggleTimer(no){
@@ -461,6 +486,7 @@ function generateQR(){
   });
 
   document.getElementById('qrArea').style.display='block';
+  document.getElementById('qrClearBtn').style.display='inline-block';
   const copyBtn=document.getElementById('qrCopyBtn');
   copyBtn.onclick=()=>copyText(toQRString(readable), copyBtn, 'テキストをコピー');
   try{ document.getElementById('qrArea').scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){}
@@ -522,13 +548,14 @@ function buildItemList(){
     row.querySelector('#ng-'+it.no).onclick = ()=>pickScore(it.no,'wrong');
     const inp = row.querySelector('#resp-'+it.no);
     inp.value = STATE.resp[STATE.mode][it.no] || '';
-    inp.oninput = e=>{ STATE.resp[STATE.mode][it.no] = e.target.value; };
+    inp.oninput = e=>{ STATE.resp[STATE.mode][it.no] = e.target.value; scheduleSave(); };
     // 反応時間（手入力＋タイマー）
     const rtInp = row.querySelector('#rt-'+it.no);
     rtInp.oninput = e=>{
       const v = e.target.value;
       STATE.rt[STATE.mode][it.no] = (v==='' ? undefined : Number(v));
       updateRtField(it.no);
+      scheduleSave();
     };
     row.querySelector('#tm-'+it.no).onclick = ()=>toggleTimer(it.no);
     updateScoreButtons(it.no);
@@ -549,12 +576,115 @@ function applyCond(){
 function setCond(m){ stopTimer(); STATE.mode=m; applyCond(); window.scrollTo(0,0); }
 
 /* ============================================================
+   下書き自動保存・復元（localStorage・2スロット制）
+   発話・書字の 得点・反応・反応時間 をまとめて保存する。
+   ============================================================ */
+const NS = 'tlpa_noun_';
+let mySlot = null;
+let saveTimer = null;
+
+function slotKey(s){ return NS+'slot'+s; }
+function readSlot(s){ try{ const r=localStorage.getItem(slotKey(s)); return r?JSON.parse(r):null; }catch(e){ return null; } }
+function writeSlot(s,d){ try{ localStorage.setItem(slotKey(s), JSON.stringify(d)); }catch(e){} }
+function clearSlot(s){ try{ localStorage.removeItem(slotKey(s)); }catch(e){} }
+function firstEmptySlot(){ if(!readSlot('A')) return 'A'; if(!readSlot('B')) return 'B'; return null; }
+
+/* データ量（発話＋書字で、得点・反応・反応時間のいずれかが入っている項目数） */
+function dataCount(d){
+  if(!d) return 0;
+  let c=0;
+  ['speech','write'].forEach(mode=>{
+    const sc=(d.score&&d.score[mode])||{}, rs=(d.resp&&d.resp[mode])||{}, rt=(d.rt&&d.rt[mode])||{};
+    ITEMS.forEach(it=>{
+      const has = (sc[it.no]!=null) || (rs[it.no]&&String(rs[it.no]).trim()!=='') || (rt[it.no]!=null);
+      if(has) c++;
+    });
+  });
+  return c;
+}
+function isEmptyState(){
+  if(STATE.patientName && STATE.patientName.trim()!=='') return false;
+  if(STATE.age!=null) return false;
+  return dataCount(STATE)===0;
+}
+
+function scheduleSave(){ if(saveTimer) clearTimeout(saveTimer); saveTimer=setTimeout(saveNow,400); }
+function saveNow(){
+  if(!mySlot) return;
+  if(isEmptyState()){ clearSlot(mySlot); return; }
+  writeSlot(mySlot, {
+    patientName:STATE.patientName, age:STATE.age, mode:STATE.mode,
+    score:STATE.score, resp:STATE.resp, rt:STATE.rt, ts:Date.now()
+  });
+}
+
+function refreshAllUI(){
+  document.getElementById('nameInput').value = STATE.patientName || '';
+  document.getElementById('ageInput').value  = (STATE.age==null ? '' : STATE.age);
+  applyCond();
+}
+
+function restoreFrom(slot){
+  const d=readSlot(slot); if(!d) return;
+  STATE.patientName=d.patientName||'';
+  STATE.age=(d.age==null?null:d.age);
+  STATE.mode=(d.mode==='write')?'write':'speech';
+  STATE.score={ speech:(d.score&&d.score.speech)||{}, write:(d.score&&d.score.write)||{} };
+  STATE.resp ={ speech:(d.resp &&d.resp.speech )||{}, write:(d.resp &&d.resp.write )||{} };
+  STATE.rt   ={ speech:(d.rt   &&d.rt.speech   )||{}, write:(d.rt   &&d.rt.write   )||{} };
+  mySlot=slot; hideBanner(); refreshAllUI();
+}
+
+function clearEverything(){
+  stopTimer();
+  STATE.patientName=''; STATE.age=null;
+  STATE.score={ speech:{}, write:{} };
+  STATE.resp ={ speech:{}, write:{} };
+  STATE.rt   ={ speech:{}, write:{} };
+  if(mySlot) clearSlot(mySlot);
+  if(!mySlot) mySlot=firstEmptySlot()||'A';
+  document.getElementById('qrArea').style.display='none';
+  document.getElementById('qrClearBtn').style.display='none';
+  document.getElementById('detailArea').style.display='none';
+  document.getElementById('qrWarn').classList.remove('show');
+  refreshAllUI();
+}
+
+/* ---- 復元バナー ---- */
+function hideBanner(){ const b=document.getElementById('draftBanner'); b.classList.remove('show'); b.innerHTML=''; }
+function fmtTime(ts){ try{ return new Date(ts).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } }
+function el(tag,cls,txt){ const e=document.createElement(tag); if(cls)e.className=cls; if(txt!=null)e.textContent=txt; return e; }
+function showBanner(){
+  const a=readSlot('A'), b=readSlot('B');
+  const existing=[]; if(a)existing.push({slot:'A',data:a}); if(b)existing.push({slot:'B',data:b});
+  if(existing.length===0){ hideBanner(); return; }
+  const banner=document.getElementById('draftBanner'); banner.innerHTML='';
+  banner.appendChild(el('div','title','保存されている入力（下書き）があります。復元しますか？'));
+  existing.forEach(x=>{
+    const row=el('div','row');
+    const nm=(x.data.patientName&&x.data.patientName.trim()!=='')?x.data.patientName:'（氏名なし）';
+    row.appendChild(el('div','info','氏名：'+nm+'　入力 '+dataCount(x.data)+'件　最終更新：'+fmtTime(x.data.ts)));
+    const acts=el('div','acts');
+    const rb=el('div','mini resume','続きから再開'); rb.onclick=()=>restoreFrom(x.slot);
+    const db=el('div','mini del','この下書きを削除');
+    db.onclick=()=>{ if(confirm('この下書きを削除しますか？（元に戻せません）')){ clearSlot(x.slot); showBanner(); if(!readSlot('A')&&!readSlot('B')){ mySlot=firstEmptySlot()||'A'; } } };
+    acts.appendChild(rb); acts.appendChild(db); row.appendChild(acts); banner.appendChild(row);
+  });
+  const foot=el('div','foot');
+  const emptySlot=firstEmptySlot();
+  if(emptySlot){ const nb=el('div','mini','閉じて新規入力'); nb.onclick=()=>{ mySlot=emptySlot; hideBanner(); }; foot.appendChild(nb); }
+  const clr=el('div','mini del','すべて削除して新規入力');
+  clr.onclick=()=>{ if(confirm('保存されている下書きをすべて削除して、新規入力を始めますか？')){ clearSlot('A'); clearSlot('B'); mySlot='A'; hideBanner(); } };
+  foot.appendChild(clr); banner.appendChild(foot); banner.classList.add('show');
+}
+
+/* ============================================================
    初期化・イベント
    ============================================================ */
-document.getElementById('nameInput').oninput = e=>{ STATE.patientName = e.target.value; };
-document.getElementById('ageInput').oninput  = e=>{ STATE.age = e.target.value===''?null:Number(e.target.value); };
-document.getElementById('condSpeech').onclick = ()=>setCond('speech');
-document.getElementById('condWrite').onclick  = ()=>setCond('write');
+document.getElementById('nameInput').oninput = e=>{ STATE.patientName = e.target.value; scheduleSave(); };
+document.getElementById('ageInput').oninput  = e=>{ STATE.age = e.target.value===''?null:Number(e.target.value); scheduleSave(); };
+document.getElementById('condSpeech').onclick = ()=>{ setCond('speech'); scheduleSave(); };
+document.getElementById('condWrite').onclick  = ()=>{ setCond('write');  scheduleSave(); };
 
 document.getElementById('qrGenBtn').onclick = generateQR;
 document.getElementById('detailBtn').onclick = ()=>{
@@ -567,17 +697,19 @@ document.getElementById('detailCopyBtn').onclick = ()=>
   copyText(document.getElementById('detailText').textContent, document.getElementById('detailCopyBtn'), 'この詳細をコピー');
 
 document.getElementById('resetBtn').onclick = ()=>{
-  if(confirm('入力（発話・書字の得点・反応・反応時間）をすべてクリアしますか？')){
-    stopTimer();
-    STATE.score = { speech:{}, write:{} };
-    STATE.resp  = { speech:{}, write:{} };
-    STATE.rt    = { speech:{}, write:{} };
-    buildItemList();
-    updateSummary();
-  }
+  if(confirm('氏名・得点・反応・反応時間・この端末の下書きをすべて消去します。よろしいですか？')){ clearEverything(); }
+};
+document.getElementById('qrClearBtn').onclick = ()=>{
+  if(confirm('カルテ転記は完了しましたか？ 氏名・得点・反応・反応時間・下書きを消去します。')){ clearEverything(); }
 };
 
 applyCond();
+
+/* 起動時：下書きがあればバナー表示（自動復元はしない） */
+(function initDrafts(){
+  if(!readSlot('A') && !readSlot('B')){ mySlot='A'; }
+  else { mySlot=firstEmptySlot(); showBanner(); }
+})();
 </script>
 </body>
 </html>
