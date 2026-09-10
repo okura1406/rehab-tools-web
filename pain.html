@@ -110,7 +110,7 @@ body.pm .sp.res{display:none!important}          /* 合計点・判定・プロ�
 body.pm .tabs{display:none!important}            /* 他の尺度へ移動できないようにする */
 body.pm .hbtn{display:none!important}            /* 誤って全消去されないようにする */
 body.pm .acts{display:none!important}            /* QR生成・やり直しも隠す */
-body.pm .pb{display:none!important}              /* 氏名・評価日も隠す */
+body.pm .pb{display:none!important}              /* 氏名欄も隠す */
 body.pm .foot{display:none!important}
 body.pm #draftBanner{display:none!important}
 body.pm .qa{display:none!important}
@@ -121,7 +121,6 @@ body.pm .nrs-btn{width:56px;height:56px;font-size:1.05rem}
 body.pm .binary-btn{font-size:1.05rem;padding:14px 18px;min-height:52px}
 body.pm .qc{padding:18px 16px}
 body.pm .sec-h{font-size:1.05rem}
-/* 評価日 */
 .pb input.pd{max-width:170px;flex:0 0 auto}
 /* 前回との比較 */
 .cmpline{margin-top:8px;padding:8px 10px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;font-size:.8rem;color:var(--tx2);line-height:1.6}
@@ -173,11 +172,6 @@ body.pm .sec-h{font-size:1.05rem}
 <h4>患者さんご本人に記入していただくとき</h4>
 下の「患者さん記入モードにする」を押すと、<b>点数・判定・タブ・消去ボタンを隠し、文字とボタンを大きく</b>します。ご本人に端末をお渡しする前に押してください。<br>
 <button class="btn b3" onclick="patientMode(true)">患者さん記入モードにする</button>
-<h4 style="margin-top:16px">この端末に残るもの</h4>
-① <b>入力中の下書き</b>（氏名・評価日・回答）…… カルテ転記が終わったら、QR生成後に出る「この端末から入力を消す」、または画面右上の「この患者を終わる」で消してください。<br>
-② <b>前回との比較用の記録</b>（評価日・点数のみ。<b>氏名は保存していません</b>）…… 「前回：〇点 → 今回：〇点」の表示に使います。下のボタンでいつでも消せます。<br>
-<span style="color:var(--tx3)">※ どちらもこの端末の中だけに保存され、外部へは送信されません。QRコードにも氏名は入りません。</span>
-<button class="btn b3" onclick="clearHistory()">比較用の記録をすべて消す</button>
 </div>
 <div class="tst" id="tst"></div>
 <script>
@@ -2728,7 +2722,6 @@ var SCALE_ORDER=['pcs','sfmpq2','hads','pdas','startback','sseq'];
 // ========== STATE ==========
 var ANS={};
 var NM='';
-var DT='';   // 評価日（YYYY-MM-DD）。QRテキストの1行目に入れる
 
 // ========== PERSISTENCE (下書き自動保存・2スロット) ==========
 // 仕様：sessionStorage/Cookie/外部送信は使用しない。localStorageは下書き自動保存のみに限定。
@@ -2766,7 +2759,7 @@ function fmtTime(t){
 // 実際の保存（デバウンス後に呼ばれる）
 function saveStateImmediate(){
   if(!mySlot)return;
-  writeSlot(mySlot,{a:ANS,n:NM,d:DT,t:Date.now()});
+  writeSlot(mySlot,{a:ANS,n:NM,t:Date.now()});
 }
 // 入力変更のたびに呼び出す保存関数（300〜500msデバウンス）
 function saveState(){
@@ -2857,7 +2850,6 @@ function resumeSlot(slot){
   mySlot=slot;
   ANS=(d&&d.a)?d.a:{};
   NM=(d&&d.n)?d.n:'';
-  DT=(d&&d.d)?d.d:todayStr();
   hideDraftBanner();
   restoreUI();
   updAll();
@@ -2886,8 +2878,6 @@ function discardAll(){
 function restoreUI(){
   var pns=document.querySelectorAll('.pn');
   for(var i=0;i<pns.length;i++)pns[i].value=NM;
-  var pds=document.querySelectorAll('.pd');
-  for(var i=0;i<pds.length;i++)pds[i].value=DT;
   var btns=document.querySelectorAll('.ob,.nrs-btn,.binary-btn');
   for(var i=0;i<btns.length;i++){
     var qid=btns[i].getAttribute('data-q');
@@ -2903,8 +2893,8 @@ function restoreUI(){
   }
 }
 function resetAll(){
-  if(!confirm('この患者の入力をすべて消します。\n（全尺度の回答・氏名・評価日と、この端末に保存された下書き）\n次の患者の入力を始められます。よろしいですか？'))return;
-  ANS={};NM='';DT=todayStr();
+  if(!confirm('この患者の入力をすべて消します（全尺度の回答・氏名・下書き）。\nよろしいですか？'))return;
+  ANS={};NM='';
   clearTimeout(saveTimer);
   if(mySlot)clearSlot(mySlot);
   buildAll();
@@ -2937,7 +2927,7 @@ function buildAll(){
 
 function buildScaleHTML(sc){
   var h='';
-  h+='<div class="pb"><label>氏名</label><input type="text" class="pn" placeholder="患者氏名を入力" value=""><label>評価日</label><input type="date" class="pd" value=""><span class="nt">※ 氏名はQRコードには含まれません（評価日は入ります）。入力内容はこの端末に一時保存されています。カルテ転記が完了したら、QR生成後に表示される「この端末から入力を消す」ボタン、または「この患者を終わる（全部消す）」で消去してください。</span></div>';
+  h+='<div class="pb"><label>氏名</label><input type="text" class="pn" placeholder="患者氏名を入力" value=""><span class="nt">※ 氏名はQRコードに入りません。</span></div>';
   // スコアパネル（p）は全項目の下に置く。最後まで回答してから結果を見る流れにするため。
   var p='';
   p+='<div class="sp res" id="p-'+sc.id+'">';
@@ -3077,19 +3067,6 @@ function syncName(){
       NM=this.value;
       var all=Q('.pn');
       for(var j=0;j<all.length;j++){if(all[j]!==this)all[j].value=this.value}
-      updAll();          // 氏名が変わると「前回との比較」の対象も変わる
-      saveState();
-    });
-  }
-  // 評価日。全タブ共通の項目なので、どこで直しても全タブに反映する
-  if(!DT)DT=todayStr();
-  var pds=Q('.pd');
-  for(var i=0;i<pds.length;i++){
-    pds[i].value=DT;
-    pds[i].addEventListener('input',function(){
-      DT=this.value;
-      var all=Q('.pd');
-      for(var j=0;j<all.length;j++){if(all[j]!==this)all[j].value=this.value}
       updAll();
       saveState();
     });
@@ -3134,78 +3111,11 @@ function renderPatientModeBar(){
 /* 患者氏名はそのまま保存せず、氏名から作った短い識別子だけを持つ。
    共用端末で履歴から他患者の氏名が読めてしまうことを避けるため。
    画面には「いま入力中の氏名に一致する記録」しか出さない。 */
-var HIST_KEY='painToolHistory';
-var HIST_MAX=60;
-
-function histKey(name){
-  var t=String(name||'').replace(/\s+/g,'');
-  if(!t)return '';
-  var h1=5381,h2=52711;
-  for(var i=0;i<t.length;i++){var c=t.charCodeAt(i);h1=((h1*33)^c)>>>0;h2=((h2*39)^c)>>>0}
-  return h1.toString(36)+'-'+h2.toString(36);
-}
-function histRead(){
-  try{var r=localStorage.getItem(HIST_KEY);var a=r?JSON.parse(r):[];return Array.isArray(a)?a:[]}catch(e){return []}
-}
-function histWrite(a){ try{localStorage.setItem(HIST_KEY,JSON.stringify(a))}catch(e){} }
-function todayStr(){
-  var d=new Date(),p=function(n){return (n<10?'0':'')+n};
-  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
-}
-function fmtDate(iso){
-  var m=String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  return m?(Number(m[2])+'/'+Number(m[3])):iso;
-}
-
-/* QRを作った時点＝その評価が確定した時点とみなして記録する。
-   未回答が残っているときは記録しない（途中の点数と比べられてしまうため） */
-function histSave(sid){
-  var k=histKey(NM);
-  if(!k)return;
-  var r=calcScore(sid);
-  if(!(r.answered>0&&r.unanswered===0))return;
-  var d=DT||todayStr();
-  var a=histRead().filter(function(x){return !(x.k===k&&x.s===sid&&x.d===d)});
-  a.push({k:k,s:sid,d:d,v:r.total,m:SCALES[sid].maxScore});
-  a.sort(function(x,y){return x.d<y.d?-1:1});
-  if(a.length>HIST_MAX)a=a.slice(a.length-HIST_MAX);
-  histWrite(a);
-}
-
-function histPrev(sid){
-  var k=histKey(NM);
-  if(!k)return null;
-  var d=DT||todayStr();
-  var a=histRead().filter(function(x){return x.k===k&&x.s===sid&&x.d<d});
-  return a.length?a[a.length-1]:null;
-}
-
-/* 疼痛尺度は点数が上がる＝悪化なので、増加を赤・減少を緑で出す */
-function histRender(sid,total){
-  var host=E('u-'+sid);
-  if(!host)return;
-  var el=E('cmp-'+sid);
-  if(!el){ el=document.createElement('div'); el.id='cmp-'+sid; host.parentNode.insertBefore(el,host.nextSibling); }
-  if(!histKey(NM)){ el.innerHTML=''; return; }
-  var p=histPrev(sid);
-  if(!p){ el.innerHTML=''; return; }
-  if(total===null||total===undefined){
-    el.innerHTML='<div class="cmpline">前回（'+fmtDate(p.d)+'）：<b>'+p.v+'点</b>／'+p.m+'点</div>';
-    return;
-  }
-  var diff=total-p.v;
-  var cls=diff>0?'up':(diff<0?'dn':'same');
-  var sign=diff>0?'+':'';
-  el.innerHTML='<div class="cmpline">前回（'+fmtDate(p.d)+'）：<b>'+p.v+'点</b> → 今回：<b>'+total+'点</b>'+
-    ' <span class="'+cls+'">（'+sign+diff+'）</span></div>';
-}
-
-function clearHistory(){
-  if(!confirm('この端末に残っている「前回との比較」用の記録をすべて消します。\n（評価日・点数のみ。氏名は保存されていません）\nよろしいですか？'))return;
-  try{localStorage.removeItem(HIST_KEY)}catch(e){}
-  updAll();
-  toast('比較用の記録を消しました');
-}
+/* 端末に残っている旧「前回との比較」の記録を消す（仕様11章・2026-09-10 の廃止に伴う後始末）。
+   旧版を使っていた端末が1度でも新しい版を開けば済む処理。 */
+['evalBatteryHistory','painToolHistory'].forEach(function(k){
+  try{ localStorage.removeItem(k); }catch(e){}
+});
 
 // ========== SCORING ==========
 function calcScore(sid){
@@ -3276,7 +3186,6 @@ function updUI(sid){
   var r=calcScore(sid);
   var ve=E('v-'+sid);
   if(!ve)return;
-  histRender(sid,(r.unanswered===0&&r.answered>0)?r.total:null);
   ve.innerHTML=r.answered>0?r.partial+'<span class="mx"> / '+sc.maxScore+'点</span>':'—<span class="mx"> / '+sc.maxScore+'点</span>';
   var pf=E('f-'+sid);
   if(pf){
@@ -3413,10 +3322,7 @@ function genQR(scaleId){
   // 未回答があることをQRテキスト自体に残す。画面の警告だけでは、カルテに貼られた時点で
   // 「途中経過」なのか「確定した点数」なのか区別がつかないため
   if(r.unanswered>0)txt+='※未回答 '+r.unanswered+'件（0点として計算していません。途中経過です）\r\n';
-  // 評価日をテキストの先頭に置く。転記後に日付を打ち足す手間と、打ち忘れを防ぐため（氏名は入れない）
-  if(DT)txt='【評価日 '+DT+'】\r\n'+txt;
-  // QRを作った時点＝その評価が確定した時点とみなして、前回比較用に記録する
-  histSave(scaleId);
+    // QRを作った時点＝その評価が確定した時点とみなして、前回比較用に記録する
   var parts=splitTextForQR(txt);
   var area=E('qr-'+scaleId);
   var h='';

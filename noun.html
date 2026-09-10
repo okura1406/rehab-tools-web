@@ -125,6 +125,7 @@ h2{font-size:15px;margin:0 0 8px;padding:8px 10px;background:#1f2937;color:#fff;
   z-index:300;box-shadow:0 -2px 8px rgba(0,0,0,.2)}
 
 /* QRの手順・複数枚表示（仕様6-5・6-6） */
+.qnote{font-size:12px;color:var(--muted);font-weight:normal}
 .qsteps{background:#f8fafc;border:1px solid var(--border);border-radius:6px;padding:10px 12px;
   margin-bottom:12px;font-size:13px;line-height:1.8;color:var(--muted)}
 .qsteps b{color:var(--text)}
@@ -205,12 +206,10 @@ h2{font-size:15px;margin:0 0 8px;padding:8px 10px;background:#1f2937;color:#fff;
   <!-- 下書きの確認バナー（自動では復元しない。検査者が選ぶ：仕様7-3） -->
   <div class="draft-banner" id="draftBanner"></div>
 
-  <!-- 患者情報（氏名はQRに含めない／評価日はQRに含める：仕様3章） -->
+  <!-- 患者情報（氏名はQRに含めない：仕様3-2） -->
   <div class="patient-bar">
     <label>氏名：</label>
     <input class="name" id="nameInput" type="text" placeholder="（QRには含まれません）">
-    <label>評価日：</label>
-    <input class="pd" id="dateInput" type="date">
     <label>年齢：</label>
     <input class="age" id="ageInput" type="number">
     <span class="tag">歳</span>
@@ -238,11 +237,7 @@ h2{font-size:15px;margin:0 0 8px;padding:8px 10px;background:#1f2937;color:#fff;
     ・反応時間は<b>採点には使いません</b>（記録用）。制限時間（発話10秒／書字30秒）を超えると赤くなります。
   </div>
 
-  <div class="save-note">
-    ※ 氏名は<b>QRコードには含まれません</b>。<br>
-    ※ この端末に入力内容が一時保存されています（下書き）。カルテ転記が完了したら、QR生成後に表示される
-    ［この端末から入力を消す］、または画面下の［この患者を終わる］で消去してください。
-  </div>
+  <div class="save-note">※ 氏名は<b>QRコードに入りません</b>。</div>
 
   <!-- スクロールしても見える集計バー（いま開いている条件の分） -->
   <div class="sticky-bar">
@@ -255,7 +250,6 @@ h2{font-size:15px;margin:0 0 8px;padding:8px 10px;background:#1f2937;color:#fff;
     <h2 style="margin:-2px -2px 8px">集計（プロフィール 名詞表出）</h2>
     <table id="summaryTable"></table>
     <div class="ref" id="refBox"></div>
-    <div id="cmpBox"></div>
   </div>
 
   <!-- 検査項目 -->
@@ -279,14 +273,6 @@ h2{font-size:15px;margin:0 0 8px;padding:8px 10px;background:#1f2937;color:#fff;
 
   <div class="btn-row">
     <button class="btn btn-reset" id="resetBtn">この患者を終わる</button>
-  </div>
-
-  <!-- この端末に何が残るのかの説明（仕様7-7） -->
-  <div class="storage-note">
-    <b>この端末に残るもの</b><br>
-    ① <b>下書き</b>（氏名・評価日・年齢・得点・反応・反応時間）…… 入力の途中で画面が閉じても続きから再開できるようにするためのものです。［この端末から入力を消す］または［この患者を終わる］で消えます。<br>
-    ② <b>前回との比較用の記録</b>（評価日・合計点のみ。<b>氏名は保存していません</b>）…… 「前回：〇点 → 今回：〇点」の表示に使います。下のボタンでいつでも消せます。
-    <div style="margin-top:8px"><button class="btn btn-reset" id="histClearBtn">比較用の記録をすべて消す</button></div>
   </div>
 
   <div class="footer-note">
@@ -400,7 +386,7 @@ const MAX_SCORE = 40;          // 1条件あたりの満点（高頻度20＋低�
    rt   [条件][番号] = 反応時間（秒）
    ============================================================ */
 const STATE = {
-  patientName:'', date:'', age:null, mode:'speech',
+  patientName:'', age:null, mode:'speech',
   score:{ speech:{}, write:{} },
   resp: { speech:{}, write:{} },
   rt:   { speech:{}, write:{} }
@@ -477,7 +463,6 @@ function pickScore(no, val){
   }
   updateScoreButtons(no);
   updateSummary();
-  histRender();
   scheduleSave();
 }
 
@@ -600,14 +585,6 @@ function buildItemList(){
 /* ============================================================
    共通の小物（日付・エスケープ・お知らせ）
    ============================================================ */
-function todayStr(){
-  const d = new Date(), p = n => (n<10?'0':'') + n;
-  return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate());
-}
-function fmtDate(iso){
-  const m = String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  return m ? (Number(m[2]) + '/' + Number(m[3])) : iso;
-}
 function fmtTime(ts){
   const d = new Date(ts), p = n => (n<10?'0':'') + n;
   return p(d.getMonth()+1) + '/' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
@@ -632,77 +609,6 @@ function toast(msg){
 }
 
 /* ============================================================
-   前回との比較（仕様7-7）
-   氏名そのものは保存せず、氏名から作った短い識別子だけを持つ。
-   発話・書字は別々の記録として残す。
-   ============================================================ */
-const HIST_KEY = 'tlpaNounHistory';
-const HIST_MAX = 60;
-const SCALE_ID = { speech:'noun_s', write:'noun_w' };
-
-function histKey(name){
-  const t = String(name||'').replace(/\s+/g,'');
-  if(!t) return '';
-  let h1 = 5381, h2 = 52711;
-  for(let i=0;i<t.length;i++){ const c = t.charCodeAt(i); h1 = ((h1*33)^c)>>>0; h2 = ((h2*39)^c)>>>0; }
-  return h1.toString(36) + '-' + h2.toString(36);
-}
-function histRead(){
-  try{ const r = localStorage.getItem(HIST_KEY); const a = r?JSON.parse(r):[]; return Array.isArray(a)?a:[]; }
-  catch(e){ return []; }
-}
-function histWrite(a){ try{ localStorage.setItem(HIST_KEY, JSON.stringify(a)); }catch(e){} }
-
-/* QRを作った時点＝評価が確定した時点だけ記録する（未評価があるときは記録しない） */
-function histSave(mode, total){
-  const k = histKey(STATE.patientName);
-  if(!k) return;                                  // 氏名が無いと誰の記録か特定できない
-  const s = SCALE_ID[mode];
-  const d = STATE.date || todayStr();
-  let a = histRead().filter(r => !(r.k===k && r.s===s && r.d===d));   // 同じ日は上書き
-  a.push({k:k, s:s, d:d, v:total, m:MAX_SCORE});
-  a.sort((x,y)=> x.d<y.d ? -1 : 1);
-  if(a.length > HIST_MAX) a = a.slice(a.length - HIST_MAX);
-  histWrite(a);
-}
-function histPrev(mode){
-  const k = histKey(STATE.patientName);
-  if(!k) return null;
-  const s = SCALE_ID[mode];
-  const d = STATE.date || todayStr();
-  const a = histRead().filter(r => r.k===k && r.s===s && r.d < d);
-  return a.length ? a[a.length-1] : null;
-}
-function histRender(){
-  const box = document.getElementById('cmpBox');
-  if(!box) return;
-  let h = '';
-  MODES.forEach(mode=>{
-    const p = histPrev(mode);
-    if(!p) return;
-    const label = COND_CFG[mode].label;
-    const s = computeScores(mode);
-    if(s.evaluated === 0){
-      h += '<div class="cmpline">' + label + '　前回（' + fmtDate(p.d) + '）：<b>' + p.v + '点</b>／' + p.m + '点</div>';
-      return;
-    }
-    const diff = s.total - p.v;
-    const cls = diff>0 ? 'up' : (diff<0 ? 'dn' : 'same');
-    h += '<div class="cmpline">' + label + '　前回（' + fmtDate(p.d) + '）：<b>' + p.v + '点</b> → 今回：<b>' + s.total + '点</b>'
-       + ' <span class="' + cls + '">（' + (diff>0?'+':'') + diff + '）</span>'
-       + (s.uneval>0 ? '　<span style="color:var(--warn)">※未評価' + s.uneval + '件の途中経過です</span>' : '')
-       + '</div>';
-  });
-  box.innerHTML = h;
-}
-function clearHistory(){
-  if(!confirm('この端末に残っている「前回との比較用の記録」をすべて消します。\n（評価日と点数だけの記録です。氏名は保存していません）\n入力中の内容と下書きは消えません。よろしいですか？')) return;
-  try{ localStorage.removeItem(HIST_KEY); }catch(e){}
-  histRender();
-  toast('消しました');
-}
-
-/* ============================================================
    QRコード出力（仕様6章）
    ============================================================ */
 const QR_MAX_CHARS = 120;   // 1枚あたりの目安文字数。超えたら複数枚に分ける（仕様6-5）
@@ -714,7 +620,7 @@ function toQRString(text){
 }
 
 /* 1枚に収まらないテキストを行単位で分ける。
-   1行目（評価日＋検査名）は各枚に付け直し、どの枚も単独で何の検査か分かるようにする */
+   1行目（検査名）は各枚に付け直し、どの枚も単独で何の検査か分かるようにする */
 function splitTextForQR(txt){
   if(txt.length <= QR_MAX_CHARS) return [txt];
   const lines = txt.split('\n');
@@ -754,9 +660,9 @@ function pushRespLines(L, label, mode){
   if(cur !== label + ' 反応') L.push(cur);
 }
 
-/* QRに入れるテキストを組み立てる（氏名は含めない／評価日は1行目に入れる：仕様3-3・6-4） */
+/* QRに入れるテキストを組み立てる（氏名も評価日も含めない：仕様3-2・6-4） */
 function buildQRText(){
-  const head = '【評価日 ' + (STATE.date || todayStr()) + '】TLPA名詞表出';
+  const head = 'TLPA名詞表出';
   const sc = { speech: computeScores('speech'), write: computeScores('write') };
 
   // どちらの条件も1件も評価していないときは「実施していない」ことだけを残す
@@ -799,7 +705,7 @@ function buildQRText(){
 
 /* 詳細テキスト（反応時間つき・全項目）＝カルテ用。QRには入れない */
 function buildDetailText(){
-  const L = ['【評価日 ' + (STATE.date || todayStr()) + '】TLPA名詞表出（詳細）'];
+  const L = ['TLPA名詞表出（詳細）'];
   MODES.forEach(mode=>{
     const label = COND_CFG[mode].label;
     L.push('【' + label + '】');
@@ -869,7 +775,8 @@ function generateQR(){
         + '① カルテ端末のカメラで下のQRコードを読み取る'
         + (parts.length>1 ? '（<b>' + parts.length + '枚すべて</b>）' : '') + '<br>'
         + '② カルテに貼り付いた内容を目で確かめる<br>'
-        + '③ 確認できたら［この端末から入力を消す］を押す</div>';
+        + '③ 確認できたら［この端末から入力を消す］を押す<br>'
+        + '<span class="qnote">入力はこの端末に一時保存されています</span></div>';
   if(parts.length > 1){
     h += '<div class="qmulti">項目数が多いため、QRコードを<b>' + parts.length + '枚</b>に分けています。'
        + '<b>1枚目から順に</b>読み取ってください。'
@@ -893,8 +800,8 @@ function generateQR(){
      + '<div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--border)">'
      + '<button class="btn btn-reset" id="qrClearBtn" style="background:#fde2e2;color:#991b1b">この端末から入力を消す</button>'
      + '<div class="tag" style="margin-top:4px">※ 押すまで下書きは消えません（誤操作でのデータ消失を防ぐため）。</div>'
-     + '<div class="warn-box" id="clearedNote">消しました。この端末に保存されていた入力は残っていません。'
-     + '<b>画面の表示は転記の確認用に残しています。</b>次の患者に使う前に［この患者を終わる］を押してください。</div>'
+     + '<div class="warn-box" id="clearedNote">消しました。'
+     + '<b>画面の表示は転記の確認用に残しています。</b></div>'
      + '</div>';
 
   const area = document.getElementById('qrArea');
@@ -915,9 +822,6 @@ function generateQR(){
   if(allBtn) allBtn.onclick = ()=> copyToClipboard(toQRString(text), allBtn, '全部まとめてコピー');
   document.getElementById('qrClearBtn').onclick = requestClearDraft;
 
-  // QRを作った時点＝評価が確定した時点。未評価が無い条件だけ前回比較用に記録する（仕様7-7）
-  MODES.forEach(m=>{ if(sc[m].evaluated>0 && sc[m].uneval===0) histSave(m, sc[m].total); });
-  histRender();
 
   try{ area.scrollIntoView({behavior:'smooth', block:'start'}); }catch(e){}
 }
@@ -975,12 +879,10 @@ function slotHasData(d){
   if(d.age !== null && d.age !== undefined && d.age !== '') return true;
   if(entryCount(d) > 0) return true;
   if(d.mode && d.mode !== 'speech') return true;
-  if(d.date && d.date !== todayStr()) return true;
   return false;
 }
 function isEmptyState(){
-  return !slotHasData({patientName:STATE.patientName, age:STATE.age, mode:STATE.mode, date:STATE.date,
-                       score:STATE.score, resp:STATE.resp, rt:STATE.rt});
+  return !slotHasData({patientName:STATE.patientName, age:STATE.age, mode:STATE.mode, score:STATE.score, resp:STATE.resp, rt:STATE.rt});
 }
 
 /* 保存が止まっている状態を画面の下に固定して出す（仕様7-6b）。
@@ -1006,7 +908,6 @@ function saveNow(){
   if(isEmptyState()){ clearSlot(mySlot); return; }   // 空の下書きは作らない
   writeSlot(mySlot, {
     patientName: STATE.patientName,
-    date: STATE.date,
     age: STATE.age,
     mode: STATE.mode,
     score: STATE.score,
@@ -1018,7 +919,7 @@ function saveNow(){
 
 /* QR生成後の［この端末から入力を消す］（仕様7-4・7-6a） */
 function requestClearDraft(){
-  if(!confirm('この端末に一時保存されている入力（下書き）を消します。\n※画面のQRコードとテキストは、転記の確認用にそのまま残ります。\nよろしいですか？')) return;
+  if(!confirm('下書きを消します。画面のQRコードとテキストは残ります。\nよろしいですか？')) return;
   clearTimeout(saveTimer);
   if(mySlot) clearSlot(mySlot);
   // 消したあとに画面を操作すると同じ枠へ書き戻され、次の患者に前の入力が残る。
@@ -1035,13 +936,12 @@ function requestClearDraft(){
 
 /* ［この患者を終わる］（仕様8-2）。ここで保存を再開する */
 function endPatient(){
-  if(!confirm('この患者の入力をすべて消します。\n（発話・書字の得点・反応・反応時間、氏名・評価日・年齢と、この端末に保存された下書き）\n※前回との比較用の記録は残ります。\n次の患者の入力を始められます。よろしいですか？')) return;
+  if(!confirm('この患者の入力をすべて消します（回答・氏名・下書き）。\nよろしいですか？')) return;
   stopTimer();
   clearTimeout(saveTimer);
   if(mySlot) clearSlot(mySlot);
   STATE.patientName = '';
   STATE.age = null;
-  STATE.date = todayStr();
   STATE.score = { speech:{}, write:{} };
   STATE.resp  = { speech:{}, write:{} };
   STATE.rt    = { speech:{}, write:{} };
@@ -1124,7 +1024,6 @@ function resumeSlot(slot){
   stopTimer();
   STATE.patientName = d.patientName || '';
   STATE.age   = (d.age == null ? null : d.age);
-  STATE.date  = d.date || todayStr();       // 保存されていた評価日を優先する（仕様3-3）
   STATE.mode  = d.mode || 'speech';
   STATE.score = pickGroup(d, 'score');
   STATE.resp  = pickGroup(d, 'resp');
@@ -1139,18 +1038,17 @@ function resumeSlot(slot){
 function deleteSlotDraft(slot){
   const d = readSlot(slot);
   const info = d ? ('（氏名：' + (d.patientName || '未入力') + '　最終更新：' + fmtTime(d.ts) + '）') : '';
-  if(!confirm('この下書き' + info + 'を消します。\nこの操作は取り消せません。よろしいですか？')) return;
+  if(!confirm('この下書きを消します' + info + '。\n取り消せません。よろしいですか？')) return;
   clearSlot(slot);
   toast('消しました');
   refreshDraftBanner();          // 残りがあれば表示を続け、無ければ新規入力の画面に戻る
 }
 function discardAll(){
-  if(!confirm('この端末に保存されている下書きをすべて消して、新しく始めます。\n（比較用の記録は残ります）\nこの操作は取り消せません。よろしいですか？')) return;
+  if(!confirm('下書きをすべて消して新しく始めます。\n取り消せません。よろしいですか？')) return;
   stopTimer();
   SLOTS.forEach(clearSlot);
   STATE.patientName = '';
   STATE.age = null;
-  STATE.date = todayStr();
   STATE.score = { speech:{}, write:{} };
   STATE.resp  = { speech:{}, write:{} };
   STATE.rt    = { speech:{}, write:{} };
@@ -1172,7 +1070,6 @@ function applyCond(){
     '制限時間：図版提示から' + cfg.limit + '秒（' + cfg.label + '）';
   buildItemList();     // 条件に応じて入力内容を反映し直す
   updateSummary();
-  histRender();
 }
 function setCond(m){
   stopTimer();
@@ -1183,7 +1080,6 @@ function setCond(m){
 }
 function refreshAllUI(){
   document.getElementById('nameInput').value = STATE.patientName || '';
-  document.getElementById('dateInput').value = STATE.date || todayStr();
   document.getElementById('ageInput').value  = (STATE.age == null ? '' : STATE.age);
   applyCond();
 }
@@ -1193,16 +1089,20 @@ function refreshAllUI(){
    ============================================================ */
 document.getElementById('qrGenBtn').onclick  = generateQR;
 document.getElementById('detailBtn').onclick = showDetail;
-document.getElementById('nameInput').oninput = e=>{ STATE.patientName = e.target.value; histRender(); scheduleSave(); };
-document.getElementById('dateInput').oninput = e=>{ STATE.date = e.target.value; histRender(); scheduleSave(); };
+document.getElementById('nameInput').oninput = e=>{ STATE.patientName = e.target.value; scheduleSave(); };
 document.getElementById('ageInput').oninput  = e=>{ STATE.age = e.target.value===''?null:Number(e.target.value); scheduleSave(); };
 document.getElementById('resetBtn').onclick     = endPatient;
-document.getElementById('histClearBtn').onclick = clearHistory;
 document.getElementById('condSpeech').onclick = ()=>setCond('speech');
 document.getElementById('condWrite').onclick  = ()=>setCond('write');
 
-STATE.date = todayStr();       // 評価日の初期値は当日（仕様3-3）
 refreshAllUI();
+
+/* 端末に残っている旧「前回との比較」の記録を消す（仕様11章・2026-09-10 の廃止に伴う後始末）。
+   この処理は、旧版を使っていた端末が1度でも新しい版を開けば済むもの。 */
+['evalBatteryHistory','painToolHistory','tlpaLexdecHistory','tlpaNounHistory',
+ 'tlpaVerbHistory','tlpaNcompHistory','tlpaVcompHistory'].forEach(function(k){
+  try{ localStorage.removeItem(k); }catch(e){}
+});
 
 /* 起動時：下書きがあればバナーを出す（自動では復元しない） */
 refreshDraftBanner();
