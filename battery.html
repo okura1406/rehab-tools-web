@@ -2746,6 +2746,10 @@ var SCALES = {
   },
   sppb: {
     id:'sppb', name:'SPPB', mx:12, comp:false, custom:true,
+    // SPPBは項目が少なくテキストも短いので、分割せずQRコード1枚にまとめる。
+    // 実測でQRバージョン17前後（85マス）に収まり、カルテ端末のカメラでも読み取れる。
+    // 備考を長く書いた場合だけ、この上限を超えて自動的に分割される。
+    qrMax:340,
     judge: function(s){ return sppbRisk(s); },
     qrTpl: function(){ return sppbQrText(); }
   },
@@ -3166,8 +3170,10 @@ var QR_MAX_CHARS=120;
 
 // テキストを行単位で複数のQRコード用に分割する。
 // 1行目（◆尺度名 合計…）は各枚に付け直し、どの枚も単独で何の評価か分かるようにする。
-function splitTextForQR(txt){
-  if(txt.length<=QR_MAX_CHARS)return[txt];
+function splitTextForQR(txt,maxChars){
+  // 尺度ごとに上限を変えられるようにする（SPPBのように短い尺度は1枚に収めたいため）
+  var LIM=maxChars||QR_MAX_CHARS;
+  if(txt.length<=LIM)return[txt];
   var lines=txt.split('\r\n');
   var head=lines[0];
   var rest=lines.slice(1);
@@ -3175,7 +3181,7 @@ function splitTextForQR(txt){
   var headRoom=head.length+8;               // ヘッダと「（1/3）」の分を差し引く
   // 備考のように1行が長すぎると、その行だけで1枚を占めて升目が細かくなってしまう。
   // 収まらない行は、その行の中で折ってから枚数を決める
-  var budget=QR_MAX_CHARS-headRoom;
+  var budget=LIM-headRoom;
   if(budget<20)budget=20;
   var wrapped=[];
   for(var w=0;w<rest.length;w++){
@@ -3186,7 +3192,7 @@ function splitTextForQR(txt){
   rest=wrapped;
   for(var i=0;i<rest.length;i++){
     var L=rest[i];
-    if(cur.length&&curLen+L.length+2+headRoom>QR_MAX_CHARS){parts.push(cur);cur=[];curLen=0}
+    if(cur.length&&curLen+L.length+2+headRoom>LIM){parts.push(cur);cur=[];curLen=0}
     cur.push(L);curLen+=L.length+2;
   }
   if(cur.length)parts.push(cur);
@@ -3210,7 +3216,7 @@ function genQR(scaleId){
   if(DT)txt='【評価日 '+DT+'】\r\n'+txt;
   // QRを作った時点＝その評価が確定した時点とみなして、前回比較用に記録する
   histSaveForScale(scaleId,scale);
-  var parts=splitTextForQR(txt);
+  var parts=splitTextForQR(txt,scale.qrMax);
   var h='';
   if(un>0)h+='<div class="qwn">⚠ 未回答の項目が'+un+'件あります。未回答項目は「—」で表示されます。</div>';
   // QRが出たあと何をすればよいか分からず手が止まる、という声が現場から複数あったため手順を出す
@@ -3582,38 +3588,36 @@ function sppbQrText(){
   var bal=sppbScoreBal(),gait=sppbScoreGait(),chair=sppbScoreChair();
   var total=null;
   if(bal!==null&&gait!==null&&chair!==null)total=bal+gait+chair;
-  var risk=sppbRisk(total);var t='';
+  var risk=sppbRisk(total);
+  function d(v){return v!==null?v:'—'}
   // 仕様3-2・6-2：患者氏名はQRコードに含めない（画面表示のみ）
-  t+='◆SPPB（Short Physical Performance Battery）\r\n\r\n';
-  t+='1.立位バランス（'+(bal!==null?bal:'—')+'点）\r\n';
-  function balStr(id,lbl){var st=SPPB[id];var tm=SPPB['tm_'+id];
-    if(st===null&&(id==='bal2'||id==='bal3')){
-      if((id==='bal2'&&SPPB.bal1==='fail')||(id==='bal3'&&(SPPB.bal1==='fail'||SPPB.bal2==='fail')))
-        return'　'+lbl+'：-（スキップ）\r\n'}
-    if(st==='pass')return'　'+lbl+'：可'+(tm!==null?' '+tm.toFixed(1)+'秒':'')+'\r\n';
-    if(st==='fail')return'　'+lbl+'：不可\r\n';
-    return'　'+lbl+'：—\r\n'}
+  // 明細は「1行1項目」にする。電子カルテの入力欄は横幅が狭く、1行が長いと途中で
+  // 折り返して読みにくくなるため（現場からの指摘）。
+  // そのうえでQRコードは1枚に収める。空行と英語の正式名称を省き、合計を見出し行に
+  // 入れることで、v8の約245文字から約215文字まで縮めた（尺度定義の qrMax で分割を止めている）。
+  var t='◆SPPB  合計：'+d(total)+'/12点'+(total!==null?'（'+risk.l+'）':'')+'\r\n';
+  t+='1.立位バランス（'+d(bal)+'点）\r\n';
+  function balStr(id,lbl){
+    var st=SPPB[id],tm=SPPB['tm_'+id];
+    // 前の姿勢が「不可」なら実施しない（画面でもグレーアウトされる）
+    if(st===null&&((id==='bal2'&&SPPB.bal1==='fail')||(id==='bal3'&&(SPPB.bal1==='fail'||SPPB.bal2==='fail'))))
+      return '　'+lbl+'：スキップ\r\n';
+    if(st==='pass')return '　'+lbl+'：可'+(tm!==null?' '+tm.toFixed(1)+'秒':'')+'\r\n';
+    if(st==='fail')return '　'+lbl+'：不可\r\n';
+    return '　'+lbl+'：—\r\n';
+  }
   t+=balStr('bal1','両足立ち');
   t+=balStr('bal2','半タンデム');
   t+=balStr('bal3','タンデム');
-  t+='\r\n';
-  t+='2.歩行速度（'+(gait!==null?gait:'—')+'点）\r\n';
+  t+='2.歩行速度（'+d(gait)+'点）\r\n';
   if(SPPB.gait_na)t+='　4m歩行：実施不可\r\n';
   else{
     t+='　1回目：'+(SPPB.tm_gait1!==null?SPPB.tm_gait1.toFixed(2)+'秒':'—')+'\r\n';
     t+='　2回目：'+(SPPB.tm_gait2!==null?SPPB.tm_gait2.toFixed(2)+'秒':'—')+'\r\n';
-    if(SPPB.tm_gait!==null)t+='　採用（良い方）：'+SPPB.tm_gait.toFixed(2)+'秒\r\n';
-    else t+='　採用：—\r\n';
+    t+='　採用（良い方）：'+(SPPB.tm_gait!==null?SPPB.tm_gait.toFixed(2)+'秒':'—')+'\r\n';
   }
-  t+='\r\n';
-  t+='3.椅子立ち上がり（'+(chair!==null?chair:'—')+'点）\r\n';
-  if(SPPB.chair==='fail')t+='　5回立ち上がり：不可\r\n';
-  else if(SPPB.tm_chair!==null)t+='　5回立ち上がり：'+SPPB.tm_chair.toFixed(1)+'秒\r\n';
-  else t+='　5回立ち上がり：—\r\n';
-  t+='\r\n';
-  t+='合計：'+(total!==null?total:'—')+'/12点';
-  if(total!==null)t+='（リスク分類：'+risk.l+'）';
-  t+='\r\n';
+  t+='3.椅子立ち上がり（'+d(chair)+'点）\r\n';
+  t+='　5回立ち上がり：'+(SPPB.chair==='fail'?'不可':(SPPB.tm_chair!==null?SPPB.tm_chair.toFixed(1)+'秒':'—'))+'\r\n';
   if(RM.sppb)t+='備考：'+RM.sppb+'\r\n';
   return t;
 }

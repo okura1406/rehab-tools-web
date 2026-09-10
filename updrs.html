@@ -2556,7 +2556,8 @@ function r(id,label,choices,o){
           display:'inline', groupTitle:o.groupTitle||null, instruction:o.instruction||null,
           extraNote:o.extraNote||null};
 }
-var YN=['いいえ','はい'];
+/* 有無を答える項目は「はい/いいえ」より「あり/なし」の方が日本語として自然、という現場の指摘による */
+var ARINASHI=['なし','あり'];
 var SRC=['患者','介護者','患者と介護者が同程度'];
 
 var UPDRS_SECTIONS=[
@@ -2596,9 +2597,9 @@ var UPDRS_SECTIONS=[
   ]},
  {id:'III', tabLabel:'Part Ⅲ', title:'Part Ⅲ：運動能力検査', short:'運動検査', maxScore:132,
   questions:[
-   r('p3_med','パーキンソン病の投薬を受けているか',YN,{num:'3a',groupTitle:'Part Ⅲ：検査前情報'}),
+   r('p3_med','パーキンソン病の投薬を受けているか',ARINASHI,{num:'3a',groupTitle:'Part Ⅲ：検査前情報'}),
    r('p3_state','患者の臨床状態',['オフ','オン'],{num:'3b'}),
-   r('p3_ldopa','L-ドパを服用しているか',YN,{num:'3c',sup:true,supLabel:'分（最後の服用からの経過時間）'}),
+   r('p3_ldopa','L-ドパを服用しているか',ARINASHI,{num:'3c',sup:true,supLabel:'分（最後の服用からの経過時間）'}),
    q('3.1','話し方',s5('発話の問題はない。','抑揚/明瞭さ/声量の問題はあるが、全ての言葉が理解できる。','いくつかの単語がわかりにくいが、全体的内容は理解できる。','いくらかの発話内容に理解しづらい点がある。','殆どの発話内容が理解しにくい/判然としない。'),null,'Part Ⅲ：運動能力検査（3.1〜3.18）'),
    q('3.2','表情',s5('正常な表情。','まばたきの減少のみで、わずかな仮面様顔貌。','まばたき減少＋顔下半分の仮面様顔貌（自発的笑みの消失）。口は閉じている。','仮面様顔貌があり、時折口が開いたままになる。','仮面様顔貌があり、殆どの時間口が開いたまま。')),
    q('3.3','筋強剛',RIGID,'頸部'), q('3.3','筋強剛',RIGID,'右上肢'), q('3.3','筋強剛',RIGID,'左上肢'),
@@ -2620,8 +2621,8 @@ var UPDRS_SECTIONS=[
    q('3.17','安静時振戦の振幅',REST_LIMB,'右下肢'), q('3.17','安静時振戦の振幅',REST_LIMB,'左下肢'),
    q('3.17','安静時振戦の振幅',REST_FACE,'口唇/下顎'),
    q('3.18','安静時振戦の持続性',s5('振戦なし。','全検査時間の25%以下で安静時振戦あり。','全検査時間の26〜50%で安静時振戦あり。','全検査時間の51〜75%で安静時振戦あり。','全検査時間の75%超で安静時振戦あり。')),
-   r('p3_dysk','検査中にジスキネジアが出現したか',YN,{num:'A',groupTitle:'Part Ⅲ：検査後の付随情報（合計には含めません）'}),
-   r('p3_dysk_eff','ジスキネジアが評価に影響したか',YN,{num:'B'}),
+   r('p3_dysk','検査中にジスキネジアが出現したか',ARINASHI,{num:'A',groupTitle:'Part Ⅲ：検査後の付随情報（合計には含めません）'}),
+   r('p3_dysk_eff','ジスキネジアが評価に影響したか',ARINASHI,{num:'B'}),
    r('p3_hy','Hoehn & Yahr ステージ',['0','1','2','3','4','5'],
      {extraNote:'0:症状なし ／ 1:片側のみ ／ 2:両側・バランス障害なし ／ 3:軽〜中等度・姿勢安定性低下だが自立 ／ 4:重度・立位/歩行に介助 ／ 5:車椅子/寝たきり'})
   ]},
@@ -2818,6 +2819,13 @@ function restoreSlot(s){
   Object.keys(SCALES).forEach(function(k){
     answers[k]=(d.answers&&d.answers[k])?d.answers[k]:{};
     supplements[k]=(d.supplements&&d.supplements[k])?d.supplements[k]:{};
+  });
+  /* 有無を答える項目の選択肢を「はい/いいえ」から「あり/なし」に変えたため、
+     それ以前に保存された下書きは選択が外れて見える。読み込み時に読み替える */
+  ['p3_med','p3_ldopa','p3_dysk','p3_dysk_eff'].forEach(function(qid){
+    var v=answers[SCALE.id][qid];
+    if(v==='はい') answers[SCALE.id][qid]='あり';
+    else if(v==='いいえ') answers[SCALE.id][qid]='なし';
   });
   currentSlot=s; updateSlotTag(); hideBanner();
   buildPanels(); activate(getActiveTab()); updateAll();
@@ -3058,6 +3066,55 @@ function renderSummary(){
    QR
    ===================================================================== */
 function ansOf(qid){ var v=getA(qid); return v==null?'—':v; }
+/* QRテキスト用の短い項目名（番号 x.num で引く）。
+   番号だけでは何の項目か分からずカルテを読み返せない、という現場の指摘への対応。
+   電子カルテの入力欄は横幅が狭いので、正式名称のままだと1行が折り返してしまう。
+   そこで臨床で通じる範囲まで言い換えを短くしている。ここに無い番号は正式名称をそのまま使う。 */
+var QR_SHORT={
+ '1.1':'認知','1.2':'幻覚','1.3':'抑うつ','1.4':'不安','1.5':'無関心','1.6':'ドパミン調節不全',
+ '1.7':'睡眠','1.8':'日中眠気','1.9':'痛み','1.10':'泌尿器','1.11':'便秘','1.12':'立ちくらみ','1.13':'疲労',
+ '2.1':'発話','2.2':'流涎','2.3':'咀嚼嚥下','2.4':'摂食','2.5':'更衣','2.6':'衛生','2.7':'書字',
+ '2.8':'趣味','2.9':'寝返り','2.10':'振戦','2.11':'立ち上がり','2.12':'歩行バランス','2.13':'すくみ',
+ '3.1':'話し方','3.2':'表情','3.3':'筋強剛','3.4':'指タップ','3.5':'手開閉','3.6':'手回内外',
+ '3.7':'つま先タップ','3.8':'下肢敏捷性','3.9':'立ち上がり','3.10':'歩行','3.11':'すくみ足',
+ '3.12':'姿勢安定','3.13':'姿勢','3.14':'動作緩慢','3.15':'姿勢時振戦','3.16':'運動時振戦',
+ '3.17':'安静時振幅','3.18':'安静時持続',
+ '4.1':'ジスキネジア時間','4.2':'ジスキネジア影響','4.3':'オフ時間','4.4':'変動の影響',
+ '4.5':'変動の複雑性','4.6':'オフ時ジストニア'
+};
+/* 番号の頭のPart番号を落とす（3.17→17）。見出しに「Part Ⅲ」と書いてあり重複するため */
+function qrNum(num){ return String(num).replace(/^\d+\./,''); }
+/* 左右・部位の名前も短くする。3.17の「口唇/下顎」は区切り文字の「/」と紛らわしいので「口唇」にする */
+function qrSide(side){
+  if(side==='口唇/下顎') return '口唇';
+  return String(side).replace(/[部肢手足]$/,'');
+}
+/* カルテの入力欄で折り返さないよう、明細1行の目安の文字数 */
+var QR_LINE_MAX=24;
+/* QR明細を組み立てる。
+   ・左右や部位に分かれる項目（筋強剛・指タッピング等）は1行にまとめる
+     → カルテ上で左右差が一目で分かり、行数も文字数も減る
+   ・それ以外は1行に複数個を詰めるが、上の目安を超える手前で改行する */
+function qrDetailLines(sec){
+  var qs=scoredQs(sec), out=[], buf='';
+  function flush(){ if(buf){ out.push(buf); buf=''; } }
+  for(var i=0;i<qs.length;i++){
+    var x=qs[i], head=qrNum(x.num)+(QR_SHORT[x.num]||x.label);
+    if(x.side){
+      var vals=[];
+      while(i<qs.length && qs[i].num===x.num){ vals.push(qrSide(qs[i].side)+ansOf(qs[i].id)); i++; }
+      i--;
+      flush();
+      out.push(head+' '+vals.join('/'));
+    }else{
+      var cell=head+':'+ansOf(x.id);
+      if(buf && (buf.length+1+cell.length)>QR_LINE_MAX) flush();
+      buf = buf ? (buf+'　'+cell) : cell;
+    }
+  }
+  flush();
+  return out;
+}
 function buildState(){
   var sel=selectedParts(), stats={},lines={},meta={},post={};
   var gSum=0,gAns=0,gTot=0;
@@ -3065,8 +3122,8 @@ function buildState(){
     var s=statsOf(p); stats[p]=s;
     gSum+=s.sum; gAns+=s.ans; gTot+=s.total;
     var sec=sectionById(p);
-    /* 1行1項目（カルテ転記時に読みやすくするため） */
-    lines[p]=scoredQs(sec).map(function(x){ return x.num+(x.side?('('+x.side+')'):'')+':'+ansOf(x.id); });
+    /* 項目名つきの明細（左右は1行にまとめる）。qrDetailLines のコメントを参照 */
+    lines[p]=qrDetailLines(sec);
     if(p==='I') meta[p]='情報源:'+ansOf('info_IA')+'／質問票記入:'+ansOf('info_IB');
     if(p==='III'){
       var min=getS('p3_ldopa_sup'), ld=getA('p3_ldopa');
