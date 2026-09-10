@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>失語症語彙検査 名詞表出検査（発話・書字）</title>
+<title>失語症語彙検査 動詞理解検査（聴覚的理解・視覚的理解）</title>
 <!-- ▼ ウェブ公開・オフライン対応のための追記（採点ロジックには影響しません） -->
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#2563eb">
@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="名詞表出">
+<meta name="apple-mobile-web-app-title" content="動詞理解">
 <!-- ▲ 追記ここまで -->
 <style>
 /* ===== 色・基本設定（ベーステンプレート準拠） ===== */
@@ -196,11 +196,23 @@ h2{font-size:15px;margin:0 0 8px;padding:8px 10px;background:#1f2937;color:#fff;
 /* 動詞表出：身ぶりで代替できる項目の目印（作成者の実装をそのまま採用） */
 .g-tag{font-size:11px;font-weight:bold;padding:2px 7px;border-radius:10px;background:#ede9fe;color:#5b21b6}
 
+/* ここから：理解検査（選択肢から選ぶ形式）で使う分 */
+.cat-tag{font-size:11px;font-weight:bold;padding:2px 7px;border-radius:10px;
+  background:#eef2ff;color:#3730a3}
+.choice-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.opt.err.selected{background:var(--danger);color:#fff;border-color:var(--danger);font-weight:bold}
+.opt .dlbl{font-size:10px;color:var(--muted);margin-right:3px}
+.opt.err.selected .dlbl{color:#fee}
+.other-row{display:none;align-items:center;gap:8px;margin-top:8px}
+.other-row.show{display:flex}
+.other-row label{font-size:12px;color:var(--muted);white-space:nowrap}
+.other-row input{flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:15px}
+
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>失語症語彙検査　名詞表出検査（発話・書字）</h1>
+  <h1>失語症語彙検査　動詞理解検査（聴覚的理解・視覚的理解）</h1>
 
   <!-- 下書きの確認バナー（自動では復元しない。検査者が選ぶ：仕様7-3） -->
   <div class="draft-banner" id="draftBanner"></div>
@@ -219,23 +231,24 @@ h2{font-size:15px;margin:0 0 8px;padding:8px 10px;background:#1f2937;color:#fff;
   <!-- 条件の切り替え（発話・書字はそれぞれ別に採点する） -->
   <div class="cond-bar">
     <span class="tag">条件：</span>
-    <div class="cond-btn active" id="condSpeech">発話</div>
-    <div class="cond-btn" id="condWrite">書字</div>
+    <div class="cond-btn active" id="condAud">聴覚的理解</div>
+    <div class="cond-btn" id="condVis">視覚的理解</div>
   </div>
-  <div class="limit-note" id="limitNote">制限時間：図版提示から10秒（発話）</div>
+  <div class="limit-note" id="limitNote">制限時間：刺激提示から10秒（聴覚的理解）</div>
 
   <!-- 教示・例題 -->
   <div class="example-box">
     <div class="ex-title">教示・例題</div>
-    <div class="ex-instr">発話「これは何ですか。」／書字「これは何ですか。書いてください。」　例）パン</div>
+    <div class="ex-instr">「〇〇しているのはどれですか。指さして下さい。」　例）見ている</div>
   </div>
 
   <!-- 採点上まちがえやすいルールは画面に書く（仕様5-3） -->
   <div class="rule-warn">
     <b>採点の注意</b><br>
-    ・［正答］［誤答］のどちらも押していない項目は<b>「未評価」</b>です。<b>0点にはなりません</b>（合計にも入りません）。<br>
-    ・無反応・誤答も、押すのは［誤答］です。<b>押さないままにすると「実施していない」扱い</b>になります。<br>
-    ・反応時間は<b>採点には使いません</b>（記録用）。制限時間（発話10秒／書字30秒）を超えると赤くなります。
+    ・どのボタンも押していない項目は<b>「未評価」</b>です。<b>0点にはなりません</b>（合計にも入りません）。<br>
+    ・誤答のときは<b>患者さんが指した選択肢（D1〜D3）</b>を押します。選択肢以外を指した・無反応のときは［その他］です。<br>
+    　<b>押さないままにすると「実施していない」扱い</b>になり、誤答の内訳にも残りません。<br>
+    ・反応時間は<b>採点には使いません</b>（記録用）。制限時間（10秒）を超えると赤くなります。
   </div>
 
   <div class="save-note">
@@ -252,7 +265,7 @@ h2{font-size:15px;margin:0 0 8px;padding:8px 10px;background:#1f2937;color:#fff;
 
   <!-- 集計カード（発話・書字の両方） -->
   <div class="summary-card">
-    <h2 style="margin:-2px -2px 8px">集計（プロフィール 名詞表出）</h2>
+    <h2 style="margin:-2px -2px 8px">集計（プロフィール 動詞理解）</h2>
     <table id="summaryTable"></table>
     <div class="ref" id="refBox"></div>
     <div id="cmpBox"></div>
@@ -267,13 +280,13 @@ h2{font-size:15px;margin:0 0 8px;padding:8px 10px;background:#1f2937;color:#fff;
     <div id="qrWarn" class="warn-box"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn btn-primary" id="qrGenBtn">QRコードを生成</button>
-      <button class="btn btn-detail" id="detailBtn">詳細をコピー（反応時間つき）</button>
+      <button class="btn btn-detail" id="detailBtn">詳細をコピー（選んだ選択肢・反応時間つき）</button>
     </div>
     <div id="qrArea" class="qr-area" style="display:none"></div>
     <div id="detailArea" style="display:none;margin-top:10px">
       <pre class="qr-text" id="detailText"></pre>
       <button class="btn btn-copy" id="detailCopyBtn">この詳細をコピー</button>
-      <div class="tag" style="margin-top:4px">※ 反応時間まで入った全項目の一覧です。QRには入りません（長くなりすぎるため）。</div>
+      <div class="tag" style="margin-top:4px">※ 項目ごとに選んだ選択肢と反応時間まで入った一覧です。QRには入りません（長くなりすぎるため）。</div>
     </div>
   </div>
 
@@ -284,7 +297,7 @@ h2{font-size:15px;margin:0 0 8px;padding:8px 10px;background:#1f2937;color:#fff;
   <!-- この端末に何が残るのかの説明（仕様7-7） -->
   <div class="storage-note">
     <b>この端末に残るもの</b><br>
-    ① <b>下書き</b>（氏名・評価日・年齢・得点・反応・反応時間）…… 入力の途中で画面が閉じても続きから再開できるようにするためのものです。［この端末から入力を消す］または［この患者を終わる］で消えます。<br>
+    ① <b>下書き</b>（氏名・評価日・年齢・正誤・選んだ選択肢・反応時間）…… 入力の途中で画面が閉じても続きから再開できるようにするためのものです。［この端末から入力を消す］または［この患者を終わる］で消えます。<br>
     ② <b>前回との比較用の記録</b>（評価日・合計点のみ。<b>氏名は保存していません</b>）…… 「前回：〇点 → 今回：〇点」の表示に使います。下のボタンでいつでも消せます。
     <div style="margin-top:8px"><button class="btn btn-reset" id="histClearBtn">比較用の記録をすべて消す</button></div>
   </div>
@@ -356,54 +369,91 @@ return function(typeNumber,eclLevel){
 
 /* ============================================================
    検査語データ（40語）
-   freq: 'H'=高頻度（奇数No） / 'L'=低頻度（偶数No）
-   sem : 意味類番号（参考表示。採点には使わない）
+   cat : 語のカテゴリー（下の CAT_LABEL の記号）
+   d   : [D1, D2, D3]（正解以外の選択肢＝妨害語）
    ============================================================ */
 const ITEMS = [
-  {no:1,word:'手',sem:'1.5',freq:'H'},        {no:2,word:'パイプ',sem:'1.4',freq:'L'},
-  {no:3,word:'糸',sem:'1.4',freq:'H'},        {no:4,word:'灯台',sem:'1.2',freq:'L'},
-  {no:5,word:'窓',sem:'1.4',freq:'H'},        {no:6,word:'地図',sem:'1.3',freq:'L'},
-  {no:7,word:'卵',sem:'1.4',freq:'H'},        {no:8,word:'槍',sem:'1.4',freq:'L'},
-  {no:9,word:'電話',sem:'1.4',freq:'H'},      {no:10,word:'竜巻',sem:'1.5',freq:'L'},
-  {no:11,word:'先生',sem:'1.2',freq:'H'},     {no:12,word:'海苔',sem:'1.4',freq:'L'},
-  {no:13,word:'カメラ',sem:'1.4',freq:'H'},   {no:14,word:'シューマイ',sem:'1.4',freq:'L'},
-  {no:15,word:'スカート',sem:'1.4',freq:'H'}, {no:16,word:'プロレス',sem:'1.3',freq:'L'},
-  {no:17,word:'馬',sem:'1.5',freq:'H'},       {no:18,word:'ロケット',sem:'1.4',freq:'L'},
-  {no:19,word:'手紙',sem:'1.3',freq:'H'},     {no:20,word:'網',sem:'1.4',freq:'L'},
-  {no:21,word:'バナナ',sem:'1.5',freq:'H'},   {no:22,word:'湖',sem:'1.5',freq:'L'},
-  {no:23,word:'テレビ',sem:'1.4',freq:'H'},   {no:24,word:'楽譜',sem:'1.3',freq:'L'},
-  {no:25,word:'新聞',sem:'1.3',freq:'H'},     {no:26,word:'屏風',sem:'1.4',freq:'L'},
-  {no:27,word:'車',sem:'1.4',freq:'H'},       {no:28,word:'らくだ',sem:'1.5',freq:'L'},
-  {no:29,word:'病院',sem:'1.2',freq:'H'},     {no:30,word:'パイナップル',sem:'1.5',freq:'L'},
-  {no:31,word:'海',sem:'1.5',freq:'H'},       {no:32,word:'塀',sem:'1.4',freq:'L'},
-  {no:33,word:'太陽',sem:'1.5',freq:'H'},     {no:34,word:'算盤',sem:'1.4',freq:'L'},
-  {no:35,word:'寿司',sem:'1.4',freq:'H'},     {no:36,word:'水着',sem:'1.4',freq:'L'},
-  {no:37,word:'お金',sem:'1.4',freq:'H'},     {no:38,word:'肘',sem:'1.5',freq:'L'},
-  {no:39,word:'野球',sem:'1.3',freq:'H'},     {no:40,word:'神主',sem:'1.2',freq:'L'}
+  {no:1,word:'走っている',sem:'1.1.1',cat:'H',d:['揺れる','崩れる','起きる']},
+  {no:2,word:'傾いている',sem:'1.1.1',cat:'L',d:['倒れる','散る','揃える']},
+  {no:3,word:'引いている',sem:'5.1.1',cat:'H',d:['押す','壊す','向き合う']},
+  {no:4,word:'なめている',sem:'5.1.1',cat:'L',d:['飲む','掃く','鳴く']},
+  {no:5,word:'呼んでいる',sem:'5.1.1',cat:'H',d:['歌う','のぞく','駆ける']},
+  {no:6,word:'ひねっている',sem:'5.1.1',cat:'L',d:['まくる','つく','跳ねる']},
+  {no:7,word:'集まっている',sem:'6.1.1',cat:'H',d:['行く','飛び出す','ある']},
+  {no:8,word:'飛び上がっている',sem:'6.1.1',cat:'L',d:['垂れる','出る','合わせる']},
+  {no:9,word:'回している',sem:'5.1.1',cat:'H',d:['立てる','畳む','浴びる']},
+  {no:10,word:'散らかしている',sem:'5.1.1',cat:'L',d:['しばる','飛び越える','ふるえる']},
+  {no:11,word:'立っている',sem:'1.1.1',cat:'H',d:['転ぶ','飛ぶ','抱く']},
+  {no:12,word:'弾んでいる',sem:'1.1.1',cat:'L',d:['流れる','切れる','飛び込む']},
+  {no:13,word:'載せている',sem:'11.1.1',cat:'H',d:['落とす','詰める','敷く']},
+  {no:14,word:'横切っている',sem:'11.1.1',cat:'L',d:['集める','上げる','ひっくり返る']},
+  {no:15,word:'開けている',sem:'5.1.1',cat:'H',d:['つなぐ','巻く','吹きかける']},
+  {no:16,word:'つまんでいる',sem:'5.1.1',cat:'L',d:['つかまえる','かじる','もらう']},
+  {no:17,word:'渡っている',sem:'5.1.1',cat:'H',d:['追う','絞める','いる']},
+  {no:18,word:'振り向いている',sem:'5.1.1',cat:'L',d:['重ねる','なぐる','ぶつかる']},
+  {no:19,word:'泣いている',sem:'1.1.1',cat:'H',d:['笑う','しゃがむ','吹く']},
+  {no:20,word:'滑っている',sem:'1.1.1',cat:'L',d:['這う','破れる','囲む']},
+  {no:21,word:'拾っている',sem:'5.1.1',cat:'H',d:['踏む','履く','痛む']},
+  {no:22,word:'はめている',sem:'5.1.1',cat:'L',d:['挟む','飛ばす','曲がる']},
+  {no:23,word:'食べている',sem:'5.1.1',cat:'H',d:['脱ぐ','弾く','教える']},
+  {no:24,word:'指さしている',sem:'5.1.1',cat:'L',d:['もむ','かぶる','眠る']},
+  {no:25,word:'当たる',sem:'3.1.1',cat:'H',d:['巻き付く','沈む','負う']},
+  {no:26,word:'触っている',sem:'3.1.1',cat:'L',d:['付く','たかる','消える']},
+  {no:27,word:'運んでいる',sem:'11.1.1',cat:'H',d:['届ける','汲む','比べる']},
+  {no:28,word:'追い出している',sem:'11.1.1',cat:'L',d:['入れる','積む','ふくらむ']},
+  {no:29,word:'えがいている',sem:'8.1.1',cat:'H',d:['写す','配る','飾る']},
+  {no:30,word:'植えている',sem:'8.1.1',cat:'L',d:['塗る','待つ','読む']},
+  {no:31,word:'結んでいる',sem:'5.1.1',cat:'H',d:['閉じる','折る','はずれる']},
+  {no:32,word:'つぶっている',sem:'5.1.1',cat:'L',d:['とかす','剃る','はぐ']},
+  {no:33,word:'登っている',sem:'6.1.1',cat:'H',d:['飛び降りる','飛び立つ','うつぶす']},
+  {no:34,word:'近寄っている',sem:'6.1.1',cat:'L',d:['遠ざかる','入る','着る']},
+  {no:35,word:'張っている',sem:'5.1.1',cat:'H',d:['する','彫る','はずす']},
+  {no:36,word:'掻いている',sem:'5.1.1',cat:'L',d:['握る','拭く','別れる']},
+  {no:37,word:'振っている',sem:'5.1.1',cat:'H',d:['倒す','かつぐ','絞る']},
+  {no:38,word:'めくっている',sem:'5.1.1',cat:'L',d:['削る','はたく','棄てる']},
+  {no:39,word:'刺している',sem:'8.1.1',cat:'H',d:['浮かべる','置く','包む']},
+  {no:40,word:'戻している',sem:'8.1.1',cat:'L',d:['つるす','放る','伸びる']}
 ];
+
+/* カテゴリーの表示名。並び順もこの順にする */
+const CAT_LABEL = {H:'高頻度', L:'低頻度'};
+const CAT_ORDER = Object.keys(CAT_LABEL);
+
+/* カテゴリーごとの語数（分母）。ITEMS から数えるので、語数が変わってもそのまま動く */
+const CAT_DENOM = (function(){
+  const d = {};
+  CAT_ORDER.forEach(k => d[k] = 0);
+  ITEMS.forEach(it => { if(d[it.cat] != null) d[it.cat]++; });
+  return d;
+})();
+
+/* 誤答の種類。D1〜D3は妨害語、other は選択肢以外を指した場合・無反応など */
+const ERR_KEYS = ['d1','d2','d3','other'];
+const ERR_LABEL = { d1:'D1', d2:'D2', d3:'D3', other:'他' };
 
 /* ============================================================
    条件ごとの設定（制限時間・健常平均）
-   発話と書字はそれぞれ別に実施し、別々に採点する
+   聴覚的理解と視覚的理解はそれぞれ別に実施し、別々に採点する
    ============================================================ */
 const COND_CFG = {
-  speech: { label:'発話', limit:10, mean:39.07, sd:1.08 },
-  write:  { label:'書字', limit:30, mean:39.07, sd:1.08 }
+  aud: { label:'聴覚的理解', mean:39.83, sd:0.51, limit:10 },
+  vis: { label:'視覚的理解', mean:39.83, sd:0.51, limit:10 }
 };
-const MODES = ['speech','write'];
-const MAX_SCORE = 40;          // 1条件あたりの満点（高頻度20＋低頻度20）
+const MODES = ['aud','vis'];
+const COND_SHORT = { aud:'聴覚', vis:'視覚' };   // QRを短くするための略称
+const MAX_SCORE = ITEMS.length;                  // 1条件あたりの満点
 
 /* ============================================================
    STATE（入力値の保管場所）
-   score[条件][番号] = 'correct' | 'wrong' | undefined(=未評価)
-   resp [条件][番号] = 患者の反応（自由記載）
+   score[条件][番号] = 'correct' | 'd1' | 'd2' | 'd3' | 'other' | undefined(=未評価)
+   other[条件][番号] = ［その他］を選んだときの自由記載
    rt   [条件][番号] = 反応時間（秒）
    ============================================================ */
 const STATE = {
-  patientName:'', date:'', age:null, mode:'speech',
-  score:{ speech:{}, write:{} },
-  resp: { speech:{}, write:{} },
-  rt:   { speech:{}, write:{} }
+  patientName:'', date:'', age:null, mode:'aud',
+  score:{ aud:{}, vis:{} },
+  other:{ aud:{}, vis:{} },
+  rt:   { aud:{}, vis:{} }
 };
 
 /* ============================================================
@@ -411,38 +461,54 @@ const STATE = {
    ============================================================ */
 function computeScores(mode){
   const sc = STATE.score[mode] || {};
-  let h=0, l=0, evaluated=0;
+  const c = {}; CAT_ORDER.forEach(k => c[k] = 0);
+  const e = {}; ERR_KEYS.forEach(k => e[k] = 0);
+  let evaluated = 0;
   ITEMS.forEach(it=>{
     const v = sc[it.no];
     if(v == null) return;               // 未評価。0点として扱わない（仕様5章）
     evaluated++;
-    if(v === 'correct'){ if(it.freq==='H') h++; else l++; }
+    if(v === 'correct'){ if(c[it.cat] != null) c[it.cat]++; }
+    else if(e[v] != null) e[v]++;
   });
-  return { h:h, l:l, total:h+l, evaluated:evaluated, uneval: ITEMS.length - evaluated };
+  let total = 0; CAT_ORDER.forEach(k => total += c[k]);
+  const errTotal = ERR_KEYS.reduce((n,k)=> n + e[k], 0);
+  return { c:c, e:e, errTotal:errTotal, total:total,
+           evaluated:evaluated, uneval: ITEMS.length - evaluated };
 }
 
 /* ============================================================
-   集計エリアの更新（発話・書字の両方を表示）
+   集計エリアの更新（聴覚的理解・視覚的理解の両方を表示）
    ============================================================ */
 function updateSummary(){
-  const ss = computeScores('speech');
-  const sw = computeScores('write');
-  const cur = STATE.mode==='speech' ? ss : sw;
+  const sa = computeScores('aud');
+  const sv = computeScores('vis');
+  const cur = STATE.mode==='aud' ? sa : sv;
 
   document.getElementById('barTitle').textContent = COND_CFG[STATE.mode].label;
   document.getElementById('barTotal').textContent = '計 ' + cur.total + '/' + MAX_SCORE;
   document.getElementById('barSub').textContent =
     (cur.uneval>0 ? '未評価 ' + cur.uneval + '件（0点として計算していません）' : '全項目 評価済み');
 
-  document.getElementById('summaryTable').innerHTML =
-    '<tr><th>項目</th><th class="num">発話</th><th class="num">書字</th></tr>' +
-    '<tr><td>高頻度</td><td class="num">'+ss.h+' / 20</td><td class="num">'+sw.h+' / 20</td></tr>' +
-    '<tr><td>低頻度</td><td class="num">'+ss.l+' / 20</td><td class="num">'+sw.l+' / 20</td></tr>' +
-    '<tr class="total"><td>計</td><td class="num">'+ss.total+' / '+MAX_SCORE+'</td>' +
-    '<td class="num">'+sw.total+' / '+MAX_SCORE+'</td></tr>';
+  let html = '<tr><th>項目</th><th class="num">聴覚的理解</th><th class="num">視覚的理解</th></tr>';
+  CAT_ORDER.forEach(k=>{
+    html += '<tr><td>' + CAT_LABEL[k] + '</td>'
+          + '<td class="num">' + sa.c[k] + ' / ' + CAT_DENOM[k] + '</td>'
+          + '<td class="num">' + sv.c[k] + ' / ' + CAT_DENOM[k] + '</td></tr>';
+  });
+  html += '<tr class="total"><td>計</td><td class="num">' + sa.total + ' / ' + MAX_SCORE + '</td>'
+        + '<td class="num">' + sv.total + ' / ' + MAX_SCORE + '</td></tr>';
+  // 誤答の内訳（どの妨害語を選んだか）は、この検査でいちばん見たいところなので表に出す
+  html += '<tr><td>誤答の内訳</td><td class="num">' + errText(sa) + '</td>'
+        + '<td class="num">' + errText(sv) + '</td></tr>';
+  document.getElementById('summaryTable').innerHTML = html;
 
   document.getElementById('refBox').innerHTML =
-    refLine('発話', ss, COND_CFG.speech) + '<br>' + refLine('書字', sw, COND_CFG.write);
+    refLine('聴覚的理解', sa, COND_CFG.aud) + '<br>' + refLine('視覚的理解', sv, COND_CFG.vis);
+}
+function errText(s){
+  if(s.errTotal === 0) return (s.evaluated === 0) ? '—' : 'なし';
+  return ERR_KEYS.filter(k => s.e[k] > 0).map(k => ERR_LABEL[k] + ':' + s.e[k]).join(' ');
 }
 function refLine(label, s, cfg){
   let line = '参考：' + label + '　健常平均 <b>' + cfg.mean.toFixed(2) + '</b>（SD ' + cfg.sd.toFixed(2) + '）';
@@ -456,15 +522,18 @@ function refLine(label, s, cfg){
 }
 
 /* ============================================================
-   正答／誤答ボタン
+   正答・D1〜D3・その他のボタン
    ============================================================ */
+const PICK_KEYS = ['correct'].concat(ERR_KEYS);
+
 function updateScoreButtons(no){
-  const v  = STATE.score[STATE.mode][no];
-  const ok = document.getElementById('ok-'+no);
-  const ng = document.getElementById('ng-'+no);
-  if(!ok || !ng) return;
-  ok.classList.toggle('selected', v==='correct');
-  ng.classList.toggle('selected', v==='wrong');
+  const v = STATE.score[STATE.mode][no];
+  PICK_KEYS.forEach(key=>{
+    const b = document.getElementById(key + '-' + no);
+    if(b) b.classList.toggle('selected', v === key);
+  });
+  const orow = document.getElementById('other-row-' + no);
+  if(orow) orow.classList.toggle('show', v === 'other');
 }
 /* 同じボタンをもう一度押したら未評価に戻す（仕様4-5） */
 function pickScore(no, val){
@@ -550,38 +619,40 @@ function buildItemList(){
   const list = document.getElementById('itemList');
   list.innerHTML = '';
   ITEMS.forEach(it=>{
-    const freqLabel = (it.freq==='H') ? '高頻度' : '低頻度';
     const row = document.createElement('div');
     row.className = 'item';
     row.innerHTML =
       '<div class="item-head">'+
         '<span class="no">'+it.no+'</span>'+
         '<span class="word">'+it.word+'</span>'+
-        '<span class="sem">意味類 '+it.sem+'</span>'+(it.g?'<span class="g-tag">身ぶりG</span>':'')+
-        '<span class="freq-tag '+it.freq+'">'+freqLabel+'</span>'+
-        '<div class="score">'+
-          '<div class="opt ok" id="ok-'+it.no+'">正答 ○</div>'+
-          '<div class="opt ng" id="ng-'+it.no+'">誤答</div>'+
-        '</div>'+
+        '<span class="cat-tag">'+CAT_LABEL[it.cat]+'</span>'+
+      '</div>'+
+      '<div class="choice-row">'+
+        '<div class="opt ok" id="correct-'+it.no+'">正答 ○</div>'+
+        '<div class="opt err" id="d1-'+it.no+'"><span class="dlbl">D1</span>'+esc(it.d[0])+'</div>'+
+        '<div class="opt err" id="d2-'+it.no+'"><span class="dlbl">D2</span>'+esc(it.d[1])+'</div>'+
+        '<div class="opt err" id="d3-'+it.no+'"><span class="dlbl">D3</span>'+esc(it.d[2])+'</div>'+
+        '<div class="opt err" id="other-'+it.no+'">その他</div>'+
+      '</div>'+
+      '<div class="other-row" id="other-row-'+it.no+'">'+
+        '<label>その他の反応</label>'+
+        '<input type="text" id="otherinp-'+it.no+'" placeholder="指した対象・反応など">'+
       '</div>'+
       '<div class="item-rt">'+
         '<label>反応時間</label>'+
         '<input type="number" step="0.1" min="0" inputmode="decimal" class="rt-input" id="rt-'+it.no+'">'+
         '<span class="rt-unit">秒</span>'+
         '<button class="timer-btn" id="tm-'+it.no+'">▶ 計測</button>'+
-      '</div>'+
-      '<div class="item-resp">'+
-        '<label>反応</label>'+
-        '<input type="text" id="resp-'+it.no+'" placeholder="患者の反応（誤答・無反応時など）">'+
       '</div>';
     list.appendChild(row);
 
-    row.querySelector('#ok-'+it.no).onclick = ()=>pickScore(it.no,'correct');
-    row.querySelector('#ng-'+it.no).onclick = ()=>pickScore(it.no,'wrong');
+    PICK_KEYS.forEach(key=>{
+      row.querySelector('#' + key + '-' + it.no).onclick = ()=>pickScore(it.no, key);
+    });
 
-    const resp = row.querySelector('#resp-'+it.no);
-    resp.value = STATE.resp[STATE.mode][it.no] || '';
-    resp.oninput = e=>{ STATE.resp[STATE.mode][it.no] = e.target.value; scheduleSave(); };
+    const oi = row.querySelector('#otherinp-'+it.no);
+    oi.value = STATE.other[STATE.mode][it.no] || '';
+    oi.oninput = e=>{ STATE.other[STATE.mode][it.no] = e.target.value; scheduleSave(); };
 
     const rtInp = row.querySelector('#rt-'+it.no);
     rtInp.oninput = e=>{
@@ -636,9 +707,9 @@ function toast(msg){
    氏名そのものは保存せず、氏名から作った短い識別子だけを持つ。
    発話・書字は別々の記録として残す。
    ============================================================ */
-const HIST_KEY = 'tlpaNounHistory';
+const HIST_KEY = 'tlpaVcompHistory';
 const HIST_MAX = 60;
-const SCALE_ID = { speech:'noun_s', write:'noun_w' };
+const SCALE_ID = { aud:'vcomp_a', vis:'vcomp_v' };
 
 function histKey(name){
   const t = String(name||'').replace(/\s+/g,'');
@@ -738,29 +809,13 @@ function splitTextForQR(txt){
   return parts.map((p,i)=> head + '（' + (i+1) + '/' + parts.length + '）\n' + p.join('\n'));
 }
 
-/* 反応（自由記載）は長さが読めないので、1行に詰め込みすぎないよう分けておく */
-function pushRespLines(L, label, mode){
-  const resps = [];
-  ITEMS.forEach(it=>{
-    const r = STATE.resp[mode][it.no];
-    if(r && r.trim() !== '') resps.push(it.no + ':' + r.trim());
-  });
-  if(!resps.length) return;
-  let cur = label + ' 反応';
-  resps.forEach(tok=>{
-    if((cur + ' ' + tok).length > 60){ L.push(cur); cur = label + ' 反応'; }
-    cur += ' ' + tok;
-  });
-  if(cur !== label + ' 反応') L.push(cur);
-}
-
 /* QRに入れるテキストを組み立てる（氏名は含めない／評価日は1行目に入れる：仕様3-3・6-4） */
 function buildQRText(){
-  const head = '【評価日 ' + (STATE.date || todayStr()) + '】TLPA名詞表出';
-  const sc = { speech: computeScores('speech'), write: computeScores('write') };
+  const head = '【評価日 ' + (STATE.date || todayStr()) + '】TLPA動詞理解';
+  const sc = { aud: computeScores('aud'), vis: computeScores('vis') };
 
   // どちらの条件も1件も評価していないときは「実施していない」ことだけを残す
-  if(sc.speech.evaluated === 0 && sc.write.evaluated === 0) return head + '\n（未実施）';
+  if(sc.aud.evaluated === 0 && sc.vis.evaluated === 0) return head + '\n（未実施）';
 
   const L = [head];
   const done = [];
@@ -768,54 +823,62 @@ function buildQRText(){
     const s = sc[mode];
     if(s.evaluated === 0) return;            // 実施していない条件はブロックごと出さない（仕様6-4）
     done.push(mode);
-    const nm = COND_CFG[mode].label;
-    L.push(nm + ' 高頻度 ' + s.h + '/20');
-    L.push(nm + ' 低頻度 ' + s.l + '/20');
+    const nm = COND_SHORT[mode];
+    CAT_ORDER.forEach(k=>{
+      L.push(nm + ' ' + CAT_LABEL[k] + ' ' + s.c[k] + '/' + CAT_DENOM[k]);
+    });
     L.push(nm + ' 計 ' + s.total + '/' + MAX_SCORE + (s.uneval>0 ? '(途中経過)' : ''));
-    pushRespLines(L, nm, mode);
+    // 誤答の内訳（どの妨害語を選んだか）は、この検査の要点なのでQRにも入れる。
+    // 0件の種類まで並べるとQRの枚数が増えるため、あったものだけを書く（仕様6-5）
+    L.push(nm + ' 誤答 ' + (s.errTotal === 0 ? 'なし'
+        : ERR_KEYS.filter(k => s.e[k] > 0).map(k => ERR_LABEL[k] + ':' + s.e[k]).join(' ')));
   });
 
-  L.push('健常平均 ' + done.map(m => COND_CFG[m].label + COND_CFG[m].mean.toFixed(2)
-        + '(SD' + COND_CFG[m].sd.toFixed(2) + ')').join(' '));
+  L.push('健常平均 ' + COND_CFG[done[0]].mean.toFixed(2) + '(SD' + COND_CFG[done[0]].sd.toFixed(2) + ')');
 
   const diffs = [];
   done.forEach(m=>{
     const s = sc[m];
     if(s.uneval !== 0) return;               // 途中経過ではSD差を出さない
     const z = (s.total - COND_CFG[m].mean) / COND_CFG[m].sd;
-    diffs.push(COND_CFG[m].label + (z>=0?'+':'') + z.toFixed(1) + 'SD');
+    diffs.push(COND_SHORT[m] + (z>=0?'+':'') + z.toFixed(1) + 'SD');
   });
   if(diffs.length) L.push('差 ' + diffs.join(' '));
 
   // 未評価はQRの本文にも必ず残す（カルテに貼られた時点で途中経過だと分かるように）
-  const un = done.filter(m => sc[m].uneval > 0).map(m => COND_CFG[m].label + sc[m].uneval + '件');
+  const un = done.filter(m => sc[m].uneval > 0).map(m => COND_SHORT[m] + sc[m].uneval + '件');
   if(un.length) L.push('※未評価 ' + un.join('・') + '（0点として計算していません。途中経過です）');
 
   // 片方しか実施していないときは、もう片方が「未実施」だと分かるようにする
-  if(done.length === 1) L.push('※' + COND_CFG[done[0]==='speech'?'write':'speech'].label + 'は未実施');
+  if(done.length === 1) L.push('※' + COND_CFG[done[0]==='aud'?'vis':'aud'].label + 'は未実施');
 
   return L.join('\n');
 }
 
-/* 詳細テキスト（反応時間つき・全項目）＝カルテ用。QRには入れない */
+/* 詳細テキスト（選んだ選択肢・反応時間つき・全項目）＝カルテ用。QRには入れない */
+function pickText(it, v, o){
+  if(v === 'correct') return '正';
+  if(v === 'other')   return 'その他' + ((o && o.trim()!=='') ? ('：' + o.trim()) : '');
+  const i = ERR_KEYS.indexOf(v);
+  if(i >= 0 && i < 3) return ERR_LABEL[v] + '：' + it.d[i];
+  return '未評価';
+}
 function buildDetailText(){
-  const L = ['【評価日 ' + (STATE.date || todayStr()) + '】TLPA名詞表出（詳細）'];
+  const L = ['【評価日 ' + (STATE.date || todayStr()) + '】TLPA動詞理解（詳細）'];
   MODES.forEach(mode=>{
-    const label = COND_CFG[mode].label;
-    L.push('【' + label + '】');
+    L.push('【' + COND_CFG[mode].label + '】');
     ITEMS.forEach(it=>{
       const v = STATE.score[mode][it.no];
-      const r = STATE.resp[mode][it.no];
+      const o = STATE.other[mode][it.no];
       const t = STATE.rt[mode][it.no];
-      if(v == null && (!r || r.trim()==='') && t == null) return;
-      const mark = (v==='correct') ? '正' : (v==='wrong' ? '誤' : '未評価');
-      let line = 'No.' + it.no + ' ' + it.word + ' [' + mark + ']';
+      if(v == null && (!o || o.trim()==='') && t == null) return;
+      let line = 'No.' + it.no + ' ' + it.word + ' [' + pickText(it, v, o) + ']';
       if(t != null) line += ' ' + fmtRt(t) + '秒' + (Number(t) > COND_CFG[mode].limit ? '（制限超過）' : '');
-      if(r && r.trim() !== '') line += ' 反応:' + r.trim();
       L.push(line);
     });
     const s = computeScores(mode);
-    L.push('小計 高頻度' + s.h + '/20 低頻度' + s.l + '/20 計' + s.total + '/' + MAX_SCORE
+    L.push('小計 ' + CAT_ORDER.map(k => CAT_LABEL[k] + s.c[k] + '/' + CAT_DENOM[k]).join(' ')
+           + ' 計' + s.total + '/' + MAX_SCORE
            + (s.uneval>0 ? '（未評価' + s.uneval + '件）' : ''));
   });
   return L.join('\n');
@@ -848,7 +911,7 @@ function copyToClipboard(text, btn, label){
 
 function generateQR(){
   stopTimer();                       // 測りっぱなしのまま確定しないようにする
-  const sc = { speech: computeScores('speech'), write: computeScores('write') };
+  const sc = { aud: computeScores('aud'), vis: computeScores('vis') };
   const warn = document.getElementById('qrWarn');
   const un = MODES.filter(m => sc[m].evaluated>0 && sc[m].uneval>0)
                   .map(m => COND_CFG[m].label + sc[m].uneval + '件');
@@ -938,7 +1001,7 @@ function showDetail(){
    - QR生成だけでは消さない（消去は専用ボタン／［この患者を終わる］のみ）
    - 消したあとは、そのページで保存を再開しない（仕様7-6a）
    ============================================================ */
-const NS = 'tlpa_noun_';
+const NS = 'tlpa_vcomp_';
 /* 下書きの保存枠。共用端末で複数の患者を並行して扱えるようにするためのもの。
    枠を増減するときは、この配列と SLOT_KEYS を直すだけでよい（以下の処理は枠数に依存しない） */
 const SLOTS = ['A','B','C'];
@@ -958,7 +1021,7 @@ function clearSlot(slot){ try{ localStorage.removeItem(SLOT_KEYS[slot]); }catch(
 function entryCount(d){
   let n = 0;
   MODES.forEach(m=>{
-    [d.score, d.resp, d.rt].forEach(g=>{
+    [d.score, d.other, d.rt].forEach(g=>{
       const o = g && g[m];
       if(!o) return;
       n += Object.keys(o).filter(k => o[k] !== undefined && o[k] !== null && o[k] !== '').length;
@@ -974,13 +1037,13 @@ function slotHasData(d){
   if(d.patientName && String(d.patientName).trim() !== '') return true;
   if(d.age !== null && d.age !== undefined && d.age !== '') return true;
   if(entryCount(d) > 0) return true;
-  if(d.mode && d.mode !== 'speech') return true;
+  if(d.mode && d.mode !== 'aud') return true;
   if(d.date && d.date !== todayStr()) return true;
   return false;
 }
 function isEmptyState(){
   return !slotHasData({patientName:STATE.patientName, age:STATE.age, mode:STATE.mode, date:STATE.date,
-                       score:STATE.score, resp:STATE.resp, rt:STATE.rt});
+                       score:STATE.score, other:STATE.other, rt:STATE.rt});
 }
 
 /* 保存が止まっている状態を画面の下に固定して出す（仕様7-6b）。
@@ -1010,7 +1073,7 @@ function saveNow(){
     age: STATE.age,
     mode: STATE.mode,
     score: STATE.score,
-    resp: STATE.resp,
+    other: STATE.other,
     rt: STATE.rt,
     ts: Date.now()
   });
@@ -1035,16 +1098,16 @@ function requestClearDraft(){
 
 /* ［この患者を終わる］（仕様8-2）。ここで保存を再開する */
 function endPatient(){
-  if(!confirm('この患者の入力をすべて消します。\n（発話・書字の得点・反応・反応時間、氏名・評価日・年齢と、この端末に保存された下書き）\n※前回との比較用の記録は残ります。\n次の患者の入力を始められます。よろしいですか？')) return;
+  if(!confirm('この患者の入力をすべて消します。\n（聴覚的理解・視覚的理解の正誤・選んだ選択肢・反応時間、氏名・評価日・年齢と、この端末に保存された下書き）\n※前回との比較用の記録は残ります。\n次の患者の入力を始められます。よろしいですか？')) return;
   stopTimer();
   clearTimeout(saveTimer);
   if(mySlot) clearSlot(mySlot);
   STATE.patientName = '';
   STATE.age = null;
   STATE.date = todayStr();
-  STATE.score = { speech:{}, write:{} };
-  STATE.resp  = { speech:{}, write:{} };
-  STATE.rt    = { speech:{}, write:{} };
+  STATE.score = { aud:{}, vis:{} };
+  STATE.other = { aud:{}, vis:{} };
+  STATE.rt    = { aud:{}, vis:{} };
   draftCleared = false;
   document.getElementById('qrArea').style.display = 'none';
   document.getElementById('qrArea').innerHTML = '';
@@ -1116,7 +1179,7 @@ function showDraftBanner(st){
 }
 function pickGroup(d, key){
   const g = (d && d[key]) || {};
-  return { speech: g.speech || {}, write: g.write || {} };
+  return { aud: g.aud || {}, vis: g.vis || {} };
 }
 function resumeSlot(slot){
   const d = readSlot(slot);
@@ -1125,9 +1188,9 @@ function resumeSlot(slot){
   STATE.patientName = d.patientName || '';
   STATE.age   = (d.age == null ? null : d.age);
   STATE.date  = d.date || todayStr();       // 保存されていた評価日を優先する（仕様3-3）
-  STATE.mode  = d.mode || 'speech';
+  STATE.mode  = d.mode || 'aud';
   STATE.score = pickGroup(d, 'score');
-  STATE.resp  = pickGroup(d, 'resp');
+  STATE.other = pickGroup(d, 'other');
   STATE.rt    = pickGroup(d, 'rt');
   mySlot = slot;
   draftCleared = false;
@@ -1151,9 +1214,9 @@ function discardAll(){
   STATE.patientName = '';
   STATE.age = null;
   STATE.date = todayStr();
-  STATE.score = { speech:{}, write:{} };
-  STATE.resp  = { speech:{}, write:{} };
-  STATE.rt    = { speech:{}, write:{} };
+  STATE.score = { aud:{}, vis:{} };
+  STATE.other = { aud:{}, vis:{} };
+  STATE.rt    = { aud:{}, vis:{} };
   draftCleared = false;
   hideDraftBanner();
   refreshAllUI();
@@ -1165,11 +1228,11 @@ function discardAll(){
    画面の描き直し
    ============================================================ */
 function applyCond(){
-  document.getElementById('condSpeech').classList.toggle('active', STATE.mode==='speech');
-  document.getElementById('condWrite').classList.toggle('active', STATE.mode==='write');
+  document.getElementById('condAud').classList.toggle('active', STATE.mode==='aud');
+  document.getElementById('condVis').classList.toggle('active', STATE.mode==='vis');
   const cfg = COND_CFG[STATE.mode];
   document.getElementById('limitNote').textContent =
-    '制限時間：図版提示から' + cfg.limit + '秒（' + cfg.label + '）';
+    '制限時間：刺激提示から' + cfg.limit + '秒（' + cfg.label + '）';
   buildItemList();     // 条件に応じて入力内容を反映し直す
   updateSummary();
   histRender();
@@ -1198,8 +1261,8 @@ document.getElementById('dateInput').oninput = e=>{ STATE.date = e.target.value;
 document.getElementById('ageInput').oninput  = e=>{ STATE.age = e.target.value===''?null:Number(e.target.value); scheduleSave(); };
 document.getElementById('resetBtn').onclick     = endPatient;
 document.getElementById('histClearBtn').onclick = clearHistory;
-document.getElementById('condSpeech').onclick = ()=>setCond('speech');
-document.getElementById('condWrite').onclick  = ()=>setCond('write');
+document.getElementById('condAud').onclick = ()=>setCond('aud');
+document.getElementById('condVis').onclick = ()=>setCond('vis');
 
 STATE.date = todayStr();       // 評価日の初期値は当日（仕様3-3）
 refreshAllUI();

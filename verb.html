@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>失語症語彙検査 名詞表出検査（発話・書字）</title>
+<title>失語症語彙検査 動詞表出検査（発話・書字）</title>
 <!-- ▼ ウェブ公開・オフライン対応のための追記（採点ロジックには影響しません） -->
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#2563eb">
@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="名詞表出">
+<meta name="apple-mobile-web-app-title" content="動詞表出">
 <!-- ▲ 追記ここまで -->
 <style>
 /* ===== 色・基本設定（ベーステンプレート準拠） ===== */
@@ -200,7 +200,7 @@ h2{font-size:15px;margin:0 0 8px;padding:8px 10px;background:#1f2937;color:#fff;
 </head>
 <body>
 <div class="wrap">
-  <h1>失語症語彙検査　名詞表出検査（発話・書字）</h1>
+  <h1>失語症語彙検査　動詞表出検査（発話・書字）</h1>
 
   <!-- 下書きの確認バナー（自動では復元しない。検査者が選ぶ：仕様7-3） -->
   <div class="draft-banner" id="draftBanner"></div>
@@ -227,7 +227,7 @@ h2{font-size:15px;margin:0 0 8px;padding:8px 10px;background:#1f2937;color:#fff;
   <!-- 教示・例題 -->
   <div class="example-box">
     <div class="ex-title">教示・例題</div>
-    <div class="ex-instr">発話「これは何ですか。」／書字「これは何ですか。書いてください。」　例）パン</div>
+    <div class="ex-instr">発話「これはどうしている（どうなっている）ところですか。」／書字「これはどうしている（どうなっている）ところですか。書いてください。」　例）見ている</div>
   </div>
 
   <!-- 採点上まちがえやすいルールは画面に書く（仕様5-3） -->
@@ -357,29 +357,29 @@ return function(typeNumber,eclLevel){
 /* ============================================================
    検査語データ（40語）
    freq: 'H'=高頻度（奇数No） / 'L'=低頻度（偶数No）
-   sem : 意味類番号（参考表示。採点には使わない）
+   sem : 概念分類番号（参考表示。採点には使わない）
    ============================================================ */
 const ITEMS = [
-  {no:1,word:'手',sem:'1.5',freq:'H'},        {no:2,word:'パイプ',sem:'1.4',freq:'L'},
-  {no:3,word:'糸',sem:'1.4',freq:'H'},        {no:4,word:'灯台',sem:'1.2',freq:'L'},
-  {no:5,word:'窓',sem:'1.4',freq:'H'},        {no:6,word:'地図',sem:'1.3',freq:'L'},
-  {no:7,word:'卵',sem:'1.4',freq:'H'},        {no:8,word:'槍',sem:'1.4',freq:'L'},
-  {no:9,word:'電話',sem:'1.4',freq:'H'},      {no:10,word:'竜巻',sem:'1.5',freq:'L'},
-  {no:11,word:'先生',sem:'1.2',freq:'H'},     {no:12,word:'海苔',sem:'1.4',freq:'L'},
-  {no:13,word:'カメラ',sem:'1.4',freq:'H'},   {no:14,word:'シューマイ',sem:'1.4',freq:'L'},
-  {no:15,word:'スカート',sem:'1.4',freq:'H'}, {no:16,word:'プロレス',sem:'1.3',freq:'L'},
-  {no:17,word:'馬',sem:'1.5',freq:'H'},       {no:18,word:'ロケット',sem:'1.4',freq:'L'},
-  {no:19,word:'手紙',sem:'1.3',freq:'H'},     {no:20,word:'網',sem:'1.4',freq:'L'},
-  {no:21,word:'バナナ',sem:'1.5',freq:'H'},   {no:22,word:'湖',sem:'1.5',freq:'L'},
-  {no:23,word:'テレビ',sem:'1.4',freq:'H'},   {no:24,word:'楽譜',sem:'1.3',freq:'L'},
-  {no:25,word:'新聞',sem:'1.3',freq:'H'},     {no:26,word:'屏風',sem:'1.4',freq:'L'},
-  {no:27,word:'車',sem:'1.4',freq:'H'},       {no:28,word:'らくだ',sem:'1.5',freq:'L'},
-  {no:29,word:'病院',sem:'1.2',freq:'H'},     {no:30,word:'パイナップル',sem:'1.5',freq:'L'},
-  {no:31,word:'海',sem:'1.5',freq:'H'},       {no:32,word:'塀',sem:'1.4',freq:'L'},
-  {no:33,word:'太陽',sem:'1.5',freq:'H'},     {no:34,word:'算盤',sem:'1.4',freq:'L'},
-  {no:35,word:'寿司',sem:'1.4',freq:'H'},     {no:36,word:'水着',sem:'1.4',freq:'L'},
-  {no:37,word:'お金',sem:'1.4',freq:'H'},     {no:38,word:'肘',sem:'1.5',freq:'L'},
-  {no:39,word:'野球',sem:'1.3',freq:'H'},     {no:40,word:'神主',sem:'1.2',freq:'L'}
+  {no:1,word:'洗っている',sem:'5.1.1',freq:'H'}, {no:2,word:'磨いている',sem:'5.1.1',freq:'L'},
+  {no:3,word:'飛んでいる',sem:'1.1.1',freq:'H'}, {no:4,word:'折れている',sem:'1.1.1',freq:'L'},
+  {no:5,word:'書いている',sem:'5.1.1',freq:'H'}, {no:6,word:'蹴っている',sem:'5.1.1',freq:'L'},
+  {no:7,word:'飲んでいる',sem:'5.1.1',freq:'H'}, {no:8,word:'飛び降りている',sem:'6.1.1',freq:'L'},
+  {no:9,word:'掛けている',sem:'8.1.1',freq:'H',g:true}, {no:10,word:'曲げている',sem:'5.1.1',freq:'L',g:true},
+  {no:11,word:'歩いている',sem:'1.1.1',freq:'H'}, {no:12,word:'割れている',sem:'1.1.1',freq:'L'},
+  {no:13,word:'縫っている',sem:'5.1.1',freq:'H'}, {no:14,word:'刈っている',sem:'5.1.1',freq:'L'},
+  {no:15,word:'貼っている',sem:'8.1.1',freq:'H',g:true}, {no:16,word:'干している',sem:'8.1.1',freq:'L'},
+  {no:17,word:'編んでいる',sem:'5.1.1',freq:'H'}, {no:18,word:'吸っている',sem:'5.1.1',freq:'L'},
+  {no:19,word:'座っている',sem:'3.1.1',freq:'H'}, {no:20,word:'引っかかっている',sem:'3.1.1',freq:'L'},
+  {no:21,word:'着ている',sem:'5.1.1',freq:'H'}, {no:22,word:'すくっている',sem:'5.1.1',freq:'L'},
+  {no:23,word:'笑っている',sem:'1.1.1',freq:'H'}, {no:24,word:'吠えている',sem:'1.1.1',freq:'L'},
+  {no:25,word:'押している',sem:'5.1.1',freq:'H',g:true}, {no:26,word:'つぶしている',sem:'5.1.1',freq:'L',g:true},
+  {no:27,word:'捨てている',sem:'11.1.1',freq:'H'}, {no:28,word:'注いでいる',sem:'11.1.1',freq:'L'},
+  {no:29,word:'切っている',sem:'5.1.1',freq:'H'}, {no:30,word:'釣っている',sem:'5.1.1',freq:'L'},
+  {no:31,word:'入れている',sem:'11.1.1',freq:'H'}, {no:32,word:'持ち上げている',sem:'11.1.1',freq:'L',g:true},
+  {no:33,word:'落ちている',sem:'6.1.1',freq:'H'}, {no:34,word:'撒いている',sem:'8.1.1',freq:'L'},
+  {no:35,word:'打っている',sem:'5.1.1',freq:'H'}, {no:36,word:'追いかけている',sem:'5.1.1',freq:'L'},
+  {no:37,word:'踊っている',sem:'5.1.1',freq:'H'}, {no:38,word:'なでている',sem:'5.1.1',freq:'L'},
+  {no:39,word:'降りている',sem:'6.1.1',freq:'H'}, {no:40,word:'漏れている',sem:'6.1.1',freq:'L'}
 ];
 
 /* ============================================================
@@ -387,8 +387,8 @@ const ITEMS = [
    発話と書字はそれぞれ別に実施し、別々に採点する
    ============================================================ */
 const COND_CFG = {
-  speech: { label:'発話', limit:10, mean:39.07, sd:1.08 },
-  write:  { label:'書字', limit:30, mean:39.07, sd:1.08 }
+  speech: { label:'発話', limit:10, mean:39.60, sd:0.62 },
+  write:  { label:'書字', limit:30, mean:39.60, sd:0.62 }
 };
 const MODES = ['speech','write'];
 const MAX_SCORE = 40;          // 1条件あたりの満点（高頻度20＋低頻度20）
@@ -557,7 +557,7 @@ function buildItemList(){
       '<div class="item-head">'+
         '<span class="no">'+it.no+'</span>'+
         '<span class="word">'+it.word+'</span>'+
-        '<span class="sem">意味類 '+it.sem+'</span>'+(it.g?'<span class="g-tag">身ぶりG</span>':'')+
+        '<span class="sem">概念分類 '+it.sem+'</span>'+(it.g?'<span class="g-tag">身ぶりG</span>':'')+
         '<span class="freq-tag '+it.freq+'">'+freqLabel+'</span>'+
         '<div class="score">'+
           '<div class="opt ok" id="ok-'+it.no+'">正答 ○</div>'+
@@ -636,9 +636,9 @@ function toast(msg){
    氏名そのものは保存せず、氏名から作った短い識別子だけを持つ。
    発話・書字は別々の記録として残す。
    ============================================================ */
-const HIST_KEY = 'tlpaNounHistory';
+const HIST_KEY = 'tlpaVerbHistory';
 const HIST_MAX = 60;
-const SCALE_ID = { speech:'noun_s', write:'noun_w' };
+const SCALE_ID = { speech:'verb_s', write:'verb_w' };
 
 function histKey(name){
   const t = String(name||'').replace(/\s+/g,'');
@@ -756,7 +756,7 @@ function pushRespLines(L, label, mode){
 
 /* QRに入れるテキストを組み立てる（氏名は含めない／評価日は1行目に入れる：仕様3-3・6-4） */
 function buildQRText(){
-  const head = '【評価日 ' + (STATE.date || todayStr()) + '】TLPA名詞表出';
+  const head = '【評価日 ' + (STATE.date || todayStr()) + '】TLPA動詞表出';
   const sc = { speech: computeScores('speech'), write: computeScores('write') };
 
   // どちらの条件も1件も評価していないときは「実施していない」ことだけを残す
@@ -799,7 +799,7 @@ function buildQRText(){
 
 /* 詳細テキスト（反応時間つき・全項目）＝カルテ用。QRには入れない */
 function buildDetailText(){
-  const L = ['【評価日 ' + (STATE.date || todayStr()) + '】TLPA名詞表出（詳細）'];
+  const L = ['【評価日 ' + (STATE.date || todayStr()) + '】TLPA動詞表出（詳細）'];
   MODES.forEach(mode=>{
     const label = COND_CFG[mode].label;
     L.push('【' + label + '】');
@@ -938,7 +938,7 @@ function showDetail(){
    - QR生成だけでは消さない（消去は専用ボタン／［この患者を終わる］のみ）
    - 消したあとは、そのページで保存を再開しない（仕様7-6a）
    ============================================================ */
-const NS = 'tlpa_noun_';
+const NS = 'tlpa_verb_';
 /* 下書きの保存枠。共用端末で複数の患者を並行して扱えるようにするためのもの。
    枠を増減するときは、この配列と SLOT_KEYS を直すだけでよい（以下の処理は枠数に依存しない） */
 const SLOTS = ['A','B','C'];
