@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>失語症語彙検査 語彙判断検査Ⅲ（音声・文字〈平仮名〉提示）</title>
+<!-- ▼ ウェブ公開・オフライン対応のための追記（採点ロジックには影響しません） -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#2563eb">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="語彙判断III">
+<!-- ▲ 追記ここまで -->
+<style>
+/* ===== 色・基本設定（ベーステンプレート準拠） ===== */
+:root{
+  --bg:#f4f6f8; --panel:#ffffff; --border:#d8dee4;
+  --text:#222; --muted:#6b7280;
+  --accent:#2563eb; --accent-light:#dbeafe;
+  --warn:#d97706; --danger:#dc2626; --ok:#059669;
+  --section:#eff3f8;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+  line-height:1.5;font-size:15px}
+.wrap{max-width:900px;margin:0 auto;padding:12px}
+
+h1{font-size:17px;margin:0 0 10px;padding:10px 12px;background:var(--accent);color:#fff;border-radius:6px}
+h2{font-size:15px;margin:0 0 8px;padding:8px 10px;background:#1f2937;color:#fff;border-radius:4px}
+
+/* 患者情報バー */
+.patient-bar{background:var(--panel);border:1px solid var(--border);border-radius:6px;
+  padding:10px;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.patient-bar label{font-weight:bold;white-space:nowrap}
+.patient-bar input{padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:15px}
+.patient-bar input.name{flex:1;min-width:140px}
+.patient-bar input.age{max-width:70px}
+.tag{font-size:12px;color:var(--muted)}
+
+/* 範囲切り替え */
+.range-bar{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.range-btn{padding:6px 14px;border:1px solid var(--border);border-radius:4px;background:#fff;
+  cursor:pointer;font-size:13px;font-weight:bold}
+.range-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.range-btn.disabled{background:#eef0f2;color:#aab;cursor:not-allowed}
+
+/* 上部の細い集計バー（スクロールしても見える） */
+.sticky-bar{position:sticky;top:0;z-index:20;background:#1f2937;color:#fff;
+  padding:8px 12px;border-radius:6px;margin-bottom:10px;font-size:14px;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.sticky-bar .big{font-size:17px;font-weight:bold}
+.sticky-bar .sub{font-size:12px;color:#cbd5e1}
+
+/* 集計カード */
+.summary-card{background:var(--panel);border:1px solid var(--border);border-radius:6px;
+  padding:10px 12px;margin-bottom:14px}
+.summary-card table{width:100%;border-collapse:collapse;font-size:14px}
+.summary-card th,.summary-card td{padding:6px 8px;border-bottom:1px solid var(--border);text-align:left}
+.summary-card td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.summary-card tr.subtotal td{font-weight:bold;background:#f8fafc}
+.summary-card tr.total td{font-weight:bold;background:var(--accent-light);font-size:15px}
+.summary-card .ref{margin-top:8px;font-size:13px;color:var(--muted);
+  background:#f0f4ff;border-radius:4px;padding:6px 8px}
+.summary-card .ref b{color:var(--text)}
+
+/* 検査語リスト */
+.item{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);
+  border-radius:5px;margin-bottom:6px;background:#fafbfc}
+.item .no{width:28px;color:var(--muted);font-size:13px;text-align:right}
+.item .word{flex:1;font-size:22px;font-weight:bold;letter-spacing:3px}
+.item .ans{display:flex;gap:6px}
+.opt{padding:8px 14px;border:1px solid var(--border);border-radius:5px;background:#fff;
+  cursor:pointer;font-size:15px;user-select:none;min-width:50px;text-align:center}
+.opt:hover{border-color:var(--accent);background:var(--accent-light)}
+.opt.selected{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:bold}
+.item .mark{width:26px;text-align:center;font-size:16px;font-weight:bold}
+.mark.correct{color:var(--ok)}
+.mark.wrong{color:var(--danger)}
+
+/* ボタン */
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.btn{padding:8px 14px;border:none;border-radius:4px;font-weight:bold;cursor:pointer;font-size:14px}
+.btn-reset{background:#e5e7eb;color:#111}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-copy{background:var(--ok);color:#fff}
+
+/* QR出力エリア */
+.qr-section{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:12px;margin-top:8px}
+.qr-area{margin-top:12px;padding:12px;background:#f9fafb;border:1px solid var(--border);border-radius:6px}
+.qr-canvas{background:#fff;display:inline-block;padding:8px;border:1px solid var(--border)}
+.qr-text{margin-top:10px;padding:8px;background:#fff;border:1px solid var(--border);border-radius:4px;
+  white-space:pre-wrap;font-family:monospace;font-size:13px;max-height:260px;overflow:auto}
+.warn-box{margin:8px 0;padding:8px 10px;background:#fef3c7;border:1px solid var(--warn);
+  border-radius:4px;color:#92400e;font-size:13px;display:none}
+.warn-box.show{display:block}
+
+/* 下書き復元バナー */
+.draft-banner{background:#fff7ed;border:1px solid var(--warn);border-radius:6px;
+  padding:10px 12px;margin-bottom:10px;display:none}
+.draft-banner.show{display:block}
+.draft-banner .title{font-weight:bold;margin-bottom:6px;color:#92400e}
+.draft-banner .row{display:flex;justify-content:space-between;align-items:center;gap:8px;
+  flex-wrap:wrap;padding:6px 0;border-bottom:1px dashed var(--border)}
+.draft-banner .row:last-of-type{border-bottom:none}
+.draft-banner .info{font-size:13px}
+.draft-banner .acts{display:flex;gap:6px;flex-wrap:wrap}
+.mini{padding:5px 10px;border:1px solid var(--border);border-radius:4px;cursor:pointer;
+  font-size:13px;font-weight:bold;background:#fff}
+.mini.resume{background:var(--accent);color:#fff;border-color:var(--accent)}
+.mini.del{color:var(--danger);border-color:var(--danger)}
+.draft-banner .foot{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
+
+/* 一時保存の注意書き */
+.save-note{font-size:12px;color:var(--muted);background:#f3f4f6;border-radius:4px;
+  padding:6px 8px;margin-bottom:10px}
+
+/* 保存が止まっていることを知らせる帯（仕様7-6b） */
+.savewarn{position:fixed;left:0;right:0;bottom:0;background:var(--danger);color:#fff;
+  padding:11px 14px;font-size:13px;font-weight:bold;text-align:center;line-height:1.5;
+  z-index:300;box-shadow:0 -2px 8px rgba(0,0,0,.2)}
+
+/* QRの手順・複数枚表示（仕様6-5・6-6） */
+.qsteps{background:#f8fafc;border:1px solid var(--border);border-radius:6px;padding:10px 12px;
+  margin-bottom:12px;font-size:13px;line-height:1.8;color:var(--muted)}
+.qsteps b{color:var(--text)}
+.qmulti{background:var(--accent-light);color:#1d4ed8;border:1px solid #bfdbfe;border-radius:6px;
+  padding:9px 12px;font-size:13px;margin-bottom:12px;line-height:1.6}
+.qwrap{margin-bottom:14px}
+.qnum{font-size:12px;color:#1d4ed8;font-weight:bold;margin-bottom:6px}
+/* QRが画面幅を超えると右端が切れて読めなくなるため必ず縮める（仕様6-5） */
+.qr-canvas canvas{max-width:100%;height:auto;image-rendering:pixelated;display:block}
+
+/* 前回との比較（仕様7-7） */
+.cmpline{margin-top:8px;padding:8px 10px;background:#f8fafc;border:1px solid var(--border);
+  border-radius:6px;font-size:13px;color:var(--muted);line-height:1.6}
+.cmpline b{color:var(--text)}
+.cmpline .up{color:var(--ok);font-weight:bold}
+.cmpline .dn{color:var(--danger);font-weight:bold}
+.cmpline .same{color:var(--muted);font-weight:bold}
+
+/* 端末に残るものの説明（仕様7-7） */
+.storage-note{background:var(--panel);border:1px solid var(--border);border-radius:6px;
+  padding:10px 12px;margin-top:14px;font-size:12px;color:var(--muted);line-height:1.7}
+.storage-note b{color:var(--text)}
+
+.footer-note{font-size:11px;color:var(--muted);margin-top:16px;text-align:center;padding-bottom:80px}
+
+.mode-bar{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.mode-btn{padding:8px 18px;border:1px solid var(--border);border-radius:4px;background:#fff;
+  cursor:pointer;font-size:14px;font-weight:bold}
+.mode-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.accent-note{background:#fff7ed;border:1px solid var(--warn);color:#92400e;border-radius:4px;
+  padding:6px 10px;margin-bottom:10px;font-size:13px}
+.item .word .orig{font-size:14px;color:var(--muted);font-weight:normal;letter-spacing:0;margin-left:6px}
+.example-box{background:#f0f7ff;border:1px solid var(--border);border-radius:6px;
+  padding:10px 12px;margin-bottom:10px}
+.example-box .ex-title{font-weight:bold;color:var(--accent);margin-bottom:4px;font-size:14px}
+.example-box .ex-instr{font-size:13px;line-height:1.6;margin-bottom:8px}
+.example-box .ex-words{display:flex;gap:16px;flex-wrap:wrap}
+.example-box .ex-w{font-size:19px;font-weight:bold;letter-spacing:1px}
+.example-box .ex-w b{font-size:12px;color:var(--muted);font-weight:normal;margin-left:3px}
+.item .word{letter-spacing:2px}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>失語症語彙検査　語彙判断検査Ⅲ（音声提示・文字〈平仮名〉提示）</h1>
+  <div class="tag" style="margin:-6px 0 10px">非単語の作り方：検査単語の音を入れ替えたもの（音韻転置）</div>
+
+  <!-- 下書きの確認バナー（自動では復元しない。検査者が選ぶ：仕様7-3） -->
+  <div class="draft-banner" id="draftBanner"></div>
+
+  <!-- 患者情報（氏名はQRに含めない／評価日はQRに含める：仕様3章） -->
+  <div class="patient-bar">
+    <label>氏名：</label>
+    <input class="name" id="nameInput" type="text" placeholder="（QRには含まれません）">
+    <label>評価日：</label>
+    <input class="pd" id="dateInput" type="date">
+    <label>年齢：</label>
+    <input class="age" id="ageInput" type="number">
+    <span class="tag">歳</span>
+  </div>
+
+  <!-- 提示方法の切り替え（音声提示・文字提示はそれぞれ別に採点する） -->
+  <div class="mode-bar">
+    <span class="tag">提示方法：</span>
+    <div class="mode-btn active" id="modeVoice">音声提示</div>
+    <div class="mode-btn" id="modeText">文字提示</div>
+  </div>
+
+  <!-- 音声提示のときだけ出す注記 -->
+  <div class="accent-note" id="accentNote">※ 非単語は（　）内の語のアクセントで読み上げてください。</div>
+
+  <!-- 教示・例題（練習：採点対象外） -->
+  <div class="example-box">
+    <div class="ex-title">教示・例題（練習：採点しません）</div>
+    <div class="ex-instr">「これからお聞かせする（お見せする）ことばを、聞いたこと（見たこと）がありますか。あったら『はい』、なかったら『いいえ』と答えてください。」</div>
+    <div class="ex-words">
+      <span class="ex-w">かびん<b>〔単語〕</b></span>
+      <span class="ex-w">なびん<b>〔非単語〕</b></span>
+      <span class="ex-w">いなか<b>〔単語〕</b></span>
+      <span class="ex-w">いわか<b>〔非単語〕</b></span>
+    </div>
+  </div>
+
+  <div class="save-note">
+    ※ 氏名は<b>QRコードには含まれません</b>。<br>
+    ※ この端末に入力内容が一時保存されています（下書き）。カルテ転記が完了したら、QR生成後に表示される
+    ［この端末から入力を消す］、または画面下の［この患者を終わる］で消去してください。
+  </div>
+
+  <!-- スクロールしても見える集計バー（いま開いている提示方法の分） -->
+  <div class="sticky-bar">
+    <div><span class="big" id="barTitle">音声提示</span> <span class="big" id="barTotal">計 0/40</span></div>
+    <div class="sub" id="barSub">未回答 40件</div>
+  </div>
+
+  <!-- 集計カード（音声・文字の両方） -->
+  <div class="summary-card">
+    <h2 style="margin:-2px -2px 8px">集計（プロフィール文字系）</h2>
+    <table id="summaryTable"></table>
+    <div class="ref" id="refBox"></div>
+    <div id="cmpBox"></div>
+  </div>
+
+  <!-- 検査語リスト -->
+  <div id="itemList"></div>
+
+  <!-- QRコード出力（手順・複数枚・消去ボタンはJSで組み立てる：仕様6-5／6-6） -->
+  <div class="qr-section">
+    <h2 style="margin:-2px -2px 8px">QRコード出力</h2>
+    <div id="qrWarn" class="warn-box"></div>
+    <button class="btn btn-primary" id="qrGenBtn">QRコードを生成</button>
+    <div id="qrArea" class="qr-area" style="display:none"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-reset" id="resetBtn">この患者を終わる</button>
+  </div>
+
+  <!-- この端末に何が残るのかの説明（仕様7-7） -->
+  <div class="storage-note">
+    <b>この端末に残るもの</b><br>
+    ① <b>下書き</b>（氏名・評価日・年齢・回答）…… 入力の途中で画面が閉じても続きから再開できるようにするためのものです。［この端末から入力を消す］または［この患者を終わる］で消えます。<br>
+    ② <b>前回との比較用の記録</b>（評価日・合計点のみ。<b>氏名は保存していません</b>）…… 「前回：〇点 → 今回：〇点」の表示に使います。下のボタンでいつでも消せます。
+    <div style="margin-top:8px"><button class="btn btn-reset" id="histClearBtn">比較用の記録をすべて消す</button></div>
+  </div>
+
+  <div class="footer-note">
+    ※ このツールはオフラインで動作します。入力内容が外部へ送信されることはありません。
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   QRコード生成ライブラリ（純粋JS・UTF-8。外部CDN不使用）
+   ============================================================ */
+// QRコード生成ライブラリ（純粋JS実装, v1-v40対応）
+// AMSDツールから抽出。単一HTMLファイルの<script>内に埋め込んで使用する。
+
+/* ============================================================
+   QRコード生成ライブラリ（完全版 v1-v40対応）
+   ============================================================ */
+var qrcode=(function(){"use strict";
+var PATTERN000=0,PATTERN001=1,PATTERN010=2,PATTERN011=3,PATTERN100=4,PATTERN101=5,PATTERN110=6,PATTERN111=7;
+var Mode_NUMBER=1,Mode_ALPHA_NUM=2,Mode_8BIT_BYTE=4,Mode_KANJI=8;
+var ECL_L=1,ECL_M=0,ECL_Q=3,ECL_H=2;
+var QRMath={glog:function(n){if(n<1)throw new Error("glog("+n+")");return QRMath.LOG_TABLE[n];},gexp:function(n){while(n<0)n+=255;while(n>=256)n-=255;return QRMath.EXP_TABLE[n];},EXP_TABLE:new Array(256),LOG_TABLE:new Array(256)};
+for(var i=0;i<8;i++)QRMath.EXP_TABLE[i]=1<<i;
+for(var i=8;i<256;i++)QRMath.EXP_TABLE[i]=QRMath.EXP_TABLE[i-4]^QRMath.EXP_TABLE[i-5]^QRMath.EXP_TABLE[i-6]^QRMath.EXP_TABLE[i-8];
+for(var i=0;i<255;i++)QRMath.LOG_TABLE[QRMath.EXP_TABLE[i]]=i;
+function QRPolynomial(num,shift){if(num.length==undefined)throw new Error(num.length+"/"+shift);var offset=0;while(offset<num.length&&num[offset]==0)offset++;this.num=new Array(num.length-offset+shift);for(var i=0;i<num.length-offset;i++)this.num[i]=num[i+offset];}
+QRPolynomial.prototype={get:function(i){return this.num[i];},getLength:function(){return this.num.length;},multiply:function(e){var num=new Array(this.getLength()+e.getLength()-1);for(var i=0;i<this.getLength();i++)for(var j=0;j<e.getLength();j++)num[i+j]^=QRMath.gexp(QRMath.glog(this.get(i))+QRMath.glog(e.get(j)));return new QRPolynomial(num,0);},mod:function(e){if(this.getLength()-e.getLength()<0)return this;var ratio=QRMath.glog(this.get(0))-QRMath.glog(e.get(0));var num=new Array(this.getLength());for(var i=0;i<this.getLength();i++)num[i]=this.get(i);for(var i=0;i<e.getLength();i++)num[i]^=QRMath.gexp(QRMath.glog(e.get(i))+ratio);return new QRPolynomial(num,0).mod(e);}};
+function QRRSBlock(totalCount,dataCount){this.totalCount=totalCount;this.dataCount=dataCount;}
+QRRSBlock.RS_BLOCK_TABLE=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]];
+QRRSBlock.getRSBlocks=function(typeNumber,eclLevel){var rsBlock=QRRSBlock.getRsBlockTable(typeNumber,eclLevel);if(rsBlock==undefined)throw new Error("bad rs block @ typeNumber:"+typeNumber+"/eclLevel:"+eclLevel);var length=rsBlock.length/3;var list=[];for(var i=0;i<length;i++){var count=rsBlock[i*3+0];var totalCount=rsBlock[i*3+1];var dataCount=rsBlock[i*3+2];for(var j=0;j<count;j++)list.push(new QRRSBlock(totalCount,dataCount));}return list;};
+QRRSBlock.getRsBlockTable=function(typeNumber,eclLevel){switch(eclLevel){case ECL_L:return QRRSBlock.RS_BLOCK_TABLE[(typeNumber-1)*4+0];case ECL_M:return QRRSBlock.RS_BLOCK_TABLE[(typeNumber-1)*4+1];case ECL_Q:return QRRSBlock.RS_BLOCK_TABLE[(typeNumber-1)*4+2];case ECL_H:return QRRSBlock.RS_BLOCK_TABLE[(typeNumber-1)*4+3];default:return undefined;}};
+var QRUtil={PATTERN_POSITION_TABLE:[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],G15:1335,G18:7973,G15_MASK:21522,
+getBCHTypeInfo:function(data){var d=data<<10;while(QRUtil.getBCHDigit(d)-QRUtil.getBCHDigit(QRUtil.G15)>=0)d^=(QRUtil.G15<<(QRUtil.getBCHDigit(d)-QRUtil.getBCHDigit(QRUtil.G15)));return((data<<10)|d)^QRUtil.G15_MASK;},
+getBCHTypeNumber:function(data){var d=data<<12;while(QRUtil.getBCHDigit(d)-QRUtil.getBCHDigit(QRUtil.G18)>=0)d^=(QRUtil.G18<<(QRUtil.getBCHDigit(d)-QRUtil.getBCHDigit(QRUtil.G18)));return(data<<12)|d;},
+getBCHDigit:function(data){var digit=0;while(data!=0){digit++;data>>>=1;}return digit;},
+getPatternPosition:function(typeNumber){return QRUtil.PATTERN_POSITION_TABLE[typeNumber-1];},
+getMask:function(maskPattern,i,j){switch(maskPattern){case PATTERN000:return(i+j)%2==0;case PATTERN001:return i%2==0;case PATTERN010:return j%3==0;case PATTERN011:return(i+j)%3==0;case PATTERN100:return(Math.floor(i/2)+Math.floor(j/3))%2==0;case PATTERN101:return(i*j)%2+(i*j)%3==0;case PATTERN110:return((i*j)%2+(i*j)%3)%2==0;case PATTERN111:return((i*j)%3+(i+j)%2)%2==0;default:throw new Error("bad maskPattern:"+maskPattern);}},
+getErrorCorrectPolynomial:function(errorCorrectLength){var a=new QRPolynomial([1],0);for(var i=0;i<errorCorrectLength;i++)a=a.multiply(new QRPolynomial([1,QRMath.gexp(i)],0));return a;},
+getLengthInBits:function(mode,type){if(1<=type&&type<10){switch(mode){case Mode_NUMBER:return 10;case Mode_ALPHA_NUM:return 9;case Mode_8BIT_BYTE:return 8;case Mode_KANJI:return 8;default:throw new Error("mode:"+mode);}}else if(type<27){switch(mode){case Mode_NUMBER:return 12;case Mode_ALPHA_NUM:return 11;case Mode_8BIT_BYTE:return 16;case Mode_KANJI:return 10;default:throw new Error("mode:"+mode);}}else if(type<41){switch(mode){case Mode_NUMBER:return 14;case Mode_ALPHA_NUM:return 13;case Mode_8BIT_BYTE:return 16;case Mode_KANJI:return 12;default:throw new Error("mode:"+mode);}}else throw new Error("type:"+type);},
+getLostPoint:function(qrCode){var moduleCount=qrCode.getModuleCount();var lostPoint=0;for(var row=0;row<moduleCount;row++)for(var col=0;col<moduleCount;col++){var sameCount=0;var dark=qrCode.isDark(row,col);for(var r=-1;r<=1;r++){if(row+r<0||moduleCount<=row+r)continue;for(var c=-1;c<=1;c++){if(col+c<0||moduleCount<=col+c)continue;if(r==0&&c==0)continue;if(dark==qrCode.isDark(row+r,col+c))sameCount++;}}if(sameCount>5)lostPoint+=(3+sameCount-5);}for(var row=0;row<moduleCount-1;row++)for(var col=0;col<moduleCount-1;col++){var count=0;if(qrCode.isDark(row,col))count++;if(qrCode.isDark(row+1,col))count++;if(qrCode.isDark(row,col+1))count++;if(qrCode.isDark(row+1,col+1))count++;if(count==0||count==4)lostPoint+=3;}for(var row=0;row<moduleCount;row++)for(var col=0;col<moduleCount-6;col++)if(qrCode.isDark(row,col)&&!qrCode.isDark(row,col+1)&&qrCode.isDark(row,col+2)&&qrCode.isDark(row,col+3)&&qrCode.isDark(row,col+4)&&!qrCode.isDark(row,col+5)&&qrCode.isDark(row,col+6))lostPoint+=40;for(var col=0;col<moduleCount;col++)for(var row=0;row<moduleCount-6;row++)if(qrCode.isDark(row,col)&&!qrCode.isDark(row+1,col)&&qrCode.isDark(row+2,col)&&qrCode.isDark(row+3,col)&&qrCode.isDark(row+4,col)&&!qrCode.isDark(row+5,col)&&qrCode.isDark(row+6,col))lostPoint+=40;var darkCount=0;for(var col=0;col<moduleCount;col++)for(var row=0;row<moduleCount;row++)if(qrCode.isDark(row,col))darkCount++;var ratio=Math.abs(100*darkCount/moduleCount/moduleCount-50)/5;return lostPoint+ratio*10;}};
+function QRBitBuffer(){this.buffer=[];this.length=0;}
+QRBitBuffer.prototype={get:function(i){var bufIdx=Math.floor(i/8);return((this.buffer[bufIdx]>>>(7-i%8))&1)==1;},put:function(n,length){for(var i=0;i<length;i++)this.putBit(((n>>>(length-i-1))&1)==1);},getLengthInBits:function(){return this.length;},putBit:function(bit){var bufIdx=Math.floor(this.length/8);if(this.buffer.length<=bufIdx)this.buffer.push(0);if(bit)this.buffer[bufIdx]|=(0x80>>>(this.length%8));this.length++;}};
+function QR8bitByte(data){this.mode=Mode_8BIT_BYTE;this.data=data;/* 仕様11章：UTF-8変換は自前実装せず標準のTextEncoderを使う（自前変換は日本語で不要なBOMが付き、環境依存漢字が化けるため） */this.parsedData=Array.prototype.slice.call(new TextEncoder().encode(data));}
+QR8bitByte.prototype={getMode:function(){return this.mode;},getLength:function(){return this.parsedData.length;},write:function(buffer){for(var i=0,l=this.parsedData.length;i<l;i++)buffer.put(this.parsedData[i],8);}};
+function createData(typeNumber,eclLevel,dataList){var rsBlocks=QRRSBlock.getRSBlocks(typeNumber,eclLevel);var buffer=new QRBitBuffer();for(var i=0;i<dataList.length;i++){var data=dataList[i];buffer.put(data.getMode(),4);buffer.put(data.getLength(),QRUtil.getLengthInBits(data.getMode(),typeNumber));data.write(buffer);}var totalDataCount=0;for(var i=0;i<rsBlocks.length;i++)totalDataCount+=rsBlocks[i].dataCount;if(buffer.getLengthInBits()>totalDataCount*8)throw new Error("code length overflow. ("+buffer.getLengthInBits()+">"+totalDataCount*8+")");if(buffer.getLengthInBits()+4<=totalDataCount*8)buffer.put(0,4);while(buffer.getLengthInBits()%8!=0)buffer.putBit(false);while(true){if(buffer.getLengthInBits()>=totalDataCount*8)break;buffer.put(0xEC,8);if(buffer.getLengthInBits()>=totalDataCount*8)break;buffer.put(0x11,8);}return createBytes(buffer,rsBlocks);}
+function createBytes(buffer,rsBlocks){var offset=0;var maxDcCount=0;var maxEcCount=0;var dcdata=new Array(rsBlocks.length);var ecdata=new Array(rsBlocks.length);for(var r=0;r<rsBlocks.length;r++){var dcCount=rsBlocks[r].dataCount;var ecCount=rsBlocks[r].totalCount-dcCount;maxDcCount=Math.max(maxDcCount,dcCount);maxEcCount=Math.max(maxEcCount,ecCount);dcdata[r]=new Array(dcCount);for(var i=0;i<dcdata[r].length;i++)dcdata[r][i]=0xff&buffer.buffer[i+offset];offset+=dcCount;var rsPoly=QRUtil.getErrorCorrectPolynomial(ecCount);var rawPoly=new QRPolynomial(dcdata[r],rsPoly.getLength()-1);var modPoly=rawPoly.mod(rsPoly);ecdata[r]=new Array(rsPoly.getLength()-1);for(var i=0;i<ecdata[r].length;i++){var modIndex=i+modPoly.getLength()-ecdata[r].length;ecdata[r][i]=(modIndex>=0)?modPoly.get(modIndex):0;}}var totalCodeCount=0;for(var i=0;i<rsBlocks.length;i++)totalCodeCount+=rsBlocks[i].totalCount;var data=new Array(totalCodeCount);var index=0;for(var i=0;i<maxDcCount;i++)for(var r=0;r<rsBlocks.length;r++)if(i<dcdata[r].length)data[index++]=dcdata[r][i];for(var i=0;i<maxEcCount;i++)for(var r=0;r<rsBlocks.length;r++)if(i<ecdata[r].length)data[index++]=ecdata[r][i];return data;}
+function QRCodeModel(typeNumber,eclLevel){this.typeNumber=typeNumber;this.eclLevel=eclLevel;this.modules=null;this.moduleCount=0;this.dataCache=null;this.dataList=[];}
+QRCodeModel.prototype={addData:function(data){this.dataList.push(new QR8bitByte(data));this.dataCache=null;},isDark:function(row,col){if(row<0||this.moduleCount<=row||col<0||this.moduleCount<=col)throw new Error(row+","+col);return this.modules[row][col];},getModuleCount:function(){return this.moduleCount;},
+make:function(){if(this.typeNumber<1){var typeNumber=1;for(;typeNumber<41;typeNumber++){var rsBlocks=QRRSBlock.getRSBlocks(typeNumber,this.eclLevel);var buffer=new QRBitBuffer();for(var i=0;i<this.dataList.length;i++){var data=this.dataList[i];buffer.put(data.getMode(),4);buffer.put(data.getLength(),QRUtil.getLengthInBits(data.getMode(),typeNumber));data.write(buffer);}var totalDataCount=0;for(var i=0;i<rsBlocks.length;i++)totalDataCount+=rsBlocks[i].dataCount;if(buffer.getLengthInBits()<=totalDataCount*8)break;}this.typeNumber=typeNumber;}this.makeImpl(false,this.getBestMaskPattern());},
+makeImpl:function(test,maskPattern){this.moduleCount=this.typeNumber*4+17;this.modules=new Array(this.moduleCount);for(var row=0;row<this.moduleCount;row++){this.modules[row]=new Array(this.moduleCount);for(var col=0;col<this.moduleCount;col++)this.modules[row][col]=null;}this.setupPositionProbePattern(0,0);this.setupPositionProbePattern(this.moduleCount-7,0);this.setupPositionProbePattern(0,this.moduleCount-7);this.setupPositionAdjustPattern();this.setupTimingPattern();this.setupTypeInfo(test,maskPattern);if(this.typeNumber>=7)this.setupTypeNumber(test);if(this.dataCache==null)this.dataCache=createData(this.typeNumber,this.eclLevel,this.dataList);this.mapData(this.dataCache,maskPattern);},
+setupPositionProbePattern:function(row,col){for(var r=-1;r<=7;r++){if(row+r<=-1||this.moduleCount<=row+r)continue;for(var c=-1;c<=7;c++){if(col+c<=-1||this.moduleCount<=col+c)continue;if((0<=r&&r<=6&&(c==0||c==6))||(0<=c&&c<=6&&(r==0||r==6))||(2<=r&&r<=4&&2<=c&&c<=4))this.modules[row+r][col+c]=true;else this.modules[row+r][col+c]=false;}}},
+getBestMaskPattern:function(){var minLostPoint=0;var pattern=0;for(var i=0;i<8;i++){this.makeImpl(true,i);var lostPoint=QRUtil.getLostPoint(this);if(i==0||minLostPoint>lostPoint){minLostPoint=lostPoint;pattern=i;}}return pattern;},
+setupTimingPattern:function(){for(var r=8;r<this.moduleCount-8;r++){if(this.modules[r][6]!=null)continue;this.modules[r][6]=(r%2==0);}for(var c=8;c<this.moduleCount-8;c++){if(this.modules[6][c]!=null)continue;this.modules[6][c]=(c%2==0);}},
+setupPositionAdjustPattern:function(){var pos=QRUtil.getPatternPosition(this.typeNumber);for(var i=0;i<pos.length;i++)for(var j=0;j<pos.length;j++){var row=pos[i];var col=pos[j];if(this.modules[row][col]!=null)continue;for(var r=-2;r<=2;r++)for(var c=-2;c<=2;c++){if(r==-2||r==2||c==-2||c==2||(r==0&&c==0))this.modules[row+r][col+c]=true;else this.modules[row+r][col+c]=false;}}},
+setupTypeNumber:function(test){var bits=QRUtil.getBCHTypeNumber(this.typeNumber);for(var i=0;i<18;i++){var mod=(!test&&((bits>>i)&1)==1);this.modules[Math.floor(i/3)][i%3+this.moduleCount-8-3]=mod;}for(var i=0;i<18;i++){var mod=(!test&&((bits>>i)&1)==1);this.modules[i%3+this.moduleCount-8-3][Math.floor(i/3)]=mod;}},
+setupTypeInfo:function(test,maskPattern){var data=(this.eclLevel<<3)|maskPattern;var bits=QRUtil.getBCHTypeInfo(data);for(var i=0;i<15;i++){var mod=(!test&&((bits>>i)&1)==1);if(i<6)this.modules[i][8]=mod;else if(i<8)this.modules[i+1][8]=mod;else this.modules[this.moduleCount-15+i][8]=mod;}for(var i=0;i<15;i++){var mod=(!test&&((bits>>i)&1)==1);if(i<8)this.modules[8][this.moduleCount-i-1]=mod;else if(i<9)this.modules[8][15-i-1+1]=mod;else this.modules[8][15-i-1]=mod;}this.modules[this.moduleCount-8][8]=(!test);},
+mapData:function(data,maskPattern){var inc=-1;var row=this.moduleCount-1;var bitIndex=7;var byteIndex=0;for(var col=this.moduleCount-1;col>0;col-=2){if(col==6)col--;while(true){for(var c=0;c<2;c++){if(this.modules[row][col-c]==null){var dark=false;if(byteIndex<data.length)dark=(((data[byteIndex]>>>bitIndex)&1)==1);var mask=QRUtil.getMask(maskPattern,row,col-c);if(mask)dark=!dark;this.modules[row][col-c]=dark;bitIndex--;if(bitIndex==-1){byteIndex++;bitIndex=7;}}}row+=inc;if(row<0||this.moduleCount<=row){row-=inc;inc=-inc;break;}}}},
+createSvgTag:function(cellSize,margin){cellSize=cellSize||2;margin=(typeof margin=="undefined")?cellSize*4:margin;var size=this.getModuleCount()*cellSize+margin*2;var svg="";svg+='<svg xmlns="http://www.w3.org/2000/svg" width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" shape-rendering="crispEdges">';svg+='<rect width="100%" height="100%" fill="#ffffff"/>';svg+='<path d="';for(var r=0;r<this.getModuleCount();r++){for(var c=0;c<this.getModuleCount();c++){if(this.isDark(r,c)){svg+='M'+(margin+c*cellSize)+','+(margin+r*cellSize)+'h'+cellSize+'v'+cellSize+'h-'+cellSize+'z';}}}svg+='" fill="#000000"/></svg>';return svg;}};
+return function(typeNumber,eclLevel){
+  if(typeof eclLevel=='string'){var m={L:ECL_L,M:ECL_M,Q:ECL_Q,H:ECL_H};if(m[eclLevel]===undefined)throw new Error("Unknown ECL: "+eclLevel);eclLevel=m[eclLevel];}
+  if(typeof typeNumber=='undefined')typeNumber=0;
+  if(typeof eclLevel=='undefined')eclLevel=ECL_M;
+  return new QRCodeModel(typeNumber,eclLevel);
+};
+})();
+
+
+/* ============================================================
+   検査語データ（40語）
+   type: 'W'=単語（正解はい） / 'N'=非単語（正解いいえ）
+   orig: 非単語の（　）内の語。音声提示で読み上げるときのアクセントの目安（検査単語の音を入れ替えたもの（音韻転置））
+   ============================================================ */
+const ITEMS = [
+  {no:1,word:'きいび',type:'N',orig:'いびき'}, {no:2,word:'とびら',type:'W'},
+  {no:3,word:'ろいり',type:'N',orig:'いろり'}, {no:4,word:'つまげ',type:'N',orig:'まつげ'},
+  {no:5,word:'あられ',type:'W'},               {no:6,word:'かかし',type:'W'},
+  {no:7,word:'えくぼ',type:'W'},               {no:8,word:'ういが',type:'N',orig:'うがい'},
+  {no:9,word:'けじめ',type:'W'},               {no:10,word:'めがね',type:'W'},
+  {no:11,word:'みれぞ',type:'N',orig:'みぞれ'},{no:12,word:'まけお',type:'N',orig:'おまけ'},
+  {no:13,word:'つぼみ',type:'W'},              {no:14,word:'みげや',type:'N',orig:'みやげ'},
+  {no:15,word:'ねがめ',type:'N',orig:'めがね'},{no:16,word:'ともた',type:'N',orig:'たもと'},
+  {no:17,word:'うわさ',type:'W'},              {no:18,word:'きかね',type:'N',orig:'かきね'},
+  {no:19,word:'つくえ',type:'W'},              {no:20,word:'かおり',type:'W'},
+  {no:21,word:'うがい',type:'W'},              {no:22,word:'みぞれ',type:'W'},
+  {no:23,word:'りかお',type:'N',orig:'かおり'},{no:24,word:'おまけ',type:'W'},
+  {no:25,word:'かきね',type:'W'},              {no:26,word:'いろり',type:'W'},
+  {no:27,word:'びとら',type:'N',orig:'とびら'},{no:28,word:'えつく',type:'N',orig:'つくえ'},
+  {no:29,word:'ぼえく',type:'N',orig:'えくぼ'},{no:30,word:'まつげ',type:'W'},
+  {no:31,word:'わさう',type:'N',orig:'うわさ'},{no:32,word:'ぼみつ',type:'N',orig:'つぼみ'},
+  {no:33,word:'かしか',type:'N',orig:'かかし'},{no:34,word:'いびき',type:'W'},
+  {no:35,word:'れらあ',type:'N',orig:'あられ'},{no:36,word:'もなか',type:'W'},
+  {no:37,word:'たもと',type:'W'},              {no:38,word:'けめじ',type:'N',orig:'けじめ'},
+  {no:39,word:'みやげ',type:'W'},              {no:40,word:'かなも',type:'N',orig:'もなか'}
+];
+
+/* 正解キー：単語→はい、非単語→いいえ */
+function correctKey(type){ return type==='W' ? 'yes' : 'no'; }
+
+/* ============================================================
+   提示方法ごとの設定（健常平均・SD）
+   音声提示と文字提示は別々に実施し、別々に採点する
+   ============================================================ */
+const MODE_CFG = {
+  voice: { label:'音声提示', mean:39.87, sd:0.39 },
+  text:  { label:'文字提示', mean:39.57, sd:0.93 }
+};
+const MODES = ['voice','text'];
+const MAX_SCORE = 40;          // 1条件あたりの満点（単語20＋非単語20）
+
+/* ============================================================
+   STATE（入力値の保管場所）
+   answers[提示方法][番号] = 'yes' | 'no' | undefined(=未回答)
+   ============================================================ */
+const STATE = {
+  patientName:'', date:'', age:null, mode:'voice',
+  answers:{ voice:{}, text:{} }
+};
+
+/* ============================================================
+   採点の計算（提示方法ごと）
+   ============================================================ */
+function computeScores(mode){
+  const ans = STATE.answers[mode] || {};
+  let w=0, nw=0, answered=0;
+  ITEMS.forEach(it=>{
+    const a = ans[it.no];
+    if(!a) return;
+    answered++;
+    if(a === correctKey(it.type)){ if(it.type==='W') w++; else nw++; }
+  });
+  return { word:w, nw:nw, total:w+nw, answered:answered, unanswered: ITEMS.length - answered };
+}
+
+/* ============================================================
+   集計エリアの更新（音声・文字の両方を表示）
+   ============================================================ */
+function updateSummary(){
+  const sv = computeScores('voice');
+  const st = computeScores('text');
+
+  // 上部バー（いま開いている提示方法）
+  const cur = STATE.mode==='voice' ? sv : st;
+  document.getElementById('barTitle').textContent = MODE_CFG[STATE.mode].label;
+  document.getElementById('barTotal').textContent = '計 ' + cur.total + '/' + MAX_SCORE;
+  document.getElementById('barSub').textContent =
+    (cur.unanswered>0 ? '未回答 ' + cur.unanswered + '件（0点として計算していません）' : '全問回答済み');
+
+  document.getElementById('summaryTable').innerHTML =
+    '<tr><th>項目</th><th class="num">音声提示</th><th class="num">文字提示</th></tr>' +
+    '<tr><td>単語</td><td class="num">'+sv.word+' / 20</td><td class="num">'+st.word+' / 20</td></tr>' +
+    '<tr><td>非単語</td><td class="num">'+sv.nw+' / 20</td><td class="num">'+st.nw+' / 20</td></tr>' +
+    '<tr class="total"><td>計</td><td class="num">'+sv.total+' / '+MAX_SCORE+'</td>' +
+    '<td class="num">'+st.total+' / '+MAX_SCORE+'</td></tr>';
+
+  // 健常平均（＋全問回答時だけSD差。途中経過と比べられないようにする）
+  document.getElementById('refBox').innerHTML =
+    refLine('音声提示', sv, MODE_CFG.voice) + '<br>' + refLine('文字提示', st, MODE_CFG.text);
+}
+function refLine(label, s, cfg){
+  let line = '参考：' + label + '　健常平均 <b>' + cfg.mean.toFixed(2) + '</b>（SD ' + cfg.sd.toFixed(2) + '）';
+  if(s.answered > 0 && s.unanswered === 0){
+    const z = (s.total - cfg.mean) / cfg.sd;
+    line += '　／　差 <b>' + (z>=0?'+':'') + z.toFixed(1) + ' SD</b>';
+  }else if(s.unanswered > 0){
+    line += '　<span style="color:var(--warn)">（未回答' + s.unanswered + '件のため差は出しません）</span>';
+  }
+  return line;
+}
+
+/* ============================================================
+   1語ぶんの行の見た目を更新（いま開いている提示方法の回答で）
+   ============================================================ */
+function updateItemRow(no){
+  const it = ITEMS.find(x=>x.no===no);
+  const yesBtn = document.getElementById('yes-'+no);
+  const noBtn  = document.getElementById('no-'+no);
+  if(!it || !yesBtn || !noBtn) return;
+  const ans = STATE.answers[STATE.mode][no];
+  yesBtn.classList.toggle('selected', ans==='yes');
+  noBtn.classList.toggle('selected', ans==='no');
+
+  const mark = document.getElementById('mark-'+no);
+  mark.className = 'mark';
+  if(!ans){ mark.textContent=''; }
+  else if(ans === correctKey(it.type)){ mark.textContent='○'; mark.classList.add('correct'); }
+  else { mark.textContent='×'; mark.classList.add('wrong'); }
+}
+
+/* はい／いいえ。同じボタンをもう一度押したら未回答に戻す（仕様4-5） */
+function pickAnswer(no, value){
+  const a = STATE.answers[STATE.mode];
+  if(a[no] === value){
+    delete a[no];
+    toast('未回答に戻しました');
+  }else{
+    a[no] = value;
+  }
+  updateItemRow(no);
+  updateSummary();
+  histRender();
+  scheduleSave();
+}
+
+/* ============================================================
+   検査語リストを組み立てる
+   ============================================================ */
+function buildItemList(){
+  const list = document.getElementById('itemList');
+  list.innerHTML = '';
+  ITEMS.forEach(it=>{
+    const origHtml = (it.type==='N') ? '<span class="orig">（'+it.orig+'）</span>' : '';
+    const row = document.createElement('div');
+    row.className = 'item';
+    row.innerHTML =
+      '<div class="no">'+it.no+'</div>'+
+      '<div class="word">'+it.word+origHtml+'</div>'+
+      '<div class="mark" id="mark-'+it.no+'"></div>'+
+      '<div class="ans">'+
+        '<div class="opt" id="yes-'+it.no+'">はい</div>'+
+        '<div class="opt" id="no-'+it.no+'">いいえ</div>'+
+      '</div>';
+    list.appendChild(row);
+    row.querySelector('#yes-'+it.no).onclick = ()=>pickAnswer(it.no,'yes');
+    row.querySelector('#no-'+it.no).onclick  = ()=>pickAnswer(it.no,'no');
+  });
+  ITEMS.forEach(it=>updateItemRow(it.no));
+}
+
+/* ============================================================
+   共通の小物（日付・エスケープ・お知らせ）
+   ============================================================ */
+function todayStr(){
+  const d = new Date(), p = n => (n<10?'0':'') + n;
+  return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate());
+}
+function fmtDate(iso){
+  const m = String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m ? (Number(m[2]) + '/' + Number(m[3])) : iso;
+}
+function fmtTime(ts){
+  const d = new Date(ts), p = n => (n<10?'0':'') + n;
+  return p(d.getMonth()+1) + '/' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
+function esc(t){
+  return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 画面の下から一瞬出るお知らせ（操作の結果を必ず言葉で返す） */
+function toast(msg){
+  let t = document.getElementById('toastBox');
+  if(!t){
+    t = document.createElement('div'); t.id='toastBox';
+    t.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:70px;'
+      + 'background:#111;color:#fff;padding:10px 18px;border-radius:6px;font-size:14px;'
+      + 'font-weight:bold;z-index:400;box-shadow:0 2px 10px rgba(0,0,0,.3)';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(toast._tm);
+  toast._tm = setTimeout(()=>{ t.style.display='none'; }, 2200);
+}
+
+/* ============================================================
+   前回との比較（仕様7-7）
+   氏名そのものは保存せず、氏名から作った短い識別子だけを持つ。
+   音声提示・文字提示は別々の記録として残す。
+   ============================================================ */
+const HIST_KEY = 'tlpaLexdecHistory';
+const HIST_MAX = 60;
+const SCALE_ID = { voice:'lexdec3v', text:'lexdec3t' };
+
+function histKey(name){
+  const t = String(name||'').replace(/\s+/g,'');
+  if(!t) return '';
+  let h1 = 5381, h2 = 52711;
+  for(let i=0;i<t.length;i++){ const c = t.charCodeAt(i); h1 = ((h1*33)^c)>>>0; h2 = ((h2*39)^c)>>>0; }
+  return h1.toString(36) + '-' + h2.toString(36);
+}
+function histRead(){
+  try{ const r = localStorage.getItem(HIST_KEY); const a = r?JSON.parse(r):[]; return Array.isArray(a)?a:[]; }
+  catch(e){ return []; }
+}
+function histWrite(a){ try{ localStorage.setItem(HIST_KEY, JSON.stringify(a)); }catch(e){} }
+
+/* QRを作った時点＝評価が確定した時点だけ記録する（未回答があるときは記録しない） */
+function histSave(mode, total){
+  const k = histKey(STATE.patientName);
+  if(!k) return;                                  // 氏名が無いと誰の記録か特定できない
+  const s = SCALE_ID[mode];
+  const d = STATE.date || todayStr();
+  let a = histRead().filter(r => !(r.k===k && r.s===s && r.d===d));   // 同じ日は上書き
+  a.push({k:k, s:s, d:d, v:total, m:MAX_SCORE});
+  a.sort((x,y)=> x.d<y.d ? -1 : 1);
+  if(a.length > HIST_MAX) a = a.slice(a.length - HIST_MAX);
+  histWrite(a);
+}
+function histPrev(mode){
+  const k = histKey(STATE.patientName);
+  if(!k) return null;
+  const s = SCALE_ID[mode];
+  const d = STATE.date || todayStr();
+  const a = histRead().filter(r => r.k===k && r.s===s && r.d < d);
+  return a.length ? a[a.length-1] : null;
+}
+/* 集計カードに「前回 → 今回」を出す（提示方法ごと） */
+function histRender(){
+  const box = document.getElementById('cmpBox');
+  if(!box) return;
+  let h = '';
+  MODES.forEach(mode=>{
+    const p = histPrev(mode);
+    if(!p) return;
+    const label = MODE_CFG[mode].label;
+    const s = computeScores(mode);
+    if(s.answered === 0){
+      h += '<div class="cmpline">' + label + '　前回（' + fmtDate(p.d) + '）：<b>' + p.v + '点</b>／' + p.m + '点</div>';
+      return;
+    }
+    const diff = s.total - p.v;
+    const cls = diff>0 ? 'up' : (diff<0 ? 'dn' : 'same');
+    h += '<div class="cmpline">' + label + '　前回（' + fmtDate(p.d) + '）：<b>' + p.v + '点</b> → 今回：<b>' + s.total + '点</b>'
+       + ' <span class="' + cls + '">（' + (diff>0?'+':'') + diff + '）</span>'
+       + (s.unanswered>0 ? '　<span style="color:var(--warn)">※未回答' + s.unanswered + '件の途中経過です</span>' : '')
+       + '</div>';
+  });
+  box.innerHTML = h;
+}
+function clearHistory(){
+  if(!confirm('この端末に残っている「前回との比較用の記録」をすべて消します。\n（評価日と点数だけの記録です。氏名は保存していません）\n入力中の内容と下書きは消えません。よろしいですか？')) return;
+  try{ localStorage.removeItem(HIST_KEY); }catch(e){}
+  histRender();
+  toast('消しました');
+}
+
+/* ============================================================
+   QRコード出力（仕様6章）
+   ============================================================ */
+const QR_MAX_CHARS = 120;   // 1枚あたりの目安文字数。超えたら複数枚に分ける（仕様6-5）
+let QR_PARTS = [];          // コピー用に、枚ごとのテキストを持っておく
+
+/* 改行を「／」に変換（カルテが改行を無視する場合の対策） */
+function toQRString(text){
+  return text.split('\n').map(x=>x.trim()).filter(x=>x!=='').join('／');
+}
+
+/* 1枚に収まらないテキストを行単位で分ける。
+   1行目（評価日＋検査名）は各枚に付け直し、どの枚も単独で何の検査か分かるようにする */
+function splitTextForQR(txt){
+  if(txt.length <= QR_MAX_CHARS) return [txt];
+  const lines = txt.split('\n');
+  const head = lines[0];
+  const headRoom = head.length + 8;                 // 見出しと「（1/3）」の分を差し引く
+  let budget = QR_MAX_CHARS - headRoom;
+  if(budget < 20) budget = 20;
+  // 1行が長すぎるとその行だけで1枚を占めてしまうので、行の中で折ってから枚数を決める
+  const rest = [];
+  lines.slice(1).forEach(L=>{
+    if(L.length <= budget){ rest.push(L); return; }
+    for(let k=0;k<L.length;k+=budget) rest.push(L.substr(k,budget));
+  });
+  const parts = []; let cur = [], curLen = 0;
+  rest.forEach(L=>{
+    if(cur.length && curLen + L.length + 2 + headRoom > QR_MAX_CHARS){ parts.push(cur); cur=[]; curLen=0; }
+    cur.push(L); curLen += L.length + 2;
+  });
+  if(cur.length) parts.push(cur);
+  if(parts.length <= 1) return [txt];
+  return parts.map((p,i)=> head + '（' + (i+1) + '/' + parts.length + '）\n' + p.join('\n'));
+}
+
+/* QRに入れるテキストを組み立てる（氏名は含めない／評価日は1行目に入れる：仕様3-3・6-4） */
+function buildQRText(){
+  const head = '【評価日 ' + (STATE.date || todayStr()) + '】TLPA語彙判断III(平仮名)';
+  const sc = { voice: computeScores('voice'), text: computeScores('text') };
+
+  // どちらの提示方法も1件も回答が無いときは「実施していない」ことだけを残す
+  if(sc.voice.answered === 0 && sc.text.answered === 0) return head + '\n（未実施）';
+
+  const L = [head];
+  const done = [];      // 実施した提示方法だけを並べる
+  MODES.forEach(mode=>{
+    const s = sc[mode];
+    if(s.answered === 0) return;             // 実施していない条件はブロックごと出さない（仕様6-4）
+    done.push(mode);
+    const nm = (mode==='voice') ? '音声' : '文字';
+    L.push(nm + ' 単語 ' + s.word + '/20');
+    L.push(nm + ' 非単語 ' + s.nw + '/20');
+    L.push(nm + ' 計 ' + s.total + '/' + MAX_SCORE + (s.unanswered>0 ? '(途中経過)' : ''));
+  });
+
+  const refs = done.map(m => (m==='voice'?'音声':'文字') + MODE_CFG[m].mean.toFixed(2) + '(SD' + MODE_CFG[m].sd.toFixed(2) + ')');
+  L.push('健常平均 ' + refs.join(' '));
+
+  const diffs = [];
+  done.forEach(m=>{
+    const s = sc[m];
+    if(s.unanswered !== 0) return;            // 途中経過ではSD差を出さない
+    const z = (s.total - MODE_CFG[m].mean) / MODE_CFG[m].sd;
+    diffs.push((m==='voice'?'音声':'文字') + (z>=0?'+':'') + z.toFixed(1) + 'SD');
+  });
+  if(diffs.length) L.push('差 ' + diffs.join(' '));
+
+  // 未回答はQRの本文にも必ず残す（カルテに貼られた時点で途中経過だと分かるように）
+  const un = done.filter(m => sc[m].unanswered > 0)
+                 .map(m => (m==='voice'?'音声':'文字') + sc[m].unanswered + '件');
+  if(un.length) L.push('※未回答 ' + un.join('・') + '（0点として計算していません。途中経過です）');
+
+  // 片方しか実施していないときは、もう片方が「未実施」だと分かるようにする
+  if(done.length === 1) L.push('※' + (done[0]==='voice'?'文字':'音声') + '提示は未実施');
+
+  return L.join('\n');
+}
+
+/* canvasへQRを描く。画面幅を超えないようCSSで縮め、升目がつぶれないようにする（仕様6-5） */
+function drawQRCanvas(cv, text){
+  const qr = qrcode(0, 'M');            // 型番自動・誤り訂正レベルM
+  qr.addData(text);
+  qr.make();
+  const mc = qr.getModuleCount();
+  const cs = Math.max(4, Math.min(8, Math.floor(280/mc)));
+  const mg = cs * 4, sz = mc * cs + mg * 2;
+  cv.width = sz; cv.height = sz;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, sz, sz);
+  ctx.fillStyle = '#000';
+  for(let r=0;r<mc;r++) for(let c=0;c<mc;c++){ if(qr.isDark(r,c)) ctx.fillRect(mg + c*cs, mg + r*cs, cs, cs); }
+}
+
+function copyToClipboard(text, btn, label){
+  const done = ()=>{ btn.textContent = 'コピーしました ✓'; setTimeout(()=>{ btn.textContent = label; }, 2000); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done)
+      .catch(()=>alert('コピーできませんでした。表示されているテキストを手で選択してください。'));
+  }else{
+    alert('コピーできませんでした。表示されているテキストを手で選択してください。');
+  }
+}
+
+function generateQR(){
+  const sc = { voice: computeScores('voice'), text: computeScores('text') };
+  const warn = document.getElementById('qrWarn');
+  const un = MODES.filter(m => sc[m].answered>0 && sc[m].unanswered>0)
+                  .map(m => MODE_CFG[m].label + sc[m].unanswered + '件');
+  if(un.length){
+    warn.textContent = '未回答があります（' + un.join('・') + '）。未回答は加点していません。'
+                     + 'このまま生成できますが、QRには「途中経過」と入ります。';
+    warn.classList.add('show');
+  }else{
+    warn.classList.remove('show');
+  }
+
+  const text  = buildQRText();
+  const parts = splitTextForQR(text);
+  QR_PARTS = parts;
+
+  // QRが出たあと何をすればよいか分からず手が止まる、という声が現場から挙がったため手順を出す
+  let h = '<div class="qsteps"><b>このあとの手順</b><br>'
+        + '① カルテ端末のカメラで下のQRコードを読み取る'
+        + (parts.length>1 ? '（<b>' + parts.length + '枚すべて</b>）' : '') + '<br>'
+        + '② カルテに貼り付いた内容を目で確かめる<br>'
+        + '③ 確認できたら［この端末から入力を消す］を押す</div>';
+  if(parts.length > 1){
+    h += '<div class="qmulti">項目数が多いため、QRコードを<b>' + parts.length + '枚</b>に分けています。'
+       + '<b>1枚目から順に</b>読み取ってください。</div>';
+  }
+  parts.forEach((p, i)=>{
+    h += '<div class="qwrap">'
+       + (parts.length>1 ? '<div class="qnum">' + (i+1) + ' / ' + parts.length + ' 枚目</div>' : '')
+       + '<div class="qr-canvas"><canvas id="qrcv-' + i + '"></canvas></div>'
+       + '<pre class="qr-text">' + esc(p) + '</pre>'
+       + '<button class="btn btn-copy qr-copy" data-part="' + i + '">'
+       + (parts.length>1 ? 'この' + (i+1) + '枚目をコピー' : 'テキストをコピー') + '</button>'
+       + '</div>';
+  });
+  if(parts.length > 1){
+    h += '<button class="btn btn-copy" id="qrCopyAll" style="margin-bottom:6px">全部まとめてコピー</button>';
+  }
+  h += '<div class="tag">※ コピーはカルテ貼り付け用に、改行を「／」に変換したテキストです。氏名はQRに含まれません。</div>'
+     + '<div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--border)">'
+     + '<button class="btn btn-reset" id="qrClearBtn" style="background:#fde2e2;color:#991b1b">この端末から入力を消す</button>'
+     + '<div class="tag" style="margin-top:4px">※ 押すまで下書きは消えません（誤操作でのデータ消失を防ぐため）。</div>'
+     + '<div class="warn-box" id="clearedNote">消しました。この端末に保存されていた入力は残っていません。'
+     + '<b>画面の表示は転記の確認用に残しています。</b>次の患者に使う前に［この患者を終わる］を押してください。</div>'
+     + '</div>';
+
+  const area = document.getElementById('qrArea');
+  area.innerHTML = h;
+  area.style.display = 'block';
+
+  try{
+    parts.forEach((p, i)=> drawQRCanvas(document.getElementById('qrcv-' + i), toQRString(p)));
+  }catch(e){
+    area.insertAdjacentHTML('beforeend',
+      '<div style="color:var(--danger);margin-top:8px;font-size:13px">QRコード生成エラー: ' + esc(e.message||String(e)) + '</div>');
+  }
+
+  Array.prototype.forEach.call(area.querySelectorAll('.qr-copy'), btn=>{
+    btn.onclick = ()=> copyToClipboard(toQRString(QR_PARTS[Number(btn.dataset.part)]), btn, btn.textContent);
+  });
+  const allBtn = document.getElementById('qrCopyAll');
+  if(allBtn) allBtn.onclick = ()=> copyToClipboard(toQRString(text), allBtn, '全部まとめてコピー');
+  document.getElementById('qrClearBtn').onclick = requestClearDraft;
+
+  // QRを作った時点＝評価が確定した時点。未回答が無い条件だけ前回比較用に記録する（仕様7-7）
+  MODES.forEach(m=>{ if(sc[m].answered>0 && sc[m].unanswered===0) histSave(m, sc[m].total); });
+  histRender();
+
+  try{ area.scrollIntoView({behavior:'smooth', block:'start'}); }catch(e){}
+}
+
+/* ============================================================
+   下書き自動保存・復元（仕様7章・localStorage・3スロット）
+   - 自動では復元しない（確認バナーで検査者に選ばせる）
+   - QR生成だけでは消さない（消去は専用ボタン／［この患者を終わる］のみ）
+   - 消したあとは、そのページで保存を再開しない（仕様7-6a）
+   ============================================================ */
+const NS = 'tlpa_lexdec3_';
+/* 下書きの保存枠。共用端末で複数の患者を並行して扱えるようにするためのもの。
+   枠を増減するときは、この配列と SLOT_KEYS を直すだけでよい（以下の処理は枠数に依存しない） */
+const SLOTS = ['A','B','C'];
+const SLOT_KEYS = {A: NS+'slotA', B: NS+'slotB', C: NS+'slotC'};
+let mySlot = null;          // このタブが書き込む枠。決まるまでは null（＝保存しない）
+let saveTimer = null;
+let draftCleared = false;   // ［この端末から入力を消す］を押した後かどうか
+
+function readSlot(slot){
+  try{ const raw = localStorage.getItem(SLOT_KEYS[slot]); return raw ? JSON.parse(raw) : null; }
+  catch(e){ return null; }
+}
+function writeSlot(slot, data){ try{ localStorage.setItem(SLOT_KEYS[slot], JSON.stringify(data)); }catch(e){} }
+function clearSlot(slot){ try{ localStorage.removeItem(SLOT_KEYS[slot]); }catch(e){} }
+
+/* 回答の件数（音声・文字の合計）。下書きの中身判定とバナー表示に使う */
+function answerCount(ans){
+  if(!ans) return 0;
+  let n = 0;
+  MODES.forEach(m=>{ const o = ans[m]; if(o) n += Object.keys(o).filter(k=>o[k]).length; });
+  return n;
+}
+
+/* 下書きに中身があるかの判定。保存しているキーをすべて見る（仕様7-6c）。
+   氏名だけで判定すると、氏名未入力のまま検査だけ進めた下書きが「空き」と見なされて上書き消失する */
+function slotHasData(d){
+  if(!d) return false;
+  if(d.patientName && String(d.patientName).trim() !== '') return true;
+  if(d.age !== null && d.age !== undefined && d.age !== '') return true;
+  if(answerCount(d.answers) > 0) return true;
+  if(d.mode && d.mode !== 'voice') return true;
+  if(d.date && d.date !== todayStr()) return true;
+  return false;
+}
+function isEmptyState(){
+  return !slotHasData({patientName:STATE.patientName, age:STATE.age,
+                       answers:STATE.answers, mode:STATE.mode, date:STATE.date});
+}
+
+/* 保存が止まっている状態を画面の下に固定して出す（仕様7-6b）。
+   これが無いと、バナーを選ばないまま入力を続けて全部失う事故が起きる */
+function showSaveWarning(on){
+  let el = document.getElementById('saveWarn');
+  if(!on){ if(el && el.parentNode) el.parentNode.removeChild(el); return; }
+  if(!el){ el = document.createElement('div'); el.id='saveWarn'; el.className='savewarn'; document.body.appendChild(el); }
+  el.textContent = draftCleared
+    ? '⚠ 消去したため、いまの入力は保存されていません。［この患者を終わる］を押すと保存を再開します'
+    : '⚠ いまの入力は保存されていません。画面の一番上にある帯で「この続きをする」か「これを消す」を選んでください';
+}
+
+/* 入力のたびに呼ぶ（400msまとめて保存） */
+function scheduleSave(){
+  if(!mySlot){ showSaveWarning(true); return; }   // 保存できていないことを、その場で知らせる
+  showSaveWarning(false);
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveNow, 400);
+}
+function saveNow(){
+  if(!mySlot) return;
+  if(isEmptyState()){ clearSlot(mySlot); return; }   // 空の下書きは作らない
+  writeSlot(mySlot, {
+    patientName: STATE.patientName,
+    date: STATE.date,
+    age: STATE.age,
+    mode: STATE.mode,
+    answers: STATE.answers,
+    ts: Date.now()
+  });
+}
+
+/* QR生成後の［この端末から入力を消す］（仕様7-4・7-6a） */
+function requestClearDraft(){
+  if(!confirm('この端末に一時保存されている入力（下書き）を消します。\n※画面のQRコードとテキストは、転記の確認用にそのまま残ります。\nよろしいですか？')) return;
+  clearTimeout(saveTimer);
+  if(mySlot) clearSlot(mySlot);
+  // 消したあとに画面を操作すると同じ枠へ書き戻され、次の患者に前の入力が残る。
+  // そうならないよう、このページでは以後保存しない
+  mySlot = null;
+  draftCleared = true;
+  showSaveWarning(true);
+  const btn = document.getElementById('qrClearBtn');
+  if(btn){ btn.disabled = true; btn.textContent = '消しました'; btn.style.opacity = '.6'; }
+  const note = document.getElementById('clearedNote');
+  if(note) note.classList.add('show');
+  toast('消しました');
+}
+
+/* ［この患者を終わる］（仕様8-2）。ここで保存を再開する */
+function endPatient(){
+  if(!confirm('この患者の入力をすべて消します。\n（音声提示・文字提示の回答、氏名・評価日・年齢と、この端末に保存された下書き）\n※前回との比較用の記録は残ります。\n次の患者の入力を始められます。よろしいですか？')) return;
+  clearTimeout(saveTimer);
+  if(mySlot) clearSlot(mySlot);
+  STATE.patientName = '';
+  STATE.age = null;
+  STATE.date = todayStr();
+  STATE.answers = { voice:{}, text:{} };
+  draftCleared = false;
+  document.getElementById('qrArea').style.display = 'none';
+  document.getElementById('qrArea').innerHTML = '';
+  document.getElementById('qrWarn').classList.remove('show');
+  refreshAllUI();
+  refreshDraftBanner();          // 空いた枠を割り当て直して保存を再開する
+  toast('消しました');
+}
+
+/* ---- 確認バナー（仕様7-3） ---- */
+function computeDraftState(){
+  const used = [], free = [];
+  SLOTS.forEach(sl=>{
+    const d = readSlot(sl);
+    if(slotHasData(d)) used.push({slot:sl, d:d}); else free.push(sl);
+  });
+  return {used:used, free:free};
+}
+function hideDraftBanner(){
+  const b = document.getElementById('draftBanner');
+  b.innerHTML = '';
+  b.classList.remove('show');
+}
+function refreshDraftBanner(){
+  const st = computeDraftState();
+  if(st.used.length === 0){
+    hideDraftBanner();
+    mySlot = st.free.length ? st.free[0] : null;
+    showSaveWarning(!mySlot);
+    return;
+  }
+  // 空きがあれば暫定的に割り当てる。空きが無ければ、検査者が選ぶまで保存を保留する
+  mySlot = st.free.length ? st.free[0] : null;
+  showDraftBanner(st);
+  showSaveWarning(!mySlot);
+}
+function showDraftBanner(st){
+  const b = document.getElementById('draftBanner');
+  let h = '<div class="title"><b>保存されている入力が' + st.used.length + '件あります。</b>自動では戻しません。'
+        + (st.free.length
+            ? '（空きはあと' + st.free.length + '件。このまま新しい患者の入力を始められます）'
+            : '<br><b>空きがないため、いまのままでは入力が保存されません。</b>下のどれかを選んでください。')
+        + '</div>';
+  st.used.forEach((x, i)=>{
+    const cnt = answerCount(x.d.answers);
+    const nm  = (x.d.patientName && String(x.d.patientName).trim()!=='') ? esc(x.d.patientName) : '（未入力）';
+    h += '<div class="row"><div class="info">' + (i+1) + '件目：氏名 <b>' + nm + '</b>'
+       + '　回答 ' + cnt + '件　最終更新 ' + fmtTime(x.d.ts) + '</div>'
+       + '<div class="acts">'
+       + '<div class="mini resume" data-act="resume" data-slot="' + x.slot + '">この続きをする</div>'
+       + '<div class="mini del" data-act="del" data-slot="' + x.slot + '">これを消す</div>'
+       + '</div></div>';
+  });
+  h += '<div class="foot">';
+  if(st.free.length) h += '<div class="mini" data-act="keep">残したまま新しく始める</div>';
+  if(st.used.length > 1) h += '<div class="mini del" data-act="all">すべて消して新しく始める</div>';
+  h += '</div>';
+  b.innerHTML = h;
+  b.classList.add('show');
+
+  Array.prototype.forEach.call(b.querySelectorAll('[data-act]'), el=>{
+    const act = el.dataset.act, slot = el.dataset.slot;
+    if(act === 'resume') el.onclick = ()=> resumeSlot(slot);
+    if(act === 'del')    el.onclick = ()=> deleteSlotDraft(slot);
+    if(act === 'keep')   el.onclick = ()=> { hideDraftBanner(); showSaveWarning(!mySlot); };
+    if(act === 'all')    el.onclick = discardAll;
+  });
+}
+function resumeSlot(slot){
+  const d = readSlot(slot);
+  if(!d) return;
+  STATE.patientName = d.patientName || '';
+  STATE.age   = (d.age == null ? null : d.age);
+  STATE.date  = d.date || todayStr();       // 保存されていた評価日を優先する（仕様3-3）
+  STATE.mode  = d.mode || 'voice';
+  STATE.answers = {
+    voice: (d.answers && d.answers.voice) || {},
+    text:  (d.answers && d.answers.text)  || {}
+  };
+  mySlot = slot;
+  draftCleared = false;
+  hideDraftBanner();
+  showSaveWarning(false);
+  refreshAllUI();
+  toast('前回の入力を復元しました');
+}
+function deleteSlotDraft(slot){
+  const d = readSlot(slot);
+  const info = d ? ('（氏名：' + (d.patientName || '未入力') + '　最終更新：' + fmtTime(d.ts) + '）') : '';
+  if(!confirm('この下書き' + info + 'を消します。\nこの操作は取り消せません。よろしいですか？')) return;
+  clearSlot(slot);
+  toast('消しました');
+  refreshDraftBanner();          // 残りがあれば表示を続け、無ければ新規入力の画面に戻る
+}
+function discardAll(){
+  if(!confirm('この端末に保存されている下書きをすべて消して、新しく始めます。\n（比較用の記録は残ります）\nこの操作は取り消せません。よろしいですか？')) return;
+  SLOTS.forEach(clearSlot);
+  STATE.patientName = '';
+  STATE.age = null;
+  STATE.date = todayStr();
+  STATE.answers = { voice:{}, text:{} };
+  draftCleared = false;
+  hideDraftBanner();
+  refreshAllUI();
+  refreshDraftBanner();
+  toast('消しました');
+}
+
+/* ============================================================
+   画面の描き直し
+   ============================================================ */
+function applyMode(){
+  document.getElementById('modeVoice').classList.toggle('active', STATE.mode==='voice');
+  document.getElementById('modeText').classList.toggle('active', STATE.mode==='text');
+  document.getElementById('accentNote').style.display = (STATE.mode==='voice') ? 'block' : 'none';
+  buildItemList();     // 提示方法に応じて回答を反映し直す
+  updateSummary();
+  histRender();
+}
+function setMode(m){
+  STATE.mode = m;
+  applyMode();
+  scheduleSave();
+  window.scrollTo(0,0);
+}
+function refreshAllUI(){
+  document.getElementById('nameInput').value = STATE.patientName || '';
+  document.getElementById('dateInput').value = STATE.date || todayStr();
+  document.getElementById('ageInput').value  = (STATE.age == null ? '' : STATE.age);
+  applyMode();
+}
+
+/* ============================================================
+   初期化・イベント設定
+   ============================================================ */
+document.getElementById('qrGenBtn').onclick = generateQR;
+document.getElementById('nameInput').oninput = e=>{ STATE.patientName = e.target.value; histRender(); scheduleSave(); };
+document.getElementById('dateInput').oninput = e=>{ STATE.date = e.target.value; histRender(); scheduleSave(); };
+document.getElementById('ageInput').oninput  = e=>{ STATE.age = e.target.value===''?null:Number(e.target.value); scheduleSave(); };
+document.getElementById('resetBtn').onclick     = endPatient;
+document.getElementById('histClearBtn').onclick = clearHistory;
+document.getElementById('modeVoice').onclick = ()=>setMode('voice');
+document.getElementById('modeText').onclick  = ()=>setMode('text');
+
+STATE.date = todayStr();       // 評価日の初期値は当日（仕様3-3）
+refreshAllUI();
+
+/* 起動時：下書きがあればバナーを出す（自動では復元しない） */
+refreshDraftBanner();
+</script>
+<script>
+/* オフライン動作（Service Worker）の登録。
+   登録に失敗しても catch で握りつぶすため、ツール本体の動作には影響しません。 */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
+</script>
+</body></html>
