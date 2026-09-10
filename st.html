@@ -40,7 +40,7 @@ a.back{
 }
 a.back::before{content:'‹';font-size:1.4rem;line-height:1}
 
-header{padding:4px 4px 20px}
+header{padding:4px 4px 16px}
 h1{font-size:1.35rem;font-weight:700;letter-spacing:.02em}
 .sub{font-size:.85rem;color:var(--tx2);margin-top:4px}
 
@@ -53,30 +53,80 @@ h1{font-size:1.35rem;font-weight:700;letter-spacing:.02em}
 #netbar.show{display:flex}
 #netbar b{font-weight:700}
 
-/* ツール一覧 */
-.tools{display:flex;flex-direction:column;gap:12px}
-a.tool{
-  display:block;background:var(--sf);border:1px solid var(--bd);
-  border-radius:var(--r);box-shadow:var(--sh);
-  padding:18px 20px;text-decoration:none;color:inherit;
-  transition:transform .08s ease, box-shadow .15s ease;
-  -webkit-tap-highlight-color:rgba(37,99,235,.12);
+/* ===== 検査バッテリーごとのまとまり =====
+   ツールが増えても1画面に収まるよう、説明文つきのカードを縦に並べる形をやめ、
+   「どの検査バッテリーの、どの検査か」で選べる形にしている。 */
+.group{
+  background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);
+  box-shadow:var(--sh);padding:14px 14px 16px;margin-bottom:14px;
 }
-a.tool:active{transform:scale(.99);box-shadow:0 0 0 rgba(0,0,0,0)}
-.tool .nm{font-size:1.1rem;font-weight:700;color:var(--pr);display:flex;align-items:center;gap:10px}
-.tool .nm::after{content:'›';margin-left:auto;font-size:1.5rem;color:var(--tx3);line-height:1}
-.tool .ds{font-size:.85rem;color:var(--tx2);margin-top:6px}
-.tool .tg{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
-.tool .tg span{
+.group > h2{
+  font-size:1rem;font-weight:700;color:var(--tx);
+  padding-bottom:8px;border-bottom:2px solid var(--pr2);margin-bottom:12px;
+}
+.group > h2 small{font-weight:600;color:var(--tx2);font-size:.78rem;margin-left:6px}
+
+.setname{font-size:.85rem;font-weight:700;color:var(--tx2);margin:14px 0 6px}
+.setname:first-of-type{margin-top:0}
+.setname em{font-style:normal;font-weight:400;color:var(--tx3);font-size:.78rem;margin-left:4px}
+
+/* 横に4つ並ぶボタン（語彙判断検査Ⅰ〜Ⅳ）。
+   検査どうしの違い（漢字・1子音置換…）をボタンに直接書き、説明文を読まずに選べるようにする。 */
+.row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+a.chip{
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  min-height:64px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;
+  text-decoration:none;color:var(--pr);font-weight:700;font-size:1.05rem;
+  padding:6px 2px;-webkit-tap-highlight-color:rgba(37,99,235,.12);
+}
+a.chip small{
+  display:block;font-size:.66rem;color:var(--tx2);font-weight:600;
+  margin-top:2px;line-height:1.3;text-align:center;
+}
+a.chip:active{background:var(--pr2)}
+
+/* 表（名詞・動詞 × 理解・表出）。
+   「名詞の理解を見たい」と思った位置を、そのまま押せるようにする。 */
+.matrix{display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;align-items:stretch}
+.matrix .hd{
+  font-size:.75rem;font-weight:700;color:var(--tx2);text-align:center;
+  align-self:end;padding-bottom:2px;
+}
+.matrix .rh{
+  font-size:.9rem;font-weight:700;color:var(--tx2);
+  display:flex;align-items:center;padding-right:2px;
+}
+a.cell{
+  display:flex;flex-direction:column;justify-content:center;min-height:58px;
+  background:var(--sf2);border:1px solid var(--bd);border-radius:8px;
+  text-decoration:none;color:var(--pr);font-weight:700;font-size:.95rem;
+  padding:8px 10px;-webkit-tap-highlight-color:rgba(37,99,235,.12);
+}
+a.cell small{display:block;font-size:.68rem;color:var(--tx2);font-weight:600;margin-top:2px}
+a.cell:active{background:var(--pr2)}
+
+/* まとまりに属さない検査（1行1つ） */
+.list{display:flex;flex-direction:column;gap:8px}
+a.line{
+  display:flex;align-items:center;gap:10px;background:var(--sf2);
+  border:1px solid var(--bd);border-radius:8px;padding:12px 14px;min-height:56px;
+  text-decoration:none;color:inherit;-webkit-tap-highlight-color:rgba(37,99,235,.12);
+}
+a.line .txt{flex:1;min-width:0}
+a.line .nm{font-weight:700;color:var(--pr);font-size:.98rem}
+a.line .tag{
+  display:inline-block;margin-top:2px;
   font-size:.72rem;background:var(--pr2);color:var(--pr3);
-  border-radius:99px;padding:3px 10px;font-weight:600;
+  border-radius:99px;padding:2px 10px;font-weight:600;white-space:nowrap;
 }
+a.line::after{content:'›';font-size:1.4rem;color:var(--tx3);line-height:1}
+a.line:active{background:var(--pr2)}
 
 .note{
-  background:var(--gn2);border-radius:8px;padding:10px 12px;margin-top:18px;
+  background:var(--gn2);border-radius:8px;padding:10px 12px;margin-top:16px;
   color:#14532d;font-size:.83rem;
 }
-footer{margin-top:28px;text-align:center;font-size:.75rem;color:var(--tx3);line-height:1.8}
+footer{margin-top:24px;text-align:center;font-size:.75rem;color:var(--tx3);line-height:1.8}
 </style>
 </head>
 <body>
@@ -94,75 +144,64 @@ footer{margin-top:28px;text-align:center;font-size:.75rem;color:var(--tx3);line-
     <div>現在<b>オフライン</b>です。保存済みのツールはこのまま使えます。</div>
   </div>
 
-  <nav class="tools">
+  <!-- ============================================================
+       ツールを増やしたときは、次の2か所に足すこと。
+         ① このページの一覧（下のどれかの <section class="group"> の中）
+         ② sw.js の PRECACHE_URLS（足さないと電波の無い場所で開けません）
+       片方だけだと「一覧に出ない」「オフラインで開けない」という
+       中途半端な状態になります。
+       ============================================================ -->
 
-    <a class="tool" href="amsd.html">
-      <div class="nm">標準ディサースリア検査（AMSD）</div>
-      <div class="ds">発話の検査と発声発語器官検査を入力し、評価点と平均評価点を自動計算します。</div>
-      <div class="tg"><span>構音障害</span><span>下書き自動保存</span></div>
-    </a>
+  <section class="group">
+    <h2>失語症語彙検査（TLPA）<small>8種類</small></h2>
 
-    <a class="tool" href="token.html">
-      <div class="nm">新日本版トークンテスト</div>
-      <div class="ds">[A]〜[F]の指示課題を文節ごとに○✕で入力し、単位別の小計と合計を自動計算します。</div>
-      <div class="tg"><span>失語症</span><span>下書き自動保存</span></div>
-    </a>
+    <div class="setname">語彙判断検査<em>実在する語かを［はい／いいえ］で判断</em></div>
+    <div class="row">
+      <a class="chip" href="lexdec.html">Ⅰ<small>漢字</small></a>
+      <a class="chip" href="lexdec2.html">Ⅱ<small>平仮名<br>1子音置換</small></a>
+      <a class="chip" href="lexdec3.html">Ⅲ<small>平仮名<br>音韻転置</small></a>
+      <a class="chip" href="lexdec4.html">Ⅳ<small>平仮名<br>類似なし</small></a>
+    </div>
 
-    <a class="tool" href="rcpm.html">
-      <div class="nm">レーヴン色彩マトリックス検査（RCPM）</div>
-      <div class="ds">セットA・AB・Bの回答を選ぶと、正誤判定・得点・所要時間を自動でまとめます。</div>
-      <div class="tg"><span>非言語性知能</span><span>下書き自動保存</span></div>
-    </a>
+    <div class="setname">名詞・動詞の検査<em>図版を提示して行う</em></div>
+    <div class="matrix">
+      <div></div>
+      <div class="hd">理解（指さし）</div>
+      <div class="hd">表出（言う・書く）</div>
 
-    <a class="tool" href="lexdec.html">
-      <div class="nm">語彙判断検査I（TLPA）</div>
-      <div class="ds">漢字2字が実在する語かを［はい／いいえ］で入力し、カテゴリー別の正答数と健常平均との差を自動計算します。</div>
-      <div class="tg"><span>失語症</span><span>下書き自動保存</span></div>
-    </a>
+      <div class="rh">名詞</div>
+      <a class="cell" href="ncomp.html">名詞理解<small>聴覚・視覚</small></a>
+      <a class="cell" href="noun.html">名詞表出<small>発話・書字</small></a>
 
-    <a class="tool" href="lexdec2.html">
-      <div class="nm">語彙判断検査Ⅱ（TLPA）</div>
-      <div class="ds">平仮名の語を［はい／いいえ］で判断します。音声提示・文字提示を別々に採点します。非単語は1子音の置き換えです。</div>
-      <div class="tg"><span>失語症</span><span>下書き自動保存</span></div>
-    </a>
+      <div class="rh">動詞</div>
+      <a class="cell" href="vcomp.html">動詞理解<small>聴覚・視覚</small></a>
+      <a class="cell" href="verb.html">動詞表出<small>発話・書字</small></a>
+    </div>
+  </section>
 
-    <a class="tool" href="lexdec3.html">
-      <div class="nm">語彙判断検査Ⅲ（TLPA）</div>
-      <div class="ds">平仮名の語を［はい／いいえ］で判断します。音声提示・文字提示を別々に採点します。非単語は音韻転置です。</div>
-      <div class="tg"><span>失語症</span><span>下書き自動保存</span></div>
-    </a>
-
-    <a class="tool" href="lexdec4.html">
-      <div class="nm">語彙判断検査Ⅳ（TLPA）</div>
-      <div class="ds">平仮名の語を［はい／いいえ］で判断します。音声提示・文字提示を別々に採点します。非単語は単語との類似性がありません。</div>
-      <div class="tg"><span>失語症</span><span>下書き自動保存</span></div>
-    </a>
-
-    <a class="tool" href="noun.html">
-      <div class="nm">名詞表出検査（TLPA）</div>
-      <div class="ds">図版の名前を答える検査です。発話・書字それぞれの正誤と反応時間を記録し、高頻度・低頻度別に集計します。</div>
-      <div class="tg"><span>失語症</span><span>下書き自動保存</span></div>
-    </a>
-
-    <a class="tool" href="verb.html">
-      <div class="nm">動詞表出検査（TLPA）</div>
-      <div class="ds">図版の動作を答える検査です。発話・書字それぞれの正誤と反応時間を記録し、高頻度・低頻度別に集計します。</div>
-      <div class="tg"><span>失語症</span><span>下書き自動保存</span></div>
-    </a>
-
-    <a class="tool" href="ncomp.html">
-      <div class="nm">名詞理解検査（TLPA）</div>
-      <div class="ds">読み上げた語・示した語を選択肢から指してもらう検査です。聴覚的理解・視覚的理解を別々に採点し、誤答の内訳（D1〜D3）も残します。</div>
-      <div class="tg"><span>失語症</span><span>下書き自動保存</span></div>
-    </a>
-
-    <a class="tool" href="vcomp.html">
-      <div class="nm">動詞理解検査（TLPA）</div>
-      <div class="ds">読み上げた動作・示した動作を選択肢から指してもらう検査です。聴覚的理解・視覚的理解を別々に採点し、誤答の内訳（D1〜D3）も残します。</div>
-      <div class="tg"><span>失語症</span><span>下書き自動保存</span></div>
-    </a>
-
-  </nav>
+  <section class="group">
+    <h2>そのほかの検査<small>3種類</small></h2>
+    <div class="list">
+      <a class="line" href="amsd.html">
+        <span class="txt">
+          <span class="nm">標準ディサースリア検査（AMSD）</span><br>
+          <span class="tag">構音障害</span>
+        </span>
+      </a>
+      <a class="line" href="token.html">
+        <span class="txt">
+          <span class="nm">新日本版トークンテスト</span><br>
+          <span class="tag">聴覚的理解</span>
+        </span>
+      </a>
+      <a class="line" href="rcpm.html">
+        <span class="txt">
+          <span class="nm">レーヴン色彩マトリックス検査（RCPM）</span><br>
+          <span class="tag">非言語性知能</span>
+        </span>
+      </a>
+    </div>
+  </section>
 
   <div class="note">
     どのツールも<b>入力内容はこの端末の中だけに下書き保存</b>され、インターネット上には送信されません。カルテ転記が終わったら、QR生成後に表示される消去ボタン、またはリセットで消してください。
