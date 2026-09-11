@@ -115,6 +115,15 @@ h2{font-size:15px;margin:0 0 8px;padding:8px 10px;background:#1f2937;color:#fff;
 .mini.del{color:var(--danger);border-color:var(--danger)}
 .draft-banner .foot{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
 
+/* 教示・例題（語彙判断II〜IVと同じ体裁） */
+.example-box{background:#f0f7ff;border:1px solid var(--border);border-radius:6px;
+  padding:10px 12px;margin-bottom:10px}
+.example-box .ex-title{font-weight:bold;color:var(--accent);margin-bottom:4px;font-size:14px}
+.example-box .ex-instr{font-size:13px;line-height:1.6;margin-bottom:8px}
+.example-box .ex-words{display:flex;gap:16px;flex-wrap:wrap}
+.example-box .ex-w{font-size:19px;font-weight:bold;letter-spacing:1px}
+.example-box .ex-w b{font-size:12px;color:var(--muted);font-weight:normal;margin-left:3px}
+
 /* 一時保存の注意書き */
 .save-note{font-size:12px;color:var(--muted);background:#f3f4f6;border-radius:4px;
   padding:6px 8px;margin-bottom:10px}
@@ -173,6 +182,20 @@ h2{font-size:15px;margin:0 0 8px;padding:8px 10px;background:#1f2937;color:#fff;
     <span class="tag">範囲：</span>
     <div class="range-btn active" id="rangeFirst">前半80語</div>
     <div class="range-btn" id="rangeFull">全160語</div>
+  </div>
+
+  <!-- 教示・例題（練習：採点対象外。原本1-1の例題より） -->
+  <div class="example-box">
+    <div class="ex-title">教示・例題（練習：採点しません）</div>
+    <div class="ex-instr">「これからお見せすることばを、見たことがありますか。あったら『はい』、なかったら『いいえ』と答えてください。」<br>※ 固有名詞は非単語として扱います。</div>
+    <div class="ex-words">
+      <span class="ex-w">食事<b>〔単語〕</b></span>
+      <span class="ex-w">油絵<b>〔単語〕</b></span>
+      <span class="ex-w">資本<b>〔単語〕</b></span>
+      <span class="ex-w">旅親<b>〔非単語〕</b></span>
+      <span class="ex-w">受担<b>〔非単語〕</b></span>
+      <span class="ex-w">学両<b>〔非単語〕</b></span>
+    </div>
   </div>
 
   <div class="save-note">※ 氏名は<b>QRコードに入りません</b>。</div>
