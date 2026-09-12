@@ -4,19 +4,54 @@
 
 ## 収録ツール
 
+### 一覧ページ
+
 | ファイル | 内容 |
 |---|---|
 | `index.html` | ツール一覧（トップページ） |
-| `battery.html` | 評価尺度ツール（HDS-R・MMSE・FBS・SPPB・SIAS） |
-| `pain.html` | 疼痛評価ツール（PCS・SF-MPQ-2・HADS・PDAS・STarT Back・SSEQ） |
-| `updrs.html` | MDS-UPDRS（Part Ⅰ〜Ⅳ） |
-| `st.html` | **ST評価ツールの一覧ページ**（下の3つへの入口。ツール本体ではない） |
-| `amsd.html` | 標準ディサースリア検査（AMSD） |
-| `token.html` | 新日本版トークンテスト |
-| `rcpm.html` | レーヴン色彩マトリックス検査（RCPM） |
+| `st.html` | **ST評価ツールの一覧ページ**（下記12種への入口。ツール本体ではない） |
 
 `index.html` と `st.html` は**このフォルダが正本**です（`公開に反映.bat` の対象外）。
 ツールを増やしたときは、この2つのどちらかに手で追記してください。
+
+### ツール本体
+
+| ファイル | 内容 |
+|---|---|
+| `battery.html` | 評価尺度ツール（HDS-R・MMSE・FBS・SPPB・SIAS） |
+| `pain.html` | 疼痛評価ツール（PCS・SF-MPQ-2・HADS・PDAS・STarT Back・SSEQ） |
+| `updrs.html` | MDS-UPDRS（Part Ⅰ〜Ⅳ） |
+
+#### ST評価ツール ― 個別の検査
+
+| ファイル | 内容 |
+|---|---|
+| `amsd.html` | 標準ディサースリア検査（AMSD） |
+| `rcpm.html` | レーヴン色彩マトリックス検査（RCPM） |
+| `token.html` | 新日本版トークンテスト |
+
+#### ST評価ツール ― 失語症語彙検査（TLPA）
+
+| ファイル | 内容 |
+|---|---|
+| `lexdec.html` | 語彙判断検査Ⅰ（漢字） |
+| `lexdec2.html` | 語彙判断検査Ⅱ（平仮名・1子音置換） |
+| `lexdec3.html` | 語彙判断検査Ⅲ（平仮名・音韻転置） |
+| `lexdec4.html` | 語彙判断検査Ⅳ（平仮名・類似なし） |
+| `ncomp.html` | 名詞理解検査（聴覚・視覚） |
+| `noun.html` | 名詞表出検査（発話・書字） |
+| `vcomp.html` | 動詞理解検査（聴覚・視覚） |
+| `verb.html` | 動詞表出検査（発話・書字） |
+| `syn.html` | 類義語判断検査（音声提示・文字提示） |
+
+### その他
+
+| フォルダ／ファイル | 内容 |
+|---|---|
+| `CLAUDE.md` | **このリポジトリで作業するときの決まり**（新しいツールを作る前に読むこと） |
+| `contrib/` | 共同編集者のファイル置き場。**新しいツール・修正案はここに置く** |
+| `contrib/ツール作成の手引き.md` | ツールの作り方の決まりごと |
+| `.github/workflows/` | `contrib/` への新着を Slack へ知らせる仕組み |
 
 ## 特徴
 
@@ -42,6 +77,9 @@ var CACHE_VERSION = 'v1';   // → 'v2' に変更する
 
 新しいツールを追加した場合は、`sw.js` の `PRECACHE_URLS`、一覧ページ（`index.html`
 または `st.html`）、`_publish_tools.py` の `TOOLS` の3か所に追記してください。
+
+`contrib/` に置かれたツールについては、`評価バッテリー　QRコード/新着をとりこむ.bat` が
+この3か所への追記までを自動で行います（取り込みの前に、中身を目で確認する手順が入ります）。
 
 ## 取り扱い
 
