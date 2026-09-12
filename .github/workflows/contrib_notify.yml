@@ -1,0 +1,118 @@
+# 共同編集者が contrib/ へファイルを上げたとき、Slack に知らせる。
+#   ・管理者（リポジトリの持ち主）自身の操作では鳴らない
+#   ・Actions の画面から「Run workflow」を押すと、接続テストの通知を送る
+#   ・Slackの宛先は SLACK_WEBHOOK_URL（GitHubのSecret）で決まる
+
+name: contrib の新着を Slack へ知らせる
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'contrib/**'
+  workflow_dispatch:
+
+jobs:
+  notify:
+    # 自分でアップロードしたときは知らせない（手動テストのときは必ず動かす）
+    if: github.event_name == 'workflow_dispatch' || github.actor != github.repository_owner
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 宛先の設定を確かめる
+        env:
+          HOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "::error::SLACK_WEBHOOK_URL が登録されていません。リポジトリの Settings → Secrets and variables → Actions で登録してください。"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: 知らせる内容をつくる
+        id: build
+        env:
+          EVENT: ${{ github.event_name }}
+          ACTOR: ${{ github.actor }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+          COMMIT_URL: ${{ github.event.head_commit.url }}
+          REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess
+
+          event = os.environ.get("EVENT", "")
+          actor = os.environ.get("ACTOR", "")
+          before = os.environ.get("BEFORE", "")
+          after = os.environ.get("AFTER", "")
+          url = os.environ.get("COMMIT_URL") or os.environ.get("REPO_URL", "")
+
+          def run(args):
+              # core.quotepath=false … 日本語のファイル名がそのまま出るようにする
+              r = subprocess.run(["git", "-c", "core.quotepath=false"] + args,
+                                 capture_output=True, text=True)
+              return r.stdout if r.returncode == 0 else ""
+
+          if event == "workflow_dispatch":
+              text = (":white_check_mark: *接続テスト*\n"
+                      "このメッセージが届いていれば、新着のお知らせは正しく設定できています。")
+              post = "yes"
+          else:
+              zero = before.strip("0") == ""
+              if zero or not run(["cat-file", "-t", before]).strip():
+                  diff = run(["show", "--name-status", "--format=", after, "--", "contrib/"])
+              else:
+                  diff = run(["diff", "--name-status", before, after, "--", "contrib/"])
+
+              added, changed = [], []
+              for line in diff.splitlines():
+                  parts = line.split("\t")
+                  if len(parts) < 2:
+                      continue
+                  status, path = parts[0][:1], parts[-1]
+                  name = path.split("/")[-1]
+                  if status == "A":
+                      added.append(name)
+                  elif status == "M":
+                      changed.append(name)
+
+              if not added and not changed:
+                  text, post = "", "no"
+              else:
+                  lines = [":inbox_tray: *contrib に新着があります*", ""]
+                  lines.append("投稿者: %s" % (actor or "（不明）"))
+                  if added:
+                      lines.append("追加: " + "、".join("`%s`" % n for n in added))
+                  if changed:
+                      lines.append("更新: " + "、".join("`%s`" % n for n in changed))
+                  lines += ["",
+                            "手元のパソコンで *「新着をとりこむ.bat」* を実行してください。",
+                            "<%s|GitHub で中身を見る>" % url]
+                  text = "\n".join(lines)
+                  post = "yes"
+
+          with open("/tmp/payload.json", "w", encoding="utf-8") as f:
+              json.dump({"text": text}, f, ensure_ascii=False)
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
+              f.write("post=%s\n" % post)
+          print("送信するか: %s" % post)
+          print(text)
+          PY
+
+      - name: Slack へ送る
+        if: steps.build.outputs.post == 'yes'
+        env:
+          HOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          code=$(curl -sS -o /tmp/res.txt -w '%{http_code}' \
+                   -X POST -H 'Content-type: application/json' \
+                   --data @/tmp/payload.json "$HOOK")
+          echo "Slack の応答: $code $(cat /tmp/res.txt)"
+          if [ "$code" != "200" ]; then
+            echo "::error::Slack への送信に失敗しました（$code）。Webhook の URL を確かめてください。"
+            exit 1
+          fi
