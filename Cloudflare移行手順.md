@@ -295,6 +295,7 @@ GitHub との連携画面で、**「Only select repositories」を選び `rehab-
 - [x] 17個のツールすべてが開ける
       （index / st / battery / pain / updrs / amsd / token / rcpm /
        lexdec 1〜4 / noun / verb / ncomp / vcomp / syn）
+- [ ] **2026-09-15 に `semcat`（意味カテゴリー別名詞検査）を追加して18個になった。** Cloudflare 側で開けるか・オフラインで開けるかは未確認
 
 ### 複数端末
 
