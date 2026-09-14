@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>失語症語彙検査 意味カテゴリー別名詞検査（呼称・聴覚的理解）</title>
+<style>
+:root{--bg:#f4f6f8;--panel:#fff;--border:#d8dee4;--text:#222;--muted:#6b7280;--accent:#2563eb;--accent-light:#dbeafe;--warn:#d97706;--danger:#dc2626;--ok:#059669;--hi:#e0f2fe;--lo:#fef3c7}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;line-height:1.5;font-size:15px}
+.wrap{max-width:920px;margin:0 auto;padding:12px;padding-bottom:84px}
+.head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.head h1{flex:1;font-size:16px;margin:0;padding:10px 12px;background:var(--accent);color:#fff;border-radius:6px}
+h2{font-size:15px;margin:0 0 8px;padding:8px 10px;background:#1f2937;color:#fff;border-radius:4px}
+.btn{padding:8px 14px;border:none;border-radius:5px;font-weight:bold;cursor:pointer;font-size:14px}
+.btn-end{background:#fde2e2;color:#991b1b;border:1px solid #f5b5b5;white-space:nowrap}
+.btn-redo{background:#e5e7eb;color:#111}.btn-primary{background:var(--accent);color:#fff}.btn-copy{background:var(--ok);color:#fff}.btn-detail{background:#374151;color:#fff}.btn-clear{background:#fde2e2;color:#991b1b}
+.patient-bar{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:6px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.patient-bar label{font-weight:bold;white-space:nowrap}.patient-bar input{flex:1;min-width:140px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:15px}
+.name-note{font-size:12px;color:var(--muted);margin:0 0 10px 2px}
+.sticky{position:sticky;top:0;z-index:30;background:var(--bg);padding-top:4px}
+.cond-bar,.range-bar{display:flex;gap:6px;align-items:center;flex-wrap:nowrap;overflow-x:auto;padding:4px 0}
+.cond-btn{padding:8px 16px;border:1px solid var(--border);border-radius:4px;background:#fff;cursor:pointer;font-size:14px;font-weight:bold;white-space:nowrap}
+.cond-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.range-btn{padding:6px 10px;border:1px solid var(--border);border-radius:4px;background:#fff;cursor:pointer;font-size:13px;white-space:nowrap}
+.range-btn.active{background:#1f2937;color:#fff;border-color:#1f2937;font-weight:bold}
+.range-btn .done{color:var(--ok);font-weight:bold}.range-btn.active .done{color:#8f8}
+.tag{font-size:12px;color:var(--muted);white-space:nowrap}
+.limit-note{background:#fff7ed;border:1px solid var(--warn);color:#92400e;border-radius:4px;padding:6px 10px;margin:8px 0;font-size:13px}
+.example-box{background:#f0f7ff;border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin-bottom:10px}
+.example-box .ex-title{font-weight:bold;color:var(--accent);margin-bottom:4px;font-size:14px}
+.example-box .ex-instr{font-size:13px;line-height:1.6}
+.draft-banner{background:#fff7ed;border:1px solid var(--warn);border-radius:6px;padding:10px 12px;margin-bottom:10px;display:none}
+.draft-banner.show{display:block}
+.draft-banner .title{font-weight:bold;margin-bottom:6px;color:#92400e}
+.draft-banner .row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 0;border-bottom:1px dashed var(--border)}
+.draft-banner .row:last-of-type{border-bottom:none}
+.draft-banner .info{font-size:13px}.draft-banner .acts{display:flex;gap:6px;flex-wrap:wrap}
+.mini{padding:6px 10px;border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:13px;font-weight:bold;background:#fff}
+.mini.resume{background:var(--accent);color:#fff;border-color:var(--accent)}.mini.del{color:var(--danger);border-color:var(--danger)}
+.draft-banner .foot{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
+.item{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;background:#fafbfc;padding:8px 10px}
+.item-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.item-head .no{width:30px;color:var(--muted);font-size:13px;text-align:right}
+.item-head .word{font-size:19px;font-weight:bold;min-width:90px}
+.fam-tag{font-size:11px;font-weight:bold;padding:2px 7px;border-radius:10px}
+.fam-tag.H{background:var(--hi);color:#075985}.fam-tag.L{background:var(--lo);color:#92400e}
+.cat-tag{font-size:11px;color:var(--muted)}.plate-tag{font-size:11px;color:var(--muted)}
+.score{margin-left:auto;display:flex;gap:6px}
+.opt{padding:7px 14px;border:1px solid var(--border);border-radius:5px;background:#fff;cursor:pointer;font-size:14px;font-weight:bold;user-select:none;min-width:56px;text-align:center}
+.opt.ok.selected{background:var(--ok);color:#fff;border-color:var(--ok)}.opt.ng.selected{background:var(--danger);color:#fff;border-color:var(--danger)}
+.choices{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.choice{padding:7px 12px;border:1px solid var(--border);border-radius:5px;background:#fff;cursor:pointer;font-size:14px;user-select:none}
+.choice.correct{background:var(--ok);color:#fff;border-color:var(--ok);font-weight:bold}
+.choice.wrong{background:var(--danger);color:#fff;border-color:var(--danger);font-weight:bold}
+.choice.nr{color:var(--muted)}
+.item-resp{display:flex;align-items:center;gap:8px;margin-top:8px}
+.item-resp label{font-size:12px;color:var(--muted);white-space:nowrap}.item-resp input{flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:15px}
+.item-rt{display:flex;align-items:center;gap:8px;margin-top:8px}
+.item-rt label{font-size:12px;color:var(--muted);white-space:nowrap}
+.rt-input{width:82px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:15px;text-align:right;font-variant-numeric:tabular-nums}
+.rt-input.over{border-color:var(--danger);color:var(--danger);font-weight:bold;background:#fef2f2}
+.rt-unit{font-size:12px;color:var(--muted)}
+.timer-btn{padding:6px 12px;border:1px solid var(--accent);border-radius:5px;background:#fff;color:var(--accent);cursor:pointer;font-size:14px;font-weight:bold;white-space:nowrap}
+.timer-btn.running{background:var(--danger);color:#fff;border-color:var(--danger)}
+.summary-card{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin:14px 0}
+.summary-card table{width:100%;border-collapse:collapse;font-size:13px}
+.summary-card th,.summary-card td{padding:5px 6px;border-bottom:1px solid var(--border);text-align:left}
+.summary-card td.num,.summary-card th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.summary-card tr.total td{font-weight:bold;background:var(--accent-light)}
+.summary-card .ref{margin-top:8px;font-size:13px;color:var(--muted);background:#f0f4ff;border-radius:4px;padding:6px 8px;line-height:1.8}
+.summary-card .ref b{color:var(--text)}
+.qr-section{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:12px;margin-top:8px}
+.qr-area{margin-top:12px}
+.qr-steps{background:#eff6ff;border:1px solid var(--accent);border-radius:6px;padding:10px 12px;font-size:13px;line-height:1.8;white-space:pre-line;margin-bottom:10px}
+.qr-split-note{background:#fef3c7;border:1px solid var(--warn);color:#92400e;border-radius:4px;padding:6px 10px;font-size:13px;margin-bottom:10px}
+.qr-canvases{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}
+.qr-canvas{background:#fff;padding:8px;border:1px solid var(--border);border-radius:4px;text-align:center;max-width:100%}
+.qr-canvas .cap{font-size:12px;font-weight:bold;color:var(--muted);margin-bottom:4px}
+.qr-canvas svg{max-width:100%;height:auto;image-rendering:pixelated}
+.qr-text{margin-top:10px;padding:8px;background:#fff;border:1px solid var(--border);border-radius:4px;white-space:pre-wrap;font-family:monospace;font-size:13px;max-height:300px;overflow:auto}
+.warn-box{margin:8px 0;padding:8px 10px;background:#fef3c7;border:1px solid var(--warn);border-radius:4px;color:#92400e;font-size:13px;display:none}
+.warn-box.show{display:block}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.save-warn{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--danger);color:#fff;padding:8px 12px;font-size:13px;text-align:center;display:none}
+.save-warn.show{display:block}
+.toast{position:fixed;left:50%;bottom:70px;transform:translateX(-50%);z-index:60;background:#111;color:#fff;padding:8px 16px;border-radius:20px;font-size:14px;font-weight:bold;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:.92}
+.footer-note{font-size:11px;color:var(--muted);margin-top:16px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <h1>失語症語彙検査　意味カテゴリー別名詞検査（呼称・聴覚的理解）</h1>
+    <button class="btn btn-end" id="endBtn">この患者を終わる</button>
+  </div>
+  <div class="draft-banner" id="draftBanner"></div>
+  <div class="patient-bar"><label>氏名：</label><input id="nameInput" type="text" placeholder="氏名"></div>
+  <div class="name-note">※ 氏名はQRコードに入りません。</div>
+
+  <div class="sticky">
+    <div class="cond-bar"><span class="tag">条件：</span>
+      <div class="cond-btn active" id="condName">呼称</div>
+      <div class="cond-btn" id="condComp">聴覚的理解</div>
+    </div>
+    <div class="range-bar" id="rangeBar"></div>
+  </div>
+
+  <div class="limit-note">制限時間：刺激提示から10秒（超過は0点）</div>
+  <div class="example-box">
+    <div class="ex-title">教示・例題</div>
+    <div class="ex-instr" id="exInstr"></div>
+  </div>
+
+  <div id="itemList"></div>
+
+  <div class="summary-card">
+    <h2 style="margin:-2px -2px 8px">集計（プロフィール 意味カテゴリー別名詞）</h2>
+    <div class="tag" id="sumCondLabel" style="margin-bottom:4px"></div>
+    <table id="summaryTable"></table>
+    <div class="ref" id="refBox"></div>
+  </div>
+
+  <div class="btn-row"><button class="btn btn-redo" id="redoBtn">この検査だけやり直す</button></div>
+
+  <div class="qr-section">
+    <h2 style="margin:-2px -2px 8px">QRコード出力・詳細コピー</h2>
+    <div id="qrWarn" class="warn-box"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary" id="qrGenBtn">QRコードを生成</button>
+      <button class="btn btn-detail" id="detailBtn">詳細をコピー（反応・反応時間つき）</button>
+    </div>
+    <div id="qrArea" class="qr-area" style="display:none">
+      <div class="qr-steps" id="qrSteps"></div>
+      <div class="qr-split-note" id="qrSplitNote" style="display:none"></div>
+      <div class="qr-canvases" id="qrCanvases"></div>
+      <pre class="qr-text" id="qrText"></pre>
+      <button class="btn btn-copy" id="qrCopyBtn">テキストをコピー</button>
+      <div class="tag" style="margin-top:6px">※ QRは点数（カテゴリー別・親密度別）です。項目ごとの反応・選択・反応時間は「詳細をコピー」に含まれます。</div>
+      <div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--border)">
+        <button class="btn btn-clear" id="clearBtn">この端末から入力を消す</button>
+      </div>
+    </div>
+    <div id="detailArea" style="display:none;margin-top:10px">
+      <pre class="qr-text" id="detailText"></pre>
+      <button class="btn btn-copy" id="detailCopyBtn">この詳細をコピー</button>
+    </div>
+  </div>
+  <div class="footer-note">※ オフラインで動作します。</div>
+</div>
+<div class="save-warn" id="saveWarn">この端末に保存されていません。上部の確認バナーで枠を選ぶか、［この患者を終わる］を押してください。</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// QRコード生成ライブラリ（純粋JS実装, v1-v40対応）
+// AMSDツールから抽出。単一HTMLファイルの<script>内に埋め込んで使用する。
+
+/* ============================================================
+   QRコード生成ライブラリ（完全版 v1-v40対応）
+   ============================================================ */
+var qrcode=(function(){"use strict";
+var PATTERN000=0,PATTERN001=1,PATTERN010=2,PATTERN011=3,PATTERN100=4,PATTERN101=5,PATTERN110=6,PATTERN111=7;
+var Mode_NUMBER=1,Mode_ALPHA_NUM=2,Mode_8BIT_BYTE=4,Mode_KANJI=8;
+var ECL_L=1,ECL_M=0,ECL_Q=3,ECL_H=2;
+var QRMath={glog:function(n){if(n<1)throw new Error("glog("+n+")");return QRMath.LOG_TABLE[n];},gexp:function(n){while(n<0)n+=255;while(n>=256)n-=255;return QRMath.EXP_TABLE[n];},EXP_TABLE:new Array(256),LOG_TABLE:new Array(256)};
+for(var i=0;i<8;i++)QRMath.EXP_TABLE[i]=1<<i;
+for(var i=8;i<256;i++)QRMath.EXP_TABLE[i]=QRMath.EXP_TABLE[i-4]^QRMath.EXP_TABLE[i-5]^QRMath.EXP_TABLE[i-6]^QRMath.EXP_TABLE[i-8];
+for(var i=0;i<255;i++)QRMath.LOG_TABLE[QRMath.EXP_TABLE[i]]=i;
+function QRPolynomial(num,shift){if(num.length==undefined)throw new Error(num.length+"/"+shift);var offset=0;while(offset<num.length&&num[offset]==0)offset++;this.num=new Array(num.length-offset+shift);for(var i=0;i<num.length-offset;i++)this.num[i]=num[i+offset];}
+QRPolynomial.prototype={get:function(i){return this.num[i];},getLength:function(){return this.num.length;},multiply:function(e){var num=new Array(this.getLength()+e.getLength()-1);for(var i=0;i<this.getLength();i++)for(var j=0;j<e.getLength();j++)num[i+j]^=QRMath.gexp(QRMath.glog(this.get(i))+QRMath.glog(e.get(j)));return new QRPolynomial(num,0);},mod:function(e){if(this.getLength()-e.getLength()<0)return this;var ratio=QRMath.glog(this.get(0))-QRMath.glog(e.get(0));var num=new Array(this.getLength());for(var i=0;i<this.getLength();i++)num[i]=this.get(i);for(var i=0;i<e.getLength();i++)num[i]^=QRMath.gexp(QRMath.glog(e.get(i))+ratio);return new QRPolynomial(num,0).mod(e);}};
+function QRRSBlock(totalCount,dataCount){this.totalCount=totalCount;this.dataCount=dataCount;}
+QRRSBlock.RS_BLOCK_TABLE=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]];
+QRRSBlock.getRSBlocks=function(typeNumber,eclLevel){var rsBlock=QRRSBlock.getRsBlockTable(typeNumber,eclLevel);if(rsBlock==undefined)throw new Error("bad rs block @ typeNumber:"+typeNumber+"/eclLevel:"+eclLevel);var length=rsBlock.length/3;var list=[];for(var i=0;i<length;i++){var count=rsBlock[i*3+0];var totalCount=rsBlock[i*3+1];var dataCount=rsBlock[i*3+2];for(var j=0;j<count;j++)list.push(new QRRSBlock(totalCount,dataCount));}return list;};
+QRRSBlock.getRsBlockTable=function(typeNumber,eclLevel){switch(eclLevel){case ECL_L:return QRRSBlock.RS_BLOCK_TABLE[(typeNumber-1)*4+0];case ECL_M:return QRRSBlock.RS_BLOCK_TABLE[(typeNumber-1)*4+1];case ECL_Q:return QRRSBlock.RS_BLOCK_TABLE[(typeNumber-1)*4+2];case ECL_H:return QRRSBlock.RS_BLOCK_TABLE[(typeNumber-1)*4+3];default:return undefined;}};
+var QRUtil={PATTERN_POSITION_TABLE:[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],G15:1335,G18:7973,G15_MASK:21522,
+getBCHTypeInfo:function(data){var d=data<<10;while(QRUtil.getBCHDigit(d)-QRUtil.getBCHDigit(QRUtil.G15)>=0)d^=(QRUtil.G15<<(QRUtil.getBCHDigit(d)-QRUtil.getBCHDigit(QRUtil.G15)));return((data<<10)|d)^QRUtil.G15_MASK;},
+getBCHTypeNumber:function(data){var d=data<<12;while(QRUtil.getBCHDigit(d)-QRUtil.getBCHDigit(QRUtil.G18)>=0)d^=(QRUtil.G18<<(QRUtil.getBCHDigit(d)-QRUtil.getBCHDigit(QRUtil.G18)));return(data<<12)|d;},
+getBCHDigit:function(data){var digit=0;while(data!=0){digit++;data>>>=1;}return digit;},
+getPatternPosition:function(typeNumber){return QRUtil.PATTERN_POSITION_TABLE[typeNumber-1];},
+getMask:function(maskPattern,i,j){switch(maskPattern){case PATTERN000:return(i+j)%2==0;case PATTERN001:return i%2==0;case PATTERN010:return j%3==0;case PATTERN011:return(i+j)%3==0;case PATTERN100:return(Math.floor(i/2)+Math.floor(j/3))%2==0;case PATTERN101:return(i*j)%2+(i*j)%3==0;case PATTERN110:return((i*j)%2+(i*j)%3)%2==0;case PATTERN111:return((i*j)%3+(i+j)%2)%2==0;default:throw new Error("bad maskPattern:"+maskPattern);}},
+getErrorCorrectPolynomial:function(errorCorrectLength){var a=new QRPolynomial([1],0);for(var i=0;i<errorCorrectLength;i++)a=a.multiply(new QRPolynomial([1,QRMath.gexp(i)],0));return a;},
+getLengthInBits:function(mode,type){if(1<=type&&type<10){switch(mode){case Mode_NUMBER:return 10;case Mode_ALPHA_NUM:return 9;case Mode_8BIT_BYTE:return 8;case Mode_KANJI:return 8;default:throw new Error("mode:"+mode);}}else if(type<27){switch(mode){case Mode_NUMBER:return 12;case Mode_ALPHA_NUM:return 11;case Mode_8BIT_BYTE:return 16;case Mode_KANJI:return 10;default:throw new Error("mode:"+mode);}}else if(type<41){switch(mode){case Mode_NUMBER:return 14;case Mode_ALPHA_NUM:return 13;case Mode_8BIT_BYTE:return 16;case Mode_KANJI:return 12;default:throw new Error("mode:"+mode);}}else throw new Error("type:"+type);},
+getLostPoint:function(qrCode){var moduleCount=qrCode.getModuleCount();var lostPoint=0;for(var row=0;row<moduleCount;row++)for(var col=0;col<moduleCount;col++){var sameCount=0;var dark=qrCode.isDark(row,col);for(var r=-1;r<=1;r++){if(row+r<0||moduleCount<=row+r)continue;for(var c=-1;c<=1;c++){if(col+c<0||moduleCount<=col+c)continue;if(r==0&&c==0)continue;if(dark==qrCode.isDark(row+r,col+c))sameCount++;}}if(sameCount>5)lostPoint+=(3+sameCount-5);}for(var row=0;row<moduleCount-1;row++)for(var col=0;col<moduleCount-1;col++){var count=0;if(qrCode.isDark(row,col))count++;if(qrCode.isDark(row+1,col))count++;if(qrCode.isDark(row,col+1))count++;if(qrCode.isDark(row+1,col+1))count++;if(count==0||count==4)lostPoint+=3;}for(var row=0;row<moduleCount;row++)for(var col=0;col<moduleCount-6;col++)if(qrCode.isDark(row,col)&&!qrCode.isDark(row,col+1)&&qrCode.isDark(row,col+2)&&qrCode.isDark(row,col+3)&&qrCode.isDark(row,col+4)&&!qrCode.isDark(row,col+5)&&qrCode.isDark(row,col+6))lostPoint+=40;for(var col=0;col<moduleCount;col++)for(var row=0;row<moduleCount-6;row++)if(qrCode.isDark(row,col)&&!qrCode.isDark(row+1,col)&&qrCode.isDark(row+2,col)&&qrCode.isDark(row+3,col)&&qrCode.isDark(row+4,col)&&!qrCode.isDark(row+5,col)&&qrCode.isDark(row+6,col))lostPoint+=40;var darkCount=0;for(var col=0;col<moduleCount;col++)for(var row=0;row<moduleCount;row++)if(qrCode.isDark(row,col))darkCount++;var ratio=Math.abs(100*darkCount/moduleCount/moduleCount-50)/5;return lostPoint+ratio*10;}};
+function QRBitBuffer(){this.buffer=[];this.length=0;}
+QRBitBuffer.prototype={get:function(i){var bufIdx=Math.floor(i/8);return((this.buffer[bufIdx]>>>(7-i%8))&1)==1;},put:function(n,length){for(var i=0;i<length;i++)this.putBit(((n>>>(length-i-1))&1)==1);},getLengthInBits:function(){return this.length;},putBit:function(bit){var bufIdx=Math.floor(this.length/8);if(this.buffer.length<=bufIdx)this.buffer.push(0);if(bit)this.buffer[bufIdx]|=(0x80>>>(this.length%8));this.length++;}};
+function QR8bitByte(data){this.mode=Mode_8BIT_BYTE;this.data=data;this.parsedData=Array.prototype.slice.call(new TextEncoder().encode(data));}
+QR8bitByte.prototype={getMode:function(){return this.mode;},getLength:function(){return this.parsedData.length;},write:function(buffer){for(var i=0,l=this.parsedData.length;i<l;i++)buffer.put(this.parsedData[i],8);}};
+function createData(typeNumber,eclLevel,dataList){var rsBlocks=QRRSBlock.getRSBlocks(typeNumber,eclLevel);var buffer=new QRBitBuffer();for(var i=0;i<dataList.length;i++){var data=dataList[i];buffer.put(data.getMode(),4);buffer.put(data.getLength(),QRUtil.getLengthInBits(data.getMode(),typeNumber));data.write(buffer);}var totalDataCount=0;for(var i=0;i<rsBlocks.length;i++)totalDataCount+=rsBlocks[i].dataCount;if(buffer.getLengthInBits()>totalDataCount*8)throw new Error("code length overflow. ("+buffer.getLengthInBits()+">"+totalDataCount*8+")");if(buffer.getLengthInBits()+4<=totalDataCount*8)buffer.put(0,4);while(buffer.getLengthInBits()%8!=0)buffer.putBit(false);while(true){if(buffer.getLengthInBits()>=totalDataCount*8)break;buffer.put(0xEC,8);if(buffer.getLengthInBits()>=totalDataCount*8)break;buffer.put(0x11,8);}return createBytes(buffer,rsBlocks);}
+function createBytes(buffer,rsBlocks){var offset=0;var maxDcCount=0;var maxEcCount=0;var dcdata=new Array(rsBlocks.length);var ecdata=new Array(rsBlocks.length);for(var r=0;r<rsBlocks.length;r++){var dcCount=rsBlocks[r].dataCount;var ecCount=rsBlocks[r].totalCount-dcCount;maxDcCount=Math.max(maxDcCount,dcCount);maxEcCount=Math.max(maxEcCount,ecCount);dcdata[r]=new Array(dcCount);for(var i=0;i<dcdata[r].length;i++)dcdata[r][i]=0xff&buffer.buffer[i+offset];offset+=dcCount;var rsPoly=QRUtil.getErrorCorrectPolynomial(ecCount);var rawPoly=new QRPolynomial(dcdata[r],rsPoly.getLength()-1);var modPoly=rawPoly.mod(rsPoly);ecdata[r]=new Array(rsPoly.getLength()-1);for(var i=0;i<ecdata[r].length;i++){var modIndex=i+modPoly.getLength()-ecdata[r].length;ecdata[r][i]=(modIndex>=0)?modPoly.get(modIndex):0;}}var totalCodeCount=0;for(var i=0;i<rsBlocks.length;i++)totalCodeCount+=rsBlocks[i].totalCount;var data=new Array(totalCodeCount);var index=0;for(var i=0;i<maxDcCount;i++)for(var r=0;r<rsBlocks.length;r++)if(i<dcdata[r].length)data[index++]=dcdata[r][i];for(var i=0;i<maxEcCount;i++)for(var r=0;r<rsBlocks.length;r++)if(i<ecdata[r].length)data[index++]=ecdata[r][i];return data;}
+function QRCodeModel(typeNumber,eclLevel){this.typeNumber=typeNumber;this.eclLevel=eclLevel;this.modules=null;this.moduleCount=0;this.dataCache=null;this.dataList=[];}
+QRCodeModel.prototype={addData:function(data){this.dataList.push(new QR8bitByte(data));this.dataCache=null;},isDark:function(row,col){if(row<0||this.moduleCount<=row||col<0||this.moduleCount<=col)throw new Error(row+","+col);return this.modules[row][col];},getModuleCount:function(){return this.moduleCount;},
+make:function(){if(this.typeNumber<1){var typeNumber=1;for(;typeNumber<41;typeNumber++){var rsBlocks=QRRSBlock.getRSBlocks(typeNumber,this.eclLevel);var buffer=new QRBitBuffer();for(var i=0;i<this.dataList.length;i++){var data=this.dataList[i];buffer.put(data.getMode(),4);buffer.put(data.getLength(),QRUtil.getLengthInBits(data.getMode(),typeNumber));data.write(buffer);}var totalDataCount=0;for(var i=0;i<rsBlocks.length;i++)totalDataCount+=rsBlocks[i].dataCount;if(buffer.getLengthInBits()<=totalDataCount*8)break;}this.typeNumber=typeNumber;}this.makeImpl(false,this.getBestMaskPattern());},
+makeImpl:function(test,maskPattern){this.moduleCount=this.typeNumber*4+17;this.modules=new Array(this.moduleCount);for(var row=0;row<this.moduleCount;row++){this.modules[row]=new Array(this.moduleCount);for(var col=0;col<this.moduleCount;col++)this.modules[row][col]=null;}this.setupPositionProbePattern(0,0);this.setupPositionProbePattern(this.moduleCount-7,0);this.setupPositionProbePattern(0,this.moduleCount-7);this.setupPositionAdjustPattern();this.setupTimingPattern();this.setupTypeInfo(test,maskPattern);if(this.typeNumber>=7)this.setupTypeNumber(test);if(this.dataCache==null)this.dataCache=createData(this.typeNumber,this.eclLevel,this.dataList);this.mapData(this.dataCache,maskPattern);},
+setupPositionProbePattern:function(row,col){for(var r=-1;r<=7;r++){if(row+r<=-1||this.moduleCount<=row+r)continue;for(var c=-1;c<=7;c++){if(col+c<=-1||this.moduleCount<=col+c)continue;if((0<=r&&r<=6&&(c==0||c==6))||(0<=c&&c<=6&&(r==0||r==6))||(2<=r&&r<=4&&2<=c&&c<=4))this.modules[row+r][col+c]=true;else this.modules[row+r][col+c]=false;}}},
+getBestMaskPattern:function(){var minLostPoint=0;var pattern=0;for(var i=0;i<8;i++){this.makeImpl(true,i);var lostPoint=QRUtil.getLostPoint(this);if(i==0||minLostPoint>lostPoint){minLostPoint=lostPoint;pattern=i;}}return pattern;},
+setupTimingPattern:function(){for(var r=8;r<this.moduleCount-8;r++){if(this.modules[r][6]!=null)continue;this.modules[r][6]=(r%2==0);}for(var c=8;c<this.moduleCount-8;c++){if(this.modules[6][c]!=null)continue;this.modules[6][c]=(c%2==0);}},
+setupPositionAdjustPattern:function(){var pos=QRUtil.getPatternPosition(this.typeNumber);for(var i=0;i<pos.length;i++)for(var j=0;j<pos.length;j++){var row=pos[i];var col=pos[j];if(this.modules[row][col]!=null)continue;for(var r=-2;r<=2;r++)for(var c=-2;c<=2;c++){if(r==-2||r==2||c==-2||c==2||(r==0&&c==0))this.modules[row+r][col+c]=true;else this.modules[row+r][col+c]=false;}}},
+setupTypeNumber:function(test){var bits=QRUtil.getBCHTypeNumber(this.typeNumber);for(var i=0;i<18;i++){var mod=(!test&&((bits>>i)&1)==1);this.modules[Math.floor(i/3)][i%3+this.moduleCount-8-3]=mod;}for(var i=0;i<18;i++){var mod=(!test&&((bits>>i)&1)==1);this.modules[i%3+this.moduleCount-8-3][Math.floor(i/3)]=mod;}},
+setupTypeInfo:function(test,maskPattern){var data=(this.eclLevel<<3)|maskPattern;var bits=QRUtil.getBCHTypeInfo(data);for(var i=0;i<15;i++){var mod=(!test&&((bits>>i)&1)==1);if(i<6)this.modules[i][8]=mod;else if(i<8)this.modules[i+1][8]=mod;else this.modules[this.moduleCount-15+i][8]=mod;}for(var i=0;i<15;i++){var mod=(!test&&((bits>>i)&1)==1);if(i<8)this.modules[8][this.moduleCount-i-1]=mod;else if(i<9)this.modules[8][15-i-1+1]=mod;else this.modules[8][15-i-1]=mod;}this.modules[this.moduleCount-8][8]=(!test);},
+mapData:function(data,maskPattern){var inc=-1;var row=this.moduleCount-1;var bitIndex=7;var byteIndex=0;for(var col=this.moduleCount-1;col>0;col-=2){if(col==6)col--;while(true){for(var c=0;c<2;c++){if(this.modules[row][col-c]==null){var dark=false;if(byteIndex<data.length)dark=(((data[byteIndex]>>>bitIndex)&1)==1);var mask=QRUtil.getMask(maskPattern,row,col-c);if(mask)dark=!dark;this.modules[row][col-c]=dark;bitIndex--;if(bitIndex==-1){byteIndex++;bitIndex=7;}}}row+=inc;if(row<0||this.moduleCount<=row){row-=inc;inc=-inc;break;}}}},
+createSvgTag:function(cellSize,margin){cellSize=cellSize||2;margin=(typeof margin=="undefined")?cellSize*4:margin;var size=this.getModuleCount()*cellSize+margin*2;var svg="";svg+='<svg xmlns="http://www.w3.org/2000/svg" width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" shape-rendering="crispEdges">';svg+='<rect width="100%" height="100%" fill="#ffffff"/>';svg+='<path d="';for(var r=0;r<this.getModuleCount();r++){for(var c=0;c<this.getModuleCount();c++){if(this.isDark(r,c)){svg+='M'+(margin+c*cellSize)+','+(margin+r*cellSize)+'h'+cellSize+'v'+cellSize+'h-'+cellSize+'z';}}}svg+='" fill="#000000"/></svg>';return svg;}};
+return function(typeNumber,eclLevel){
+  if(typeof eclLevel=='string'){var m={L:ECL_L,M:ECL_M,Q:ECL_Q,H:ECL_H};if(m[eclLevel]===undefined)throw new Error("Unknown ECL: "+eclLevel);eclLevel=m[eclLevel];}
+  if(typeof typeNumber=='undefined')typeNumber=0;
+  if(typeof eclLevel=='undefined')eclLevel=ECL_M;
+  return new QRCodeModel(typeNumber,eclLevel);
+};
+})();
+
+const CATS=[{code:'I',name:'屋内部位'},{code:'E',name:'建造物'},{code:'A',name:'動物'},{code:'C',name:'色'},{code:'F',name:'加工食品'},{code:'V',name:'野菜果物'},{code:'P',name:'植物'},{code:'T',name:'乗り物'},{code:'B',name:'身体部位'},{code:'D',name:'道具'}];
+const CAT_NAME={}; CATS.forEach(c=>CAT_NAME[c.code]=c.name);
+
+/* 呼称（4-1の番号順） */
+const ITEMS_NAME=[
+{no:1,word:'バス',cat:'T',fam:'H'},
+{no:2,word:'緑',cat:'C',fam:'H'},
+{no:3,word:'桜',cat:'P',fam:'H'},
+{no:4,word:'のり巻き',cat:'F',fam:'L'},
+{no:5,word:'五重塔',cat:'E',fam:'L'},
+{no:6,word:'コップ',cat:'D',fam:'H'},
+{no:7,word:'ごぼう',cat:'V',fam:'L'},
+{no:8,word:'土踏まず',cat:'B',fam:'L'},
+{no:9,word:'風呂',cat:'I',fam:'H'},
+{no:10,word:'ヒトデ',cat:'A',fam:'L'},
+{no:11,word:'ハム',cat:'F',fam:'H'},
+{no:12,word:'兎',cat:'A',fam:'H'},
+{no:13,word:'ロープウエイ',cat:'T',fam:'L'},
+{no:14,word:'学校',cat:'E',fam:'H'},
+{no:15,word:'ちりとり',cat:'D',fam:'L'},
+{no:16,word:'縁側',cat:'I',fam:'L'},
+{no:17,word:'歯',cat:'B',fam:'H'},
+{no:18,word:'ネギ',cat:'V',fam:'H'},
+{no:19,word:'あじさい',cat:'P',fam:'L'},
+{no:20,word:'灰色',cat:'C',fam:'L'},
+{no:21,word:'天井',cat:'I',fam:'H'},
+{no:22,word:'鍵',cat:'D',fam:'H'},
+{no:23,word:'肌色',cat:'C',fam:'L'},
+{no:24,word:'ワニ',cat:'A',fam:'L'},
+{no:25,word:'電車',cat:'T',fam:'H'},
+{no:26,word:'顔',cat:'B',fam:'H'},
+{no:27,word:'松',cat:'P',fam:'H'},
+{no:28,word:'ガードレール',cat:'E',fam:'L'},
+{no:29,word:'柿',cat:'V',fam:'L'},
+{no:30,word:'ちまき',cat:'F',fam:'L'},
+{no:31,word:'信号',cat:'E',fam:'H'},
+{no:32,word:'すすき',cat:'P',fam:'L'},
+{no:33,word:'じょうろ',cat:'D',fam:'L'},
+{no:34,word:'コンセント',cat:'I',fam:'L'},
+{no:35,word:'天ぷら',cat:'F',fam:'H'},
+{no:36,word:'中指',cat:'B',fam:'L'},
+{no:37,word:'ヨット',cat:'T',fam:'H'},
+{no:38,word:'ピンク',cat:'C',fam:'H'},
+{no:39,word:'ふくろう',cat:'A',fam:'L'},
+{no:40,word:'みかん',cat:'V',fam:'H'},
+{no:41,word:'柱',cat:'I',fam:'L'},
+{no:42,word:'角砂糖',cat:'F',fam:'L'},
+{no:43,word:'犬',cat:'A',fam:'H'},
+{no:44,word:'かご',cat:'T',fam:'L'},
+{no:45,word:'バラ',cat:'P',fam:'H'},
+{no:46,word:'鍋',cat:'D',fam:'H'},
+{no:47,word:'まぶた',cat:'B',fam:'L'},
+{no:48,word:'くるみ',cat:'V',fam:'L'},
+{no:49,word:'黒',cat:'C',fam:'H'},
+{no:50,word:'デパート',cat:'E',fam:'H'},
+{no:51,word:'カーネーション',cat:'P',fam:'L'},
+{no:52,word:'城',cat:'E',fam:'L'},
+{no:53,word:'蟹',cat:'A',fam:'H'},
+{no:54,word:'豆腐',cat:'F',fam:'H'},
+{no:55,word:'ドライバー',cat:'D',fam:'L'},
+{no:56,word:'紺',cat:'C',fam:'L'},
+{no:57,word:'階段',cat:'I',fam:'H'},
+{no:58,word:'戦車',cat:'T',fam:'L'},
+{no:59,word:'人参',cat:'V',fam:'H'},
+{no:60,word:'背中',cat:'B',fam:'H'},
+{no:61,word:'鏡餅',cat:'F',fam:'L'},
+{no:62,word:'スプーン',cat:'D',fam:'H'},
+{no:63,word:'朝顔',cat:'P',fam:'H'},
+{no:64,word:'金色',cat:'C',fam:'L'},
+{no:65,word:'足',cat:'B',fam:'H'},
+{no:66,word:'ふすま',cat:'I',fam:'L'},
+{no:67,word:'蛇',cat:'A',fam:'H'},
+{no:68,word:'レモン',cat:'V',fam:'L'},
+{no:69,word:'公園',cat:'E',fam:'H'},
+{no:70,word:'乳母車',cat:'T',fam:'L'},
+{no:71,word:'床',cat:'I',fam:'H'},
+{no:72,word:'藤',cat:'P',fam:'L'},
+{no:73,word:'ピンセット',cat:'D',fam:'L'},
+{no:74,word:'トラック',cat:'T',fam:'H'},
+{no:75,word:'苺',cat:'V',fam:'H'},
+{no:76,word:'黄土色',cat:'C',fam:'L'},
+{no:77,word:'銭湯',cat:'E',fam:'L'},
+{no:78,word:'ナマズ',cat:'A',fam:'L'},
+{no:79,word:'そば',cat:'F',fam:'H'},
+{no:80,word:'お腹',cat:'B',fam:'H'},
+{no:81,word:'オレンジ',cat:'C',fam:'H'},
+{no:82,word:'バター',cat:'F',fam:'H'},
+{no:83,word:'工場',cat:'E',fam:'H'},
+{no:84,word:'鳩',cat:'A',fam:'H'},
+{no:85,word:'電卓',cat:'D',fam:'L'},
+{no:86,word:'喉仏',cat:'B',fam:'L'},
+{no:87,word:'チューリップ',cat:'P',fam:'H'},
+{no:88,word:'白菜',cat:'V',fam:'L'},
+{no:89,word:'トラクター',cat:'T',fam:'L'},
+{no:90,word:'廊下',cat:'I',fam:'L'},
+{no:91,word:'パトカー',cat:'T',fam:'H'},
+{no:92,word:'押入れ',cat:'I',fam:'H'},
+{no:93,word:'鉛筆',cat:'D',fam:'H'},
+{no:94,word:'目尻',cat:'B',fam:'L'},
+{no:95,word:'芋',cat:'V',fam:'H'},
+{no:96,word:'吊り橋',cat:'E',fam:'L'},
+{no:97,word:'赤',cat:'C',fam:'H'},
+{no:98,word:'かき氷',cat:'F',fam:'L'},
+{no:99,word:'豹',cat:'A',fam:'L'},
+{no:100,word:'サボテン',cat:'P',fam:'L'},
+{no:101,word:'ピラミッド',cat:'E',fam:'L'},
+{no:102,word:'サイ',cat:'A',fam:'L'},
+{no:103,word:'目',cat:'B',fam:'H'},
+{no:104,word:'ひまわり',cat:'P',fam:'H'},
+{no:105,word:'はたき',cat:'D',fam:'L'},
+{no:106,word:'刺身',cat:'F',fam:'H'},
+{no:107,word:'玄関',cat:'I',fam:'H'},
+{no:108,word:'トマト',cat:'V',fam:'H'},
+{no:109,word:'黄緑',cat:'C',fam:'L'},
+{no:110,word:'三輪車',cat:'T',fam:'L'},
+{no:111,word:'鶏',cat:'A',fam:'H'},
+{no:112,word:'つむじ',cat:'B',fam:'L'},
+{no:113,word:'アスパラガス',cat:'V',fam:'L'},
+{no:114,word:'ドア',cat:'I',fam:'H'},
+{no:115,word:'銀色',cat:'C',fam:'L'},
+{no:116,word:'すりこぎ',cat:'D',fam:'L'},
+{no:117,word:'ウイスキー',cat:'F',fam:'L'},
+{no:118,word:'梅',cat:'P',fam:'H'},
+{no:119,word:'タクシー',cat:'T',fam:'H'},
+{no:120,word:'動物園',cat:'E',fam:'H'},
+{no:121,word:'床の間',cat:'I',fam:'L'},
+{no:122,word:'焦げ茶',cat:'C',fam:'L'},
+{no:123,word:'ぶどう',cat:'V',fam:'H'},
+{no:124,word:'飴',cat:'F',fam:'H'},
+{no:125,word:'毛虫',cat:'A',fam:'L'},
+{no:126,word:'アイロン',cat:'D',fam:'H'},
+{no:127,word:'寺',cat:'E',fam:'H'},
+{no:128,word:'そり',cat:'T',fam:'L'},
+{no:129,word:'ひょうたん',cat:'P',fam:'L'},
+{no:130,word:'首',cat:'B',fam:'H'},
+{no:131,word:'消しゴム',cat:'D',fam:'H'},
+{no:132,word:'頬',cat:'B',fam:'L'},
+{no:133,word:'いちょう',cat:'P',fam:'L'},
+{no:134,word:'駅',cat:'E',fam:'H'},
+{no:135,word:'ギョウザ',cat:'F',fam:'L'},
+{no:136,word:'牛',cat:'A',fam:'H'},
+{no:137,word:'びわ',cat:'V',fam:'L'},
+{no:138,word:'飛行機',cat:'T',fam:'H'},
+{no:139,word:'畳',cat:'I',fam:'L'},
+{no:140,word:'白',cat:'C',fam:'H'},
+{no:141,word:'竹',cat:'P',fam:'H'},
+{no:142,word:'ペリカン',cat:'A',fam:'L'},
+{no:143,word:'紫',cat:'C',fam:'H'},
+{no:144,word:'手すり',cat:'I',fam:'L'},
+{no:145,word:'口',cat:'B',fam:'H'},
+{no:146,word:'大根',cat:'V',fam:'H'},
+{no:147,word:'風車',cat:'E',fam:'L'},
+{no:148,word:'鋏',cat:'D',fam:'H'},
+{no:149,word:'潜水艦',cat:'T',fam:'L'},
+{no:150,word:'ステーキ',cat:'F',fam:'L'},
+{no:151,word:'マッチ',cat:'D',fam:'H'},
+{no:152,word:'二階',cat:'I',fam:'L'},
+{no:153,word:'落花生',cat:'V',fam:'L'},
+{no:154,word:'御飯',cat:'F',fam:'H'},
+{no:155,word:'自転車',cat:'T',fam:'H'},
+{no:156,word:'歩道橋',cat:'E',fam:'L'},
+{no:157,word:'鯨',cat:'A',fam:'H'},
+{no:158,word:'茶色',cat:'C',fam:'H'},
+{no:159,word:'菖蒲',cat:'P',fam:'L'},
+{no:160,word:'ふくらはぎ',cat:'B',fam:'L'},
+{no:161,word:'桃',cat:'V',fam:'H'},
+{no:162,word:'鯛焼き',cat:'F',fam:'L'},
+{no:163,word:'道路',cat:'E',fam:'H'},
+{no:164,word:'靴べら',cat:'D',fam:'L'},
+{no:165,word:'水色',cat:'C',fam:'L'},
+{no:166,word:'壁',cat:'I',fam:'H'},
+{no:167,word:'たんぽぽ',cat:'P',fam:'H'},
+{no:168,word:'いかだ',cat:'T',fam:'L'},
+{no:169,word:'山羊',cat:'A',fam:'L'},
+{no:170,word:'鼻',cat:'B',fam:'H'},
+{no:171,word:'海老',cat:'A',fam:'H'},
+{no:172,word:'台所',cat:'I',fam:'H'},
+{no:173,word:'オートバイ',cat:'T',fam:'H'},
+{no:174,word:'かぶ',cat:'V',fam:'L'},
+{no:175,word:'柳',cat:'P',fam:'L'},
+{no:176,word:'しゃもじ',cat:'D',fam:'L'},
+{no:177,word:'まんじゅう',cat:'F',fam:'H'},
+{no:178,word:'かかと',cat:'B',fam:'L'},
+{no:179,word:'うす紫',cat:'C',fam:'L'},
+{no:180,word:'家',cat:'E',fam:'H'},
+{no:181,word:'おせち料理',cat:'F',fam:'L'},
+{no:182,word:'青',cat:'C',fam:'H'},
+{no:183,word:'傘',cat:'D',fam:'H'},
+{no:184,word:'つくし',cat:'P',fam:'L'},
+{no:185,word:'りんご',cat:'V',fam:'H'},
+{no:186,word:'馬車',cat:'T',fam:'L'},
+{no:187,word:'線路',cat:'E',fam:'L'},
+{no:188,word:'竜の落とし子',cat:'A',fam:'L'},
+{no:189,word:'耳',cat:'B',fam:'H'},
+{no:190,word:'便所',cat:'I',fam:'H'},
+{no:191,word:'蓮根',cat:'V',fam:'L'},
+{no:192,word:'猫',cat:'A',fam:'H'},
+{no:193,word:'黄色',cat:'C',fam:'H'},
+{no:194,word:'へそ',cat:'B',fam:'L'},
+{no:195,word:'街灯',cat:'E',fam:'L'},
+{no:196,word:'障子',cat:'I',fam:'L'},
+{no:197,word:'酒',cat:'F',fam:'H'},
+{no:198,word:'船',cat:'T',fam:'H'},
+{no:199,word:'安全ピン',cat:'D',fam:'L'},
+{no:200,word:'もみじ',cat:'P',fam:'H'}
+];
+/* 聴覚的理解（4-2の番号順・図版順）plate=図版番号 */
+const ITEMS_COMP=[
+{no:1,word:'風呂',cat:'I',fam:'H',plate:1},
+{no:2,word:'縁側',cat:'I',fam:'L',plate:1},
+{no:3,word:'信号',cat:'E',fam:'H',plate:1},
+{no:4,word:'歩道橋',cat:'E',fam:'L',plate:1},
+{no:5,word:'電車',cat:'T',fam:'H',plate:1},
+{no:6,word:'潜水艦',cat:'T',fam:'L',plate:1},
+{no:7,word:'鉛筆',cat:'D',fam:'H',plate:1},
+{no:8,word:'靴べら',cat:'D',fam:'L',plate:1},
+{no:9,word:'バター',cat:'F',fam:'H',plate:1},
+{no:10,word:'ちまき',cat:'F',fam:'L',plate:1},
+{no:11,word:'トマト',cat:'V',fam:'H',plate:1},
+{no:12,word:'くるみ',cat:'V',fam:'L',plate:1},
+{no:13,word:'竹',cat:'P',fam:'H',plate:1},
+{no:14,word:'つくし',cat:'P',fam:'L',plate:1},
+{no:15,word:'猫',cat:'A',fam:'H',plate:1},
+{no:16,word:'ナマズ',cat:'A',fam:'L',plate:1},
+{no:17,word:'目',cat:'B',fam:'H',plate:1},
+{no:18,word:'土踏まず',cat:'B',fam:'L',plate:1},
+{no:19,word:'緑',cat:'C',fam:'H',plate:1},
+{no:20,word:'灰色',cat:'C',fam:'L',plate:1},
+{no:21,word:'玄関',cat:'I',fam:'H',plate:2},
+{no:22,word:'障子',cat:'I',fam:'L',plate:2},
+{no:23,word:'デパート',cat:'E',fam:'H',plate:2},
+{no:24,word:'風車',cat:'E',fam:'L',plate:2},
+{no:25,word:'パトカー',cat:'T',fam:'H',plate:2},
+{no:26,word:'いかだ',cat:'T',fam:'L',plate:2},
+{no:27,word:'鍋',cat:'D',fam:'H',plate:2},
+{no:28,word:'電卓',cat:'D',fam:'L',plate:2},
+{no:29,word:'天ぷら',cat:'F',fam:'H',plate:2},
+{no:30,word:'おせち料理',cat:'F',fam:'L',plate:2},
+{no:31,word:'大根',cat:'V',fam:'H',plate:2},
+{no:32,word:'柿',cat:'V',fam:'L',plate:2},
+{no:33,word:'バラ',cat:'P',fam:'H',plate:2},
+{no:34,word:'サボテン',cat:'P',fam:'L',plate:2},
+{no:35,word:'蟹',cat:'A',fam:'H',plate:2},
+{no:36,word:'豹',cat:'A',fam:'L',plate:2},
+{no:37,word:'首',cat:'B',fam:'H',plate:2},
+{no:38,word:'つむじ',cat:'B',fam:'L',plate:2},
+{no:39,word:'茶色',cat:'C',fam:'H',plate:2},
+{no:40,word:'水色',cat:'C',fam:'L',plate:2},
+{no:41,word:'押し入れ',cat:'I',fam:'H',plate:3},
+{no:42,word:'二階',cat:'I',fam:'L',plate:3},
+{no:43,word:'公園',cat:'E',fam:'H',plate:3},
+{no:44,word:'つり橋',cat:'E',fam:'L',plate:3},
+{no:45,word:'オートバイ',cat:'T',fam:'H',plate:3},
+{no:46,word:'戦車',cat:'T',fam:'L',plate:3},
+{no:47,word:'傘',cat:'D',fam:'H',plate:3},
+{no:48,word:'じょうろ',cat:'D',fam:'L',plate:3},
+{no:49,word:'酒',cat:'F',fam:'H',plate:3},
+{no:50,word:'ギョウザ',cat:'F',fam:'L',plate:3},
+{no:51,word:'苺',cat:'V',fam:'H',plate:3},
+{no:52,word:'ごぼう',cat:'V',fam:'L',plate:3},
+{no:53,word:'ひまわり',cat:'P',fam:'H',plate:3},
+{no:54,word:'菖蒲',cat:'P',fam:'L',plate:3},
+{no:55,word:'蛇',cat:'A',fam:'H',plate:3},
+{no:56,word:'山羊',cat:'A',fam:'L',plate:3},
+{no:57,word:'歯',cat:'B',fam:'H',plate:3},
+{no:58,word:'喉仏',cat:'B',fam:'L',plate:3},
+{no:59,word:'ピンク',cat:'C',fam:'H',plate:3},
+{no:60,word:'肌色',cat:'C',fam:'L',plate:3},
+{no:61,word:'壁',cat:'I',fam:'H',plate:4},
+{no:62,word:'廊下',cat:'I',fam:'L',plate:4},
+{no:63,word:'家',cat:'E',fam:'H',plate:4},
+{no:64,word:'ガードレール',cat:'E',fam:'L',plate:4},
+{no:65,word:'ヨット',cat:'T',fam:'H',plate:4},
+{no:66,word:'かご',cat:'T',fam:'L',plate:4},
+{no:67,word:'アイロン',cat:'D',fam:'H',plate:4},
+{no:68,word:'すりこぎ',cat:'D',fam:'L',plate:4},
+{no:69,word:'刺身',cat:'F',fam:'H',plate:4},
+{no:70,word:'角砂糖',cat:'F',fam:'L',plate:4},
+{no:71,word:'芋',cat:'V',fam:'H',plate:4},
+{no:72,word:'蓮根',cat:'V',fam:'L',plate:4},
+{no:73,word:'梅',cat:'P',fam:'H',plate:4},
+{no:74,word:'いちょう',cat:'P',fam:'L',plate:4},
+{no:75,word:'兎',cat:'A',fam:'H',plate:4},
+{no:76,word:'ワニ',cat:'A',fam:'L',plate:4},
+{no:77,word:'顔',cat:'B',fam:'H',plate:4},
+{no:78,word:'ふくらはぎ',cat:'B',fam:'L',plate:4},
+{no:79,word:'白',cat:'C',fam:'H',plate:4},
+{no:80,word:'金色',cat:'C',fam:'L',plate:4},
+{no:81,word:'便所',cat:'I',fam:'H',plate:5},
+{no:82,word:'畳',cat:'I',fam:'L',plate:5},
+{no:83,word:'寺',cat:'E',fam:'H',plate:5},
+{no:84,word:'銭湯',cat:'E',fam:'L',plate:5},
+{no:85,word:'自転車',cat:'T',fam:'H',plate:5},
+{no:86,word:'トラクター',cat:'T',fam:'L',plate:5},
+{no:87,word:'スプーン',cat:'D',fam:'H',plate:5},
+{no:88,word:'はたき',cat:'D',fam:'L',plate:5},
+{no:89,word:'豆腐',cat:'F',fam:'H',plate:5},
+{no:90,word:'鯛焼き',cat:'F',fam:'L',plate:5},
+{no:91,word:'りんご',cat:'V',fam:'H',plate:5},
+{no:92,word:'レモン',cat:'V',fam:'L',plate:5},
+{no:93,word:'松',cat:'P',fam:'H',plate:5},
+{no:94,word:'柳',cat:'P',fam:'L',plate:5},
+{no:95,word:'海老',cat:'A',fam:'H',plate:5},
+{no:96,word:'フクロウ',cat:'A',fam:'L',plate:5},
+{no:97,word:'お腹',cat:'B',fam:'H',plate:5},
+{no:98,word:'頬',cat:'B',fam:'L',plate:5},
+{no:99,word:'青',cat:'C',fam:'H',plate:5},
+{no:100,word:'銀色',cat:'C',fam:'L',plate:5},
+{no:101,word:'床',cat:'I',fam:'H',plate:6},
+{no:102,word:'柱',cat:'I',fam:'L',plate:6},
+{no:103,word:'工場',cat:'E',fam:'H',plate:6},
+{no:104,word:'線路',cat:'E',fam:'L',plate:6},
+{no:105,word:'タクシー',cat:'T',fam:'H',plate:6},
+{no:106,word:'三輪車',cat:'T',fam:'L',plate:6},
+{no:107,word:'鋏',cat:'D',fam:'H',plate:6},
+{no:108,word:'ドライバー',cat:'D',fam:'L',plate:6},
+{no:109,word:'御飯',cat:'F',fam:'H',plate:6},
+{no:110,word:'かき氷',cat:'F',fam:'L',plate:6},
+{no:111,word:'蜜柑',cat:'V',fam:'H',plate:6},
+{no:112,word:'白菜',cat:'V',fam:'L',plate:6},
+{no:113,word:'桜',cat:'P',fam:'H',plate:6},
+{no:114,word:'藤',cat:'P',fam:'L',plate:6},
+{no:115,word:'鯨',cat:'A',fam:'H',plate:6},
+{no:116,word:'竜の落とし子',cat:'A',fam:'L',plate:6},
+{no:117,word:'背中',cat:'B',fam:'H',plate:6},
+{no:118,word:'中指',cat:'B',fam:'L',plate:6},
+{no:119,word:'黒',cat:'C',fam:'H',plate:6},
+{no:120,word:'焦げ茶',cat:'C',fam:'L',plate:6},
+{no:121,word:'階段',cat:'I',fam:'H',plate:7},
+{no:122,word:'ふすま',cat:'I',fam:'L',plate:7},
+{no:123,word:'動物園',cat:'E',fam:'H',plate:7},
+{no:124,word:'五重塔',cat:'E',fam:'L',plate:7},
+{no:125,word:'トラック',cat:'T',fam:'H',plate:7},
+{no:126,word:'馬車',cat:'T',fam:'L',plate:7},
+{no:127,word:'コップ',cat:'D',fam:'H',plate:7},
+{no:128,word:'しゃもじ',cat:'D',fam:'L',plate:7},
+{no:129,word:'ハム',cat:'F',fam:'H',plate:7},
+{no:130,word:'ウイスキー',cat:'F',fam:'L',plate:7},
+{no:131,word:'ぶどう',cat:'V',fam:'H',plate:7},
+{no:132,word:'アスパラガス',cat:'V',fam:'L',plate:7},
+{no:133,word:'朝顔',cat:'P',fam:'H',plate:7},
+{no:134,word:'あじさい',cat:'P',fam:'L',plate:7},
+{no:135,word:'牛',cat:'A',fam:'H',plate:7},
+{no:136,word:'ペリカン',cat:'A',fam:'L',plate:7},
+{no:137,word:'耳',cat:'B',fam:'H',plate:7},
+{no:138,word:'へそ',cat:'B',fam:'L',plate:7},
+{no:139,word:'黄色',cat:'C',fam:'H',plate:7},
+{no:140,word:'薄紫',cat:'C',fam:'L',plate:7},
+{no:141,word:'天井',cat:'I',fam:'H',plate:8},
+{no:142,word:'コンセント',cat:'I',fam:'L',plate:8},
+{no:143,word:'道路',cat:'E',fam:'H',plate:8},
+{no:144,word:'街灯',cat:'E',fam:'L',plate:8},
+{no:145,word:'飛行機',cat:'T',fam:'H',plate:8},
+{no:146,word:'そり',cat:'T',fam:'L',plate:8},
+{no:147,word:'鍵',cat:'D',fam:'H',plate:8},
+{no:148,word:'ちりとり',cat:'D',fam:'L',plate:8},
+{no:149,word:'そば',cat:'F',fam:'H',plate:8},
+{no:150,word:'のり巻き',cat:'F',fam:'L',plate:8},
+{no:151,word:'ネギ',cat:'V',fam:'H',plate:8},
+{no:152,word:'ビワ',cat:'V',fam:'L',plate:8},
+{no:153,word:'チューリップ',cat:'P',fam:'H',plate:8},
+{no:154,word:'カーネーション',cat:'P',fam:'L',plate:8},
+{no:155,word:'犬',cat:'A',fam:'H',plate:8},
+{no:156,word:'毛虫',cat:'A',fam:'L',plate:8},
+{no:157,word:'鼻',cat:'B',fam:'H',plate:8},
+{no:158,word:'かかと',cat:'B',fam:'L',plate:8},
+{no:159,word:'紫',cat:'C',fam:'H',plate:8},
+{no:160,word:'黄緑',cat:'C',fam:'L',plate:8},
+{no:161,word:'ドア',cat:'I',fam:'H',plate:9},
+{no:162,word:'床の間',cat:'I',fam:'L',plate:9},
+{no:163,word:'駅',cat:'E',fam:'H',plate:9},
+{no:164,word:'ピラミッド',cat:'E',fam:'L',plate:9},
+{no:165,word:'バス',cat:'T',fam:'H',plate:9},
+{no:166,word:'ロープウエイ',cat:'T',fam:'L',plate:9},
+{no:167,word:'マッチ',cat:'D',fam:'H',plate:9},
+{no:168,word:'ピンセット',cat:'D',fam:'L',plate:9},
+{no:169,word:'まんじゅう',cat:'F',fam:'H',plate:9},
+{no:170,word:'鏡餅',cat:'F',fam:'L',plate:9},
+{no:171,word:'人参',cat:'V',fam:'H',plate:9},
+{no:172,word:'落花生',cat:'V',fam:'L',plate:9},
+{no:173,word:'たんぽぽ',cat:'P',fam:'H',plate:9},
+{no:174,word:'すすき',cat:'P',fam:'L',plate:9},
+{no:175,word:'鶏',cat:'A',fam:'H',plate:9},
+{no:176,word:'サイ',cat:'A',fam:'L',plate:9},
+{no:177,word:'口',cat:'B',fam:'H',plate:9},
+{no:178,word:'目尻',cat:'B',fam:'L',plate:9},
+{no:179,word:'オレンジ',cat:'C',fam:'H',plate:9},
+{no:180,word:'紺',cat:'C',fam:'L',plate:9},
+{no:181,word:'台所',cat:'I',fam:'H',plate:10},
+{no:182,word:'手すり',cat:'I',fam:'L',plate:10},
+{no:183,word:'学校',cat:'E',fam:'H',plate:10},
+{no:184,word:'城',cat:'E',fam:'L',plate:10},
+{no:185,word:'船',cat:'T',fam:'H',plate:10},
+{no:186,word:'乳母車',cat:'T',fam:'L',plate:10},
+{no:187,word:'消しゴム',cat:'D',fam:'H',plate:10},
+{no:188,word:'安全ピン',cat:'D',fam:'L',plate:10},
+{no:189,word:'飴',cat:'F',fam:'H',plate:10},
+{no:190,word:'ステーキ',cat:'F',fam:'L',plate:10},
+{no:191,word:'桃',cat:'V',fam:'H',plate:10},
+{no:192,word:'かぶ',cat:'V',fam:'L',plate:10},
+{no:193,word:'もみじ',cat:'P',fam:'H',plate:10},
+{no:194,word:'ひょうたん',cat:'P',fam:'L',plate:10},
+{no:195,word:'鳩',cat:'A',fam:'H',plate:10},
+{no:196,word:'ヒトデ',cat:'A',fam:'L',plate:10},
+{no:197,word:'足',cat:'B',fam:'H',plate:10},
+{no:198,word:'まぶた',cat:'B',fam:'L',plate:10},
+{no:199,word:'赤',cat:'C',fam:'H',plate:10},
+{no:200,word:'黄土色',cat:'C',fam:'L',plate:10}
+];
+/* 聴覚の10択＝同カテゴリー・同親密度の10語（4-2順） */
+const COMP_CHOICES={};
+ITEMS_COMP.forEach(it=>{ const k=it.cat+it.fam; (COMP_CHOICES[k]=COMP_CHOICES[k]||[]).push(it.word); });
+
+const COND_CFG={
+  name:{label:'呼称',mean:193.35,sd:5.43,limit:10,instr:'「これは何（何色）ですか。」　例）象'},
+  comp:{label:'聴覚的理解',mean:199.40,sd:0.95,limit:10,instr:'「〇〇（これ）はどれですか。指さして下さい。」　例）象'}
+};
+const CONDS=[['name','呼称'],['comp','聴覚的理解']];
+const RANGES=[[1,50],[51,100],[101,150],[151,200]];
+
+const STATE={ patientName:'', cond:'name', range:0,
+  name:{score:{},resp:{},rt:{}}, comp:{choice:{},rt:{}} };
+
+let toastTimer=null;
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');if(toastTimer)clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),1400);}
+function items(cond){ return cond==='name'?ITEMS_NAME:ITEMS_COMP; }
+
+/* 1項目の正誤 */
+function isCorrect(cond,it){
+  if(cond==='name') return STATE.name.score[it.no]==='correct';
+  return STATE.comp.choice[it.no]===it.word;
+}
+function isEvaluated(cond,it){
+  if(cond==='name') return STATE.name.score[it.no]!=null;
+  return STATE.comp.choice[it.no]!=null;
+}
+
+function computeScores(cond){
+  const per={}; CATS.forEach(c=>per[c.code]={H:0,L:0});
+  let gH=0,gL=0,evaluated=0;
+  items(cond).forEach(it=>{
+    if(!isEvaluated(cond,it)) return;
+    evaluated++;
+    if(isCorrect(cond,it)){ if(it.fam==='H'){per[it.cat].H++;gH++;} else {per[it.cat].L++;gL++;} }
+  });
+  return {per,gH,gL,total:gH+gL,evaluated,uneval:items(cond).length-evaluated};
+}
+function rangeDone(cond,ri){
+  const [a,b]=RANGES[ri]; let n=0,tot=0;
+  items(cond).forEach(it=>{ if(it.no>=a&&it.no<=b){ tot++; if(isEvaluated(cond,it)) n++; } });
+  return [n,tot];
+}
+
+/* ---- バー ---- */
+function buildRangeBar(){
+  const bar=document.getElementById('rangeBar'); bar.innerHTML='';
+  RANGES.forEach((r,ri)=>{
+    const [n,tot]=rangeDone(STATE.cond,ri);
+    const b=document.createElement('div'); b.className='range-btn'+(ri===STATE.range?' active':'');
+    b.innerHTML='No.'+r[0]+'〜'+r[1]+(n===tot?' <span class="done">✓</span>':(n>0?' <span class="tag">('+n+')</span>':''));
+    b.onclick=()=>setRange(ri); bar.appendChild(b);
+  });
+}
+function setRange(ri){ stopTimer(); STATE.range=ri; buildRangeBar(); buildItemList(); window.scrollTo(0,0); }
+function applyCond(){
+  document.getElementById('condName').classList.toggle('active',STATE.cond==='name');
+  document.getElementById('condComp').classList.toggle('active',STATE.cond==='comp');
+  document.getElementById('exInstr').textContent=COND_CFG[STATE.cond].instr;
+  buildRangeBar(); buildItemList(); updateSummary();
+}
+function setCond(c){ stopTimer(); STATE.cond=c; applyCond(); window.scrollTo(0,0); }
+
+/* ---- タイマー ---- */
+let runningNo=null,startMs=0,tickTimer=null;
+function fmtRt(s){return (Math.round(s*10)/10).toFixed(1);}
+function updateRtField(no,live){
+  const inp=document.getElementById('rt-'+no); if(!inp) return;
+  const limit=COND_CFG[STATE.cond].limit;
+  let val=(live!=null)?live:STATE[STATE.cond].rt[no];
+  if(val==null||val===''){inp.value='';inp.classList.remove('over');return;}
+  inp.value=fmtRt(val); inp.classList.toggle('over',Number(val)>limit);
+}
+function tick(){ if(runningNo==null)return; updateRtField(runningNo,(Date.now()-startMs)/1000); }
+function startTimer(no){ if(runningNo!=null)stopTimer(); runningNo=no; startMs=Date.now(); const b=document.getElementById('tm-'+no); if(b){b.textContent='■ 停止';b.classList.add('running');} tickTimer=setInterval(tick,100); }
+function stopTimer(){ if(runningNo==null)return; const no=runningNo,el=Math.round(((Date.now()-startMs)/1000)*10)/10; STATE[STATE.cond].rt[no]=el; clearInterval(tickTimer);tickTimer=null;runningNo=null; const b=document.getElementById('tm-'+no); if(b){b.textContent='▶ 開始';b.classList.remove('running');} updateRtField(no); scheduleSave(); }
+function toggleTimer(no){ if(runningNo===no)stopTimer(); else startTimer(no); }
+
+/* ---- 呼称：正誤 ---- */
+function updateScoreButtons(no){
+  const v=STATE.name.score[no]; const ok=document.getElementById('ok-'+no),ng=document.getElementById('ng-'+no);
+  if(!ok||!ng)return; ok.classList.toggle('selected',v==='correct'); ng.classList.toggle('selected',v==='wrong');
+}
+function pickScore(no,val){
+  const sc=STATE.name.score;
+  if(sc[no]===val){sc[no]=undefined;showToast('未回答に戻しました');} else {sc[no]=val;}
+  updateScoreButtons(no); buildRangeBar(); updateSummary(); scheduleSave();
+}
+/* ---- 聴覚：10択 ---- */
+function updateChoiceButtons(no){
+  const it=ITEMS_COMP.find(x=>x.no===no); if(!it)return;
+  const sel=STATE.comp.choice[no];
+  const wrap=document.getElementById('ch-'+no); if(!wrap)return;
+  Array.from(wrap.children).forEach(btn=>{
+    const val=btn.getAttribute('data-v');
+    btn.className='choice'+(val==='NR'?' nr':'');
+    if(sel!=null && val===sel){ btn.className='choice'+(sel===it.word?' correct':' wrong'); }
+  });
+}
+function pickChoice(no,val){
+  const c=STATE.comp.choice;
+  if(c[no]===val){c[no]=undefined;showToast('未回答に戻しました');} else {c[no]=val;}
+  updateChoiceButtons(no); buildRangeBar(); updateSummary(); scheduleSave();
+}
+
+/* ---- 項目リスト（現在の条件×範囲・番号順） ---- */
+function buildItemList(){
+  const list=document.getElementById('itemList'); list.innerHTML='';
+  const [a,b]=RANGES[STATE.range]; const cond=STATE.cond;
+  items(cond).filter(it=>it.no>=a&&it.no<=b).forEach(it=>{
+    const row=document.createElement('div'); row.className='item';
+    let head='<div class="item-head"><span class="no">'+it.no+'</span><span class="word">'+it.word+'</span>'+
+      '<span class="fam-tag '+it.fam+'">'+(it.fam==='H'?'高親密度':'低親密度')+'</span>'+
+      '<span class="cat-tag">'+CAT_NAME[it.cat]+'</span>'+
+      (cond==='comp'?'<span class="plate-tag">図版'+it.cat+'-'+it.plate+'</span>':'');
+    if(cond==='name') head+='<div class="score"><div class="opt ok" id="ok-'+it.no+'">正答 ○</div><div class="opt ng" id="ng-'+it.no+'">誤答</div></div>';
+    head+='</div>';
+    let body='';
+    if(cond==='comp'){
+      const choices=COMP_CHOICES[it.cat+it.fam]||[];
+      body+='<div class="choices" id="ch-'+it.no+'">';
+      choices.forEach(w=>{ body+='<div class="choice" data-v="'+w+'">'+w+'</div>'; });
+      body+='<div class="choice nr" data-v="NR">無反応</div></div>';
+    }
+    body+='<div class="item-rt"><label>反応時間</label><input type="number" step="0.1" min="0" class="rt-input" id="rt-'+it.no+'"><span class="rt-unit">秒</span><button class="timer-btn" id="tm-'+it.no+'">▶ 開始</button></div>';
+    if(cond==='name') body+='<div class="item-resp"><label>反応</label><input type="text" id="resp-'+it.no+'" placeholder="患者の反応（誤答・無反応時など）"></div>';
+    row.innerHTML=head+body; list.appendChild(row);
+    if(cond==='name'){
+      row.querySelector('#ok-'+it.no).onclick=()=>pickScore(it.no,'correct');
+      row.querySelector('#ng-'+it.no).onclick=()=>pickScore(it.no,'wrong');
+      const ri=row.querySelector('#resp-'+it.no); ri.value=STATE.name.resp[it.no]||''; ri.oninput=e=>{STATE.name.resp[it.no]=e.target.value;scheduleSave();};
+      updateScoreButtons(it.no);
+    }else{
+      const wrap=row.querySelector('#ch-'+it.no);
+      Array.from(wrap.children).forEach(btn=>{ btn.onclick=()=>pickChoice(it.no,btn.getAttribute('data-v')); });
+      updateChoiceButtons(it.no);
+    }
+    const ti=row.querySelector('#rt-'+it.no); ti.oninput=e=>{const v=e.target.value;STATE[cond].rt[it.no]=(v===''?undefined:Number(v));updateRtField(it.no);scheduleSave();};
+    row.querySelector('#tm-'+it.no).onclick=()=>toggleTimer(it.no);
+    updateRtField(it.no);
+  });
+}
+
+/* ---- 集計 ---- */
+function updateSummary(){
+  const cond=STATE.cond, s=computeScores(cond);
+  document.getElementById('sumCondLabel').textContent='表示中：'+COND_CFG[cond].label+'（もう一方の総計は下に表示）';
+  let html='<tr><th>カテゴリー</th><th class="num">高</th><th class="num">低</th><th class="num">計</th></tr>';
+  if(s.evaluated===0){
+    CATS.forEach(c=>{html+='<tr><td>'+c.name+'</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>';});
+    html+='<tr class="total"><td>総合計</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>';
+  }else{
+    CATS.forEach(c=>{const p=s.per[c.code];html+='<tr><td>'+c.name+'</td><td class="num">'+p.H+' / 10</td><td class="num">'+p.L+' / 10</td><td class="num">'+(p.H+p.L)+' / 20</td></tr>';});
+    html+='<tr class="total"><td>総合計</td><td class="num">'+s.gH+' / 100</td><td class="num">'+s.gL+' / 100</td><td class="num">'+s.total+' / 200</td></tr>';
+  }
+  document.getElementById('summaryTable').innerHTML=html;
+  let ref='';
+  CONDS.forEach(m=>{
+    const cs=computeScores(m[0]),cfg=COND_CFG[m[0]];
+    if(cs.evaluated===0){ref+=m[1]+'：未実施<br>';return;}
+    if(cs.uneval>0){ref+=m[1]+'：総計 '+cs.total+'/200　<b>未回答 '+cs.uneval+'件</b>（0点として計算していません）<br>';}
+    else {const z=(cs.total-cfg.mean)/cfg.sd;ref+=m[1]+'：総計 '+cs.total+'/200　健常平均 <b>'+cfg.mean.toFixed(2)+'</b>（SD '+cfg.sd.toFixed(2)+'）　差 <b>'+(z>=0?'+':'')+z.toFixed(1)+' SD</b><br>';}
+  });
+  document.getElementById('refBox').innerHTML=ref;
+}
+
+/* ---- QR ---- */
+function toQRString(t){return t.split('\n').map(s=>s.trim()).filter(s=>s!=='').join('／');}
+function copyText(text,btn,orig){navigator.clipboard.writeText(text).then(()=>{btn.textContent='コピーしました ✓';setTimeout(()=>{btn.textContent=orig;},2000);}).catch(()=>{alert('コピーに失敗しました。表示テキストを手動で選択してください。');});}
+function buildQRLines(){
+  const lines=[];const un=[];let any=false;
+  CONDS.forEach(m=>{
+    const s=computeScores(m[0]); if(s.evaluated===0)return; any=true;
+    CATS.forEach(c=>{const p=s.per[c.code];lines.push(m[1]+' '+c.name+'高 '+p.H+'/10');lines.push(m[1]+' '+c.name+'低 '+p.L+'/10');});
+    lines.push(m[1]+' 高親密度計 '+s.gH+'/100'); lines.push(m[1]+' 低親密度計 '+s.gL+'/100');
+    lines.push(m[1]+' 総計 '+s.total+'/200'+(s.uneval>0?'(途中経過)':''));
+    lines.push(m[1]+' 健常平均 '+COND_CFG[m[0]].mean.toFixed(2)+'(SD'+COND_CFG[m[0]].sd.toFixed(2)+')');
+    if(s.uneval>0) un.push(m[1]+s.uneval+'件');
+  });
+  if(!any) return ['（未実施）'];
+  if(un.length) lines.push('※未回答 '+un.join('・')+'（0点として計算していません。途中経過です）');
+  return lines;
+}
+function chunkLines(lines,titleLen,budget){const chunks=[];let cur=[],len=titleLen;lines.forEach(line=>{const add=line.length+1;if(cur.length>0&&len+add>budget){chunks.push(cur);cur=[];len=titleLen;}cur.push(line);len+=add;});if(cur.length)chunks.push(cur);return chunks.length?chunks:[[]];}
+function generateQR(){
+  const sn=computeScores('name'),sc=computeScores('comp');
+  const warn=document.getElementById('qrWarn');
+  if(sn.uneval>0||sc.uneval>0){warn.textContent='未回答があります（呼称'+sn.uneval+'件・聴覚的理解'+sc.uneval+'件）。0点として計算していません。このまま生成できます。';warn.classList.add('show');}else warn.classList.remove('show');
+  const title='意味カテゴリー別名詞';
+  const lines=buildQRLines();
+  const chunks=chunkLines(lines,title.length+6,120); const n=chunks.length;
+  const readAll=n>1?('下のQRコードを読み取る（'+n+'枚すべて）'):('下のQRコードを読み取る');
+  document.getElementById('qrSteps').textContent='このあとの手順\n① カルテ端末のカメラで'+readAll+'\n② カルテに貼り付いた内容を目で確かめる\n③ 確認できたら［この端末から入力を消す］を押す\n　（入力はこの端末に一時保存されています）';
+  const sp=document.getElementById('qrSplitNote');
+  if(n>1){sp.textContent='QRコードを '+n+'枚 に分けています。1枚目から順に読み取ってください。';sp.style.display='block';}else sp.style.display='none';
+  const cont=document.getElementById('qrCanvases');cont.innerHTML='';
+  chunks.forEach((arr,i)=>{
+    const heading=title+(n>1?'（'+(i+1)+'/'+n+'）':'');
+    const box=document.createElement('div');box.className='qr-canvas';
+    if(n>1){const cap=document.createElement('div');cap.className='cap';cap.textContent=(i+1)+' / '+n+' 枚目';box.appendChild(cap);}
+    const holder=document.createElement('div');
+    try{const qr=qrcode(0,'M');qr.addData(toQRString(heading+'\n'+arr.join('\n')));qr.make();holder.innerHTML=qr.createSvgTag(4,4);}catch(e){holder.innerHTML='<div style="color:red">QRエラー: '+e.message+'</div>';}
+    box.appendChild(holder);cont.appendChild(box);
+  });
+  const readable=title+'\n'+lines.join('\n');
+  document.getElementById('qrText').textContent=readable;
+  const cb=document.getElementById('qrCopyBtn');cb.onclick=()=>copyText(toQRString(readable),cb,'テキストをコピー');
+  document.getElementById('qrArea').style.display='block';
+  try{document.getElementById('qrArea').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}
+}
+function hideQR(){document.getElementById('qrArea').style.display='none';document.getElementById('detailArea').style.display='none';document.getElementById('qrWarn').classList.remove('show');}
+
+function buildDetailText(){
+  const L=['意味カテゴリー別名詞検査'];
+  CONDS.forEach(m=>{
+    const cond=m[0]; L.push('【'+m[1]+'】');
+    items(cond).forEach(it=>{
+      let has=false, mark='未', extra='';
+      if(cond==='name'){
+        const v=STATE.name.score[it.no],r=STATE.name.resp[it.no],t=STATE.name.rt[it.no];
+        if(v==null&&(!r||r.trim()==='')&&t==null) return;
+        has=true; mark=v==='correct'?'正':(v==='wrong'?'誤':'未');
+        if(t!=null) extra+=' '+fmtRt(t)+'秒'; if(r&&r.trim()!=='') extra+=' 反応:'+r.trim();
+      }else{
+        const ch=STATE.comp.choice[it.no],t=STATE.comp.rt[it.no];
+        if(ch==null&&t==null) return;
+        has=true; mark=(ch==null)?'未':(ch===it.word?'正':'誤');
+        if(t!=null) extra+=' '+fmtRt(t)+'秒';
+        if(ch!=null) extra+=' 選択:'+(ch==='NR'?'無反応':ch);
+      }
+      if(has) L.push('No.'+it.no+' '+it.word+'('+CAT_NAME[it.cat]+'/'+(it.fam==='H'?'高':'低')+') ['+mark+']'+extra);
+    });
+    const s=computeScores(cond);
+    L.push('小計 高'+s.gH+'/100 低'+s.gL+'/100 総計'+s.total+'/200');
+  });
+  return L.join('\n');
+}
+
+/* ---- 下書き（3枠） ---- */
+const NS='tlpa_semcat_';const SLOTS=['A','B','C'];
+let mySlot=null,finished=false,saveTimer=null;
+function slotKey(s){return NS+'slot'+s;}
+function readSlot(s){try{const r=localStorage.getItem(slotKey(s));return r?JSON.parse(r):null;}catch(e){return null;}}
+function writeSlot(s,d){try{localStorage.setItem(slotKey(s),JSON.stringify(d));}catch(e){}}
+function clearSlot(s){try{localStorage.removeItem(slotKey(s));}catch(e){}}
+function usedSlots(){return SLOTS.filter(s=>readSlot(s));}
+function firstEmptySlot(){for(const s of SLOTS){if(!readSlot(s))return s;}return null;}
+function dataCount(d){if(!d)return 0;let n=0;
+  const nm=d.name||{}; ['score','resp','rt'].forEach(k=>{const o=nm[k]||{};for(const key in o){if(o[key]!=null&&String(o[key]).trim!==undefined&&String(o[key]).trim()!=='')n++;}});
+  const cp=d.comp||{}; ['choice','rt'].forEach(k=>{const o=cp[k]||{};for(const key in o){if(o[key]!=null)n++;}});
+  return n;}
+function isEmptyState(){ if(STATE.patientName&&STATE.patientName.trim()!=='')return false; return dataCount(STATE)===0; }
+function scheduleSave(){if(saveTimer)clearTimeout(saveTimer);saveTimer=setTimeout(saveNow,400);}
+function saveNow(){if(!mySlot)return;if(isEmptyState()){clearSlot(mySlot);return;}writeSlot(mySlot,{patientName:STATE.patientName,cond:STATE.cond,range:STATE.range,name:STATE.name,comp:STATE.comp,ts:Date.now()});}
+function updateSaveWarning(){document.getElementById('saveWarn').classList.toggle('show',(mySlot===null&&!finished));}
+function refreshAllUI(){document.getElementById('nameInput').value=STATE.patientName||'';applyCond();}
+function endPatient(){STATE.patientName='';STATE.cond='name';STATE.range=0;STATE.name={score:{},resp:{},rt:{}};STATE.comp={choice:{},rt:{}};if(mySlot)clearSlot(mySlot);hideQR();finished=false;mySlot=firstEmptySlot()||'A';refreshAllUI();updateSaveWarning();showToast('消しました');}
+function redoTest(){STATE.name={score:{},resp:{},rt:{}};STATE.comp={choice:{},rt:{}};hideQR();refreshAllUI();saveNow();updateSaveWarning();showToast('消しました');}
+function clearDeviceDraft(){if(mySlot)clearSlot(mySlot);mySlot=null;finished=true;updateSaveWarning();showToast('消しました');}
+function hideBanner(){const b=document.getElementById('draftBanner');b.classList.remove('show');b.innerHTML='';}
+function fmtTime(ts){try{return new Date(ts).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});}catch(e){return '';}}
+function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
+function restoreFrom(slot){const d=readSlot(slot);if(!d)return;
+  STATE.patientName=d.patientName||'';STATE.cond=(d.cond==='comp')?'comp':'name';STATE.range=d.range||0;
+  STATE.name={score:(d.name&&d.name.score)||{},resp:(d.name&&d.name.resp)||{},rt:(d.name&&d.name.rt)||{}};
+  STATE.comp={choice:(d.comp&&d.comp.choice)||{},rt:(d.comp&&d.comp.rt)||{}};
+  mySlot=slot;finished=false;hideBanner();refreshAllUI();updateSaveWarning();}
+function showBanner(){
+  const used=usedSlots();if(used.length===0){hideBanner();return;}
+  const empty=firstEmptySlot();const banner=document.getElementById('draftBanner');banner.innerHTML='';
+  banner.appendChild(el('div','title','保存されている入力（下書き）が '+used.length+'件 あります（空き枠 '+(SLOTS.length-used.length)+'）。復元しますか？'));
+  used.forEach((slot,idx)=>{const d=readSlot(slot);const row=el('div','row');
+    const nm=(d.patientName&&d.patientName.trim()!=='')?d.patientName:'（氏名なし）';
+    row.appendChild(el('div','info',(idx+1)+'件目：'+nm+'　入力 '+dataCount(d)+'件　最終更新：'+fmtTime(d.ts)));
+    const acts=el('div','acts');
+    const rb=el('div','mini resume','この続きをする');rb.onclick=()=>restoreFrom(slot);
+    const db=el('div','mini del','これを消す');
+    db.onclick=()=>{if(confirm('この下書きを消します。\n元に戻せません。よろしいですか？')){clearSlot(slot);showToast('消しました');if(mySlot===null&&firstEmptySlot()){mySlot=firstEmptySlot();finished=false;}if(usedSlots().length===0)hideBanner();else showBanner();updateSaveWarning();}};
+    acts.appendChild(rb);acts.appendChild(db);row.appendChild(acts);banner.appendChild(row);});
+  const foot=el('div','foot');
+  if(empty){const nb=el('div','mini','残したまま新しく始める');nb.onclick=()=>{mySlot=empty;finished=false;hideBanner();updateSaveWarning();};foot.appendChild(nb);}
+  banner.appendChild(foot);banner.classList.add('show');
+}
+
+document.getElementById('nameInput').oninput=e=>{STATE.patientName=e.target.value;scheduleSave();};
+document.getElementById('condName').onclick=()=>{setCond('name');scheduleSave();};
+document.getElementById('condComp').onclick=()=>{setCond('comp');scheduleSave();};
+document.getElementById('qrGenBtn').onclick=generateQR;
+document.getElementById('detailBtn').onclick=()=>{const t=buildDetailText();document.getElementById('detailText').textContent=t;document.getElementById('detailArea').style.display='block';copyText(t,document.getElementById('detailBtn'),'詳細をコピー（反応・反応時間つき）');};
+document.getElementById('detailCopyBtn').onclick=()=>copyText(document.getElementById('detailText').textContent,document.getElementById('detailCopyBtn'),'この詳細をコピー');
+document.getElementById('endBtn').onclick=()=>{if(confirm('この患者の入力（氏名・回答・下書き）をすべて消します。\n消したら元に戻せません。よろしいですか？')){endPatient();}};
+document.getElementById('redoBtn').onclick=()=>{if(confirm('この検査の回答とQRを消します。氏名は残ります。\nよろしいですか？')){redoTest();}};
+document.getElementById('clearBtn').onclick=()=>{if(confirm('この端末の下書きを消します。画面のQR・入力は残ります。\nカルテ転記は完了しましたか？')){clearDeviceDraft();}};
+
+applyCond();
+(function initDrafts(){if(usedSlots().length===0){mySlot='A';}else{mySlot=firstEmptySlot();showBanner();}updateSaveWarning();})();
+</script>
+</body>
+</html>
