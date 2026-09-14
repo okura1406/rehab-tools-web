@@ -29,6 +29,7 @@ var PRECACHE_URLS = [
   './verb.html',
   './ncomp.html',
   './vcomp.html',
+  './semcat.html',
   './syn.html',
   './manifest.webmanifest',
   './icon-192.png',
