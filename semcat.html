@@ -4,6 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>失語症語彙検査 意味カテゴリー別名詞検査（呼称・聴覚的理解）</title>
+<!-- ▼ ウェブ公開・オフライン対応のための追記（採点ロジックには影響しません） -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#2563eb">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="意味カテゴリー別名詞">
+<!-- ▲ 追記ここまで -->
 <style>
 :root{--bg:#f4f6f8;--panel:#fff;--border:#d8dee4;--text:#222;--muted:#6b7280;--accent:#2563eb;--accent-light:#dbeafe;--warn:#d97706;--danger:#dc2626;--ok:#059669;--hi:#e0f2fe;--lo:#fef3c7}
 *{box-sizing:border-box}
@@ -914,5 +925,13 @@ document.getElementById('clearBtn').onclick=()=>{if(confirm('この端末の下�
 applyCond();
 (function initDrafts(){if(usedSlots().length===0){mySlot='A';}else{mySlot=firstEmptySlot();showBanner();}updateSaveWarning();})();
 </script>
-</body>
-</html>
+<script>
+/* オフライン動作（Service Worker）の登録。
+   登録に失敗しても catch で握りつぶすため、ツール本体の動作には影響しません。 */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
+</script>
+</body></html>
