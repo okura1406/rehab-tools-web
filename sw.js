@@ -35,11 +35,42 @@ var PRECACHE_URLS = [
   './icon-512.png'
 ];
 
+// 応答に「転送された」印がついていると、ブラウザはその保存データを
+// ページの表示に使えない（安全上の決まり）。配信先によっては .html への
+// 要求が別のURLへ転送されるため、中身はそのままで印のない応答に作り直す。
+// 転送が起きない配信先では、何もせずそのまま返るだけで影響はない。
+function withoutRedirectFlag(res) {
+  if (!res.redirected) return Promise.resolve(res);
+  return res.blob().then(function (body) {
+    return new Response(body, {
+      status: res.status,
+      statusText: res.statusText,
+      headers: res.headers
+    });
+  });
+}
+
+// 1件ずつ取得して保存する。
+// （cache.addAll は転送された応答を保存できないため使わない。
+//   1件失敗しても残りの保存は続ける）
+function precache(cache, url) {
+  return fetch(url, { cache: 'reload' }).then(function (res) {
+    if (!res || res.status !== 200) return;
+    return withoutRedirectFlag(res).then(function (clean) {
+      return cache.put(url, clean);
+    });
+  }).catch(function () {
+    return;
+  });
+}
+
 // インストール時：一式をまとめて保存する
 self.addEventListener('install', function (event) {
   event.waitUntil(
     caches.open(CACHE_NAME).then(function (cache) {
-      return cache.addAll(PRECACHE_URLS);
+      return Promise.all(PRECACHE_URLS.map(function (url) {
+        return precache(cache, url);
+      }));
     }).then(function () {
       // 新しい版をすぐ有効にする
       return self.skipWaiting();
@@ -77,7 +108,9 @@ self.addEventListener('fetch', function (event) {
 
         var network = fetch(req).then(function (res) {
           if (res && res.status === 200 && res.type === 'basic') {
-            cache.put(req, res.clone());
+            withoutRedirectFlag(res.clone()).then(function (clean) {
+              cache.put(req, clean);
+            });
           }
           return res;
         }).catch(function () {
